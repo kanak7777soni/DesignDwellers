@@ -1,8 +1,6 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import TopBanner from '@/components/TopBanner';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
@@ -44,9 +42,6 @@ export default function ContactPage() {
         { top: 1483, left: 353, width: 628, height: 628 },
         { top: 2288, left: 1096, width: 628, height: 628 },
       ]} zIndex={2} />
-      <TopBanner />
-      <Navbar activePage="Contact" />
-
       {/* ============ HERO SECTION ============ */}
       <section className="w-full" style={{ paddingTop: '200px' }}>
         <div className="max-w-[1440px] mx-auto" style={{ paddingLeft: '80px', paddingRight: '80px' }}>

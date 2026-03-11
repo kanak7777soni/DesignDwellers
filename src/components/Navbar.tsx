@@ -1,10 +1,18 @@
 ﻿'use client';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useConsultation } from '@/context/ConsultationContext';
 
-export default function Navbar({ activePage = 'Home' }: { activePage?: string }) {
+export default function Navbar() {
+  const pathname = usePathname();
+  const activePage = pathname === '/' ? 'Home'
+    : pathname.startsWith('/portfolio') ? 'Portfolio'
+    : pathname === '/service' ? 'Service'
+    : pathname === '/about' ? 'About'
+    : pathname === '/contact' ? 'Contact'
+    : '';
   const consultation = useConsultation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);

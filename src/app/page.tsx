@@ -1,7 +1,5 @@
 'use client';
 import { useEffect } from 'react';
-import TopBanner from "@/components/TopBanner";
-import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GlowEffects from "@/components/GlowEffects";
 import TrustBadges from "@/components/TrustBadges";
@@ -39,8 +37,6 @@ export default function Home() {
         { top: 5633, left: 356, width: 628, height: 628 },
         { top: 6421, left: 1096, width: 628, height: 628 },
       ]} zIndex={2} />
-      <TopBanner />
-      <Navbar />
       <Hero />
       <TrustBadges />
       <Stats />

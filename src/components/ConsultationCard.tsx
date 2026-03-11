@@ -23,14 +23,14 @@ export default function ConsultationCard() {
   return (
     <div
       style={{
-        position: 'fixed',
+        position: 'absolute',
         right: '72px',
         top: '178px',
         width: '354px',
         background: '#D7A648',
         borderRadius: '16px',
         padding: '36px 25px 20px',
-        zIndex: 100,
+        zIndex: 40,
       }}
     >
       {/* Close X */}

@@ -1,8 +1,6 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import TopBanner from '@/components/TopBanner';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
@@ -111,9 +109,6 @@ export default function AboutPage() {
         { top: 3075, left: 1070, width: 628, height: 628 },
         { top: 4150, left: 1096, width: 628, height: 628 },
       ]} zIndex={2} />
-      <TopBanner />
-      <Navbar activePage="About" />
-
       {/* ============ HERO + STATS: Two-column layout ============ */}
       <section className="w-full" style={{ paddingTop: '200px' }}>
         <div className="max-w-[1440px] mx-auto relative" style={{ paddingLeft: '80px', paddingRight: '80px' }}>

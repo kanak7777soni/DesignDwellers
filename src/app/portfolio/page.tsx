@@ -2,8 +2,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import TopBanner from '@/components/TopBanner';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import GlowEffects from '@/components/GlowEffects';
 
@@ -191,9 +189,6 @@ export default function PortfolioPage() {
         { top: 3639, left: 631, width: 628, height: 628 },
         { top: 4539, left: 1096, width: 628, height: 628 },
       ]} />
-      <TopBanner />
-      <Navbar activePage="Portfolio" />
-
       {/* Content area - starts after banner (56px) + nav (84px) = 140px */}
       <div className="max-w-[1440px] mx-auto" style={{ paddingTop: '140px' }}>
         {/* Hero section */}

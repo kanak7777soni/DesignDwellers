@@ -1,7 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import TopBanner from '@/components/TopBanner';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import GlowEffects from '@/components/GlowEffects';
 
@@ -36,9 +34,6 @@ export default function IndividualPortfolioPage() {
         { top: -244, left: 1076, width: 628, height: 633 },
         { top: 807, left: 122, width: 1197, height: 378 },
       ]} />
-      <TopBanner />
-      <Navbar activePage="Portfolio" />
-
       <div className="max-w-[1440px] mx-auto" style={{ paddingTop: '186px' }}>
         {/* Hero Images */}
         <div className="flex" style={{ paddingLeft: '73px', paddingRight: '73px', gap: '37px', marginBottom: '42px' }}>

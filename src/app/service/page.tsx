@@ -1,7 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import TopBanner from '@/components/TopBanner';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import GlowEffects from '@/components/GlowEffects';
 
@@ -127,9 +125,6 @@ export default function ServicePage() {
         { top: 2792, left: 898, width: 628, height: 633 },
         { top: 3185, left: -3, width: 1440, height: 985 },
       ]} />
-      <TopBanner />
-      <Navbar activePage="Service" />
-
       <div className="max-w-[1440px] mx-auto relative" style={{ paddingTop: '159px' }}>
 
         {/* ─── Section 1: Hero / What We Offer ─── */}
