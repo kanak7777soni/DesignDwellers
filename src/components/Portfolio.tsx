@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const filters = ['All Projects', 'Living Room', 'BedRoom', 'Kitchen', 'Full Home', 'Luxury', 'Other'];
 
@@ -91,46 +92,46 @@ export default function Portfolio() {
         {/* Portfolio grid */}
         <div className="relative" style={{ display: 'grid', gridTemplateColumns: '845px 401px', gridTemplateRows: '401px 401px 401px', gap: '42px' }}>
           {/* Large featured image - spans 2 rows */}
-          <div className="relative overflow-hidden row-span-2" style={{ width: '845px', height: '845px', borderRadius: '22px' }}>
-            <Image src={projects[0].img} alt={projects[0].title} fill className="object-cover" />
+          <Link href="/portfolio/project" className="relative overflow-hidden row-span-2 group" style={{ width: '845px', height: '845px', borderRadius: '22px', display: 'block' }}>
+            <Image src={projects[0].img} alt={projects[0].title} fill className="object-cover zoom-image" />
             <div className="absolute bottom-0 left-0 right-0" style={{ height: '241px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 78%)', borderRadius: '0 0 22px 22px' }} />
             <div className="absolute" style={{ bottom: '24px', left: '40px' }}>
               <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{projects[0].title}</h3>
               <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{projects[0].desc}</p>
             </div>
-          </div>
+          </Link>
 
           {/* Top right */}
-          <div className="relative overflow-hidden" style={{ height: '401px', borderRadius: '22px' }}>
-            <Image src={projects[1].img} alt={projects[1].title} fill className="object-cover" />
+          <Link href="/portfolio/project" className="relative overflow-hidden group" style={{ height: '401px', borderRadius: '22px', display: 'block' }}>
+            <Image src={projects[1].img} alt={projects[1].title} fill className="object-cover zoom-image" />
             <div className="absolute bottom-0 left-0 right-0" style={{ height: '129px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)', borderRadius: '0 0 22px 22px' }} />
             <div className="absolute" style={{ bottom: '16px', left: '24px' }}>
               <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{projects[1].title}</h3>
               <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{projects[1].desc}</p>
             </div>
-          </div>
+          </Link>
 
           {/* Bottom right */}
-          <div className="relative overflow-hidden" style={{ height: '401px', borderRadius: '22px' }}>
-            <Image src={projects[2].img} alt={projects[2].title} fill className="object-cover" />
+          <Link href="/portfolio/project" className="relative overflow-hidden group" style={{ height: '401px', borderRadius: '22px', display: 'block' }}>
+            <Image src={projects[2].img} alt={projects[2].title} fill className="object-cover zoom-image" />
             <div className="absolute bottom-0 left-0 right-0" style={{ height: '129px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)', borderRadius: '0 0 22px 22px' }} />
             <div className="absolute" style={{ bottom: '16px', left: '24px' }}>
               <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{projects[2].title}</h3>
               <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{projects[2].desc}</p>
             </div>
-          </div>
+          </Link>
 
           {/* Bottom row - 3 images spanning full width */}
           <div className="col-span-2 grid grid-cols-3" style={{ height: '401px', gap: '42px' }}>
             {projects.slice(3).map((p, i) => (
-              <div key={i} className="relative overflow-hidden" style={{ height: '401px', borderRadius: '22px' }}>
-                <Image src={p.img} alt={p.title} fill className="object-cover" />
+              <Link key={i} href="/portfolio/project" className="relative overflow-hidden group" style={{ height: '401px', borderRadius: '22px', display: 'block' }}>
+                <Image src={p.img} alt={p.title} fill className="object-cover zoom-image" />
                 <div className="absolute bottom-0 left-0 right-0" style={{ height: '129px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)', borderRadius: '0 0 22px 22px' }} />
                 <div className="absolute" style={{ bottom: '16px', left: '24px' }}>
                   <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{p.title}</h3>
                   <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{p.desc}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -148,7 +149,7 @@ export default function Portfolio() {
               color: '#FFFFFF',
               border: 'none',
               cursor: 'pointer',
-              height: '30px',
+              height: '44px',
             }}
           >
             View Full Portfolio

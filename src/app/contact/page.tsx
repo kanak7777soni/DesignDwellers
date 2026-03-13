@@ -41,7 +41,7 @@ export default function ContactPage() {
         { top: 420, left: 319, width: 89, height: 89 },
         { top: 1483, left: 353, width: 628, height: 628 },
         { top: 2288, left: 1096, width: 628, height: 628 },
-      ]} zIndex={2} />
+      ]} />
       {/* ============ HERO SECTION ============ */}
       <section className="w-full" style={{ paddingTop: '200px' }}>
         <div className="max-w-[1440px] mx-auto" style={{ paddingLeft: '80px', paddingRight: '80px' }}>
@@ -65,16 +65,16 @@ export default function ContactPage() {
 
           {/* Trust badges */}
           <div
-            className="flex items-center justify-between"
+            className="flex items-center justify-evenly"
             style={{
               background: '#000000',
               borderRadius: '22px',
-              padding: '20px 60px',
+              padding: '20px 40px',
               marginTop: '40px',
             }}
           >
             {trustBadges.map((badge, i) => (
-              <div key={i} className="flex flex-col items-center" style={{ borderRight: i < 3 ? '1px solid #D7A648' : 'none', paddingRight: i < 3 ? '40px' : '0', marginRight: i < 3 ? '40px' : '0' }}>
+              <div key={i} className="flex flex-col items-center flex-1" style={{ borderRight: i < 3 ? '1px solid #D7A648' : 'none' }}>
                 <span className="font-heading" style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648' }}>
                   {badge.title}
                 </span>
@@ -375,7 +375,7 @@ export default function ContactPage() {
                     <path d="M17.1 14.36c-1.14-1.14-2.56-1.14-3.7 0l-.91.91c-.72.72-2.3-.11-3.89-1.7s-2.42-3.17-1.7-3.89l.91-.91c1.14-1.14 1.14-2.56 0-3.7L6.67 3.93C5.53 2.79 4.11 2.79 2.97 3.93l-.91.91c-2.15 2.15-.43 6.51 3.04 9.98s7.83 5.19 9.98 3.04l.91-.91c1.14-1.14 1.14-2.56 0-3.7l-1.14-1.14z" />
                   </svg>
                   <span className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF' }}>
-                    +91 93805 76368
+                    {selectedCity === 'Bengaluru' ? '+91 93805 76368' : '+91 93805 76368'}
                   </span>
                 </div>
                 {/* Email */}
@@ -393,12 +393,12 @@ export default function ContactPage() {
                     <path d="M7.5 0C3.36 0 0 3.36 0 7.5c0 5.63 7.5 16.5 7.5 16.5S15 13.13 15 7.5C15 3.36 11.64 0 7.5 0zm0 10.5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" />
                   </svg>
                   <span className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF' }}>
-                    Whitefield Studio,<br />Bangalore
+                    {selectedCity === 'Bengaluru' ? 'Whitefield Studio,\nBangalore' : 'Gachibowli Studio,\nHyderabad'}
                   </span>
                 </div>
               </div>
 
-              {/* Map placeholder (Figma: x:878, y:1095, 490×135) */}
+              {/* Map placeholder */}
               <div
                 className="flex items-center justify-center"
                 style={{
@@ -417,10 +417,12 @@ export default function ContactPage() {
               {/* Studio location info */}
               <div>
                 <span className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#D7A648', display: 'block', marginBottom: '8px' }}>
-                  Whitefield Studio — Bangalore
+                  {selectedCity === 'Bengaluru' ? 'Whitefield Studio — Bangalore' : 'Gachibowli Studio — Hyderabad'}
                 </span>
                 <p className="font-body" style={{ fontSize: '10px', lineHeight: '1em', color: '#FFFFFF', marginBottom: '8px' }}>
-                  Level 2, Prestige Tech Park, Whitefield<br />Bangalore — 560066, Karnataka
+                  {selectedCity === 'Bengaluru'
+                    ? 'Level 2, Prestige Tech Park, Whitefield\nBangalore — 560066, Karnataka'
+                    : 'Skyview Towers, Financial District, Gachibowli\nHyderabad — 500032, Telangana'}
                 </p>
                 <span className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF' }}>
                   Open today · Mon–Sat, 9AM–7PM

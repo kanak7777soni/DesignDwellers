@@ -35,7 +35,7 @@ export default function Services() {
   ];
 
   return (
-    <section className="w-full" style={{ paddingTop: '71px', paddingBottom: '0' }}>
+    <section className="w-full" style={{ paddingTop: '71px', paddingBottom: '80px' }}>
       <div className="max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <div className="relative" style={{ width: '221px', height: '19px', marginBottom: '10px' }}>

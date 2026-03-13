@@ -38,7 +38,7 @@ export default function InstagramSection() {
                 lineHeight: '1.17em',
                 color: '#FFFFFF',
                 border: 'none',
-                height: '30px',
+                height: '44px',
                 cursor: 'pointer',
               }}
             >
@@ -50,12 +50,12 @@ export default function InstagramSection() {
         {/* Instagram grid - 6 in a single row */}
         <div className="flex gap-[12px]">
           {posts.map((post, i) => (
-            <div key={i} className="relative" style={{ width: '204px', height: '363px', flexShrink: 0 }}>
+            <div key={i} className="relative group overflow-hidden" style={{ width: '204px', height: '363px', flexShrink: 0 }}>
               <Image
                 src="/images/instagram-post.png"
                 alt={post.title}
                 fill
-                className="object-cover"
+                className="object-cover zoom-image"
               />
               {/* Play/overlay icon */}
               <div className="absolute inset-0 flex items-center justify-center">
@@ -91,7 +91,7 @@ export default function InstagramSection() {
               lineHeight: '1.17em',
               color: '#FFFFFF',
               border: 'none',
-              height: '30px',
+              height: '44px',
               cursor: 'pointer',
             }}
           >

@@ -36,7 +36,7 @@ export default function Home() {
         { top: 4550, left: 981, width: 628, height: 628 },
         { top: 5633, left: 356, width: 628, height: 628 },
         { top: 6421, left: 1096, width: 628, height: 628 },
-      ]} zIndex={2} />
+      ]} />
       <Hero />
       <TrustBadges />
       <Stats />

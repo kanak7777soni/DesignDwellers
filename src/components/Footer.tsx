@@ -1,12 +1,13 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 const quickLinks = [
-  'Home',
-  'Portfolio',
-  'Services',
-  'About Us',
-  'Contact Us',
-  'Privacy Police',
+  { label: 'Home', href: '/' },
+  { label: 'Portfolio', href: '/portfolio' },
+  { label: 'Services', href: '/service' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Contact Us', href: '/contact' },
+  { label: 'Privacy Police', href: '#' },
 ];
 
 export default function Footer() {
@@ -17,7 +18,7 @@ export default function Footer() {
         <div className="flex justify-between">
           {/* Col 1 - Brand */}
           <div className="flex flex-col" style={{ maxWidth: '380px' }}>
-            {/* Logo - text based like navbar */}
+            {/* Logo */}
             <div className="flex flex-col mb-[16px]">
               <span
                 className="font-heading"
@@ -34,7 +35,7 @@ export default function Footer() {
             </div>
 
             <p className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', opacity: 0.6, marginBottom: '20px' }}>
-              Transforming homes across West Bengal with smart, stylish interiors delivered in just 45 days.
+              Crafting Homes With Soul Since 2016
             </p>
 
             {/* Google rating */}
@@ -55,51 +56,51 @@ export default function Footer() {
 
           {/* Col 2 - Quick Links */}
           <div className="flex flex-col">
-            <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', marginBottom: '20px' }}>
+            <h3 className="font-heading" style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648', marginBottom: '20px' }}>
               Quick Links
             </h3>
             <div className="flex flex-col gap-[12px]">
               {quickLinks.map((link) => (
-                <a
-                  key={link}
-                  href="#"
+                <Link
+                  key={link.label}
+                  href={link.href}
                   className="font-body"
-                  style={{ fontSize: '14px', lineHeight: '1em', color: '#FFFFFF', opacity: 0.7, textDecoration: 'none' }}
+                  style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', opacity: 0.7, textDecoration: 'none' }}
                 >
-                  {link}
-                </a>
+                  {link.label}
+                </Link>
               ))}
             </div>
           </div>
 
           {/* Col 3 - Contact */}
           <div className="flex flex-col">
-            <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', marginBottom: '20px' }}>
+            <h3 className="font-heading" style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648', marginBottom: '20px' }}>
               Contact Us
             </h3>
             <div className="flex flex-col gap-[14px]">
               <div className="flex items-center gap-[10px]">
                 <Image src="/images/social-icon-1.svg" alt="" width={20} height={20} />
-                <span className="font-body" style={{ fontSize: '14px', color: '#FFFFFF', opacity: 0.7 }}>
-                  +91-XXXXX XXXXX
+                <span className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.7 }}>
+                  +91 93805 76368
                 </span>
               </div>
               <div className="flex items-center gap-[10px]">
                 <Image src="/images/social-icon-2.svg" alt="" width={20} height={20} />
-                <span className="font-body" style={{ fontSize: '14px', color: '#FFFFFF', opacity: 0.7 }}>
-                  hello@designdwellers.com
+                <span className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.7 }}>
+                  hello@designdwellersstudio.com
                 </span>
               </div>
               <div className="flex items-start gap-[10px]">
                 <Image src="/images/social-icon-3.svg" alt="" width={20} height={20} style={{ marginTop: '2px' }} />
-                <span className="font-body" style={{ fontSize: '14px', lineHeight: '1.5em', color: '#FFFFFF', opacity: 0.7 }}>
-                  Studio 1: Kolkata, West Bengal
+                <span className="font-body" style={{ fontSize: '16px', lineHeight: '1.5em', color: '#FFFFFF', opacity: 0.7 }}>
+                  Whitefield Studio, Bangalore
                 </span>
               </div>
               <div className="flex items-start gap-[10px]">
                 <Image src="/images/social-icon-4.svg" alt="" width={20} height={20} style={{ marginTop: '2px' }} />
-                <span className="font-body" style={{ fontSize: '14px', lineHeight: '1.5em', color: '#FFFFFF', opacity: 0.7 }}>
-                  Studio 2: Howrah, West Bengal
+                <span className="font-body" style={{ fontSize: '16px', lineHeight: '1.5em', color: '#FFFFFF', opacity: 0.7 }}>
+                  Gachibowli Studio, Hyderabad
                 </span>
               </div>
             </div>
@@ -119,10 +120,15 @@ export default function Footer() {
             {/* Instagram */}
             <a href="#" className="flex items-center gap-[8px] mb-[16px]" style={{ textDecoration: 'none' }}>
               <Image src="/images/instagram-icon.svg" alt="Instagram" width={20} height={20} />
-              <span className="font-body" style={{ fontSize: '14px', color: '#FFFFFF', opacity: 0.7 }}>
+              <span className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.7 }}>
                 @DesignDwellersstudio
               </span>
             </a>
+
+            {/* Subtitle */}
+            <p className="font-body text-right" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', opacity: 0.6, marginBottom: '16px', maxWidth: '260px' }}>
+              We design interiors that tell your story — thoughtful, livable, and crafted to last.
+            </p>
 
             {/* CTA Button */}
             <button
@@ -130,8 +136,8 @@ export default function Footer() {
               style={{
                 background: '#D7A648',
                 borderRadius: '55px',
-                width: '239px',
-                height: '30px',
+                width: '260px',
+                height: '44px',
                 fontSize: '16px',
                 lineHeight: '1.17em',
                 color: '#FFFFFF',
@@ -149,10 +155,10 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="flex justify-between items-center">
-          <p className="font-body" style={{ fontSize: '12px', color: '#FFFFFF', opacity: 0.4 }}>
+          <p className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.4 }}>
             © 2025 Design Dwellers Studio. All Rights Reserved.
           </p>
-          <p className="font-body" style={{ fontSize: '12px', color: '#FFFFFF', opacity: 0.4 }}>
+          <p className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.4 }}>
             Designed &amp; Marketed by{' '}
             <span style={{ color: '#D7A648' }}>Digital Corvids</span>
           </p>

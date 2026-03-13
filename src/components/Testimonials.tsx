@@ -1,4 +1,6 @@
-﻿import Image from 'next/image';
+﻿'use client';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const testimonials = [
   {
@@ -26,7 +28,14 @@ export default function Testimonials() {
     <section className="w-full" style={{ background: '#FFFFFF', paddingTop: '71px', paddingBottom: '80px' }}>
       <div className="max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
-        <div className="relative" style={{ width: '220px', height: '19px', marginBottom: '10px' }}>
+        <motion.div
+          className="relative"
+          style={{ width: '220px', height: '19px', marginBottom: '10px' }}
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <span
             className="font-heading absolute"
             style={{ left: '0', top: '0', fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}
@@ -34,10 +43,16 @@ export default function Testimonials() {
             Client Stories
           </span>
           <div className="absolute" style={{ left: '92px', top: '16px', width: '128px', height: '1px', background: '#D7A648' }} />
-        </div>
+        </motion.div>
 
         {/* Title + subtitle */}
-        <div className="flex justify-between items-end mb-[60px]">
+        <motion.div
+          className="flex justify-between items-end mb-[60px]"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
           <h2
             className="font-heading"
             style={{
@@ -53,13 +68,24 @@ export default function Testimonials() {
           <p className="font-body text-right" style={{ fontSize: '16px', lineHeight: '1em', color: '#141300', maxWidth: '398px' }}>
             Real reviews. Unfiltered. From homeowners just like you.
           </p>
-        </div>
+        </motion.div>
 
         {/* 3 Cards */}
         <div className="flex gap-[40px]">
           {testimonials.map((t, i) => (
-            <div
+            <motion.div
               key={i}
+              initial={{ opacity: 0, y: 80, scale: 0.8 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{
+                duration: 0.6,
+                delay: i * 0.2,
+                type: 'spring',
+                stiffness: 100,
+                damping: 12,
+              }}
+              whileHover={{ scale: 1.05, y: -8, transition: { duration: 0.3 } }}
               style={{
                 width: '402px',
                 height: '265px',
@@ -170,7 +196,7 @@ export default function Testimonials() {
               >
                 {t.location}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
 

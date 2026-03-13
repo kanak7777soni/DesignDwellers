@@ -108,7 +108,7 @@ export default function AboutPage() {
         { top: 2457, left: -40, width: 1519, height: 480 },
         { top: 3075, left: 1070, width: 628, height: 628 },
         { top: 4150, left: 1096, width: 628, height: 628 },
-      ]} zIndex={2} />
+      ]} />
       {/* ============ HERO + STATS: Two-column layout ============ */}
       <section className="w-full" style={{ paddingTop: '200px' }}>
         <div className="max-w-[1440px] mx-auto relative" style={{ paddingLeft: '80px', paddingRight: '80px' }}>
@@ -135,7 +135,7 @@ export default function AboutPage() {
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
-                    height: '30px',
+                    height: '44px',
                     background: '#D7A648',
                     borderRadius: '55px',
                     fontSize: '16px',
@@ -152,7 +152,7 @@ export default function AboutPage() {
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
-                    height: '30px',
+                    height: '44px',
                     border: '1.5px solid #D7A648',
                     borderRadius: '55px',
                     fontSize: '16px',
@@ -288,7 +288,7 @@ export default function AboutPage() {
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
-                    height: '30px',
+                    height: '44px',
                     background: '#D7A648',
                     borderRadius: '55px',
                     fontSize: '16px',
@@ -305,7 +305,7 @@ export default function AboutPage() {
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
-                    height: '30px',
+                    height: '44px',
                     border: '1.5px solid #D7A648',
                     borderRadius: '55px',
                     fontSize: '16px',

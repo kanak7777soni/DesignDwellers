@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useConsultation } from '@/context/ConsultationContext';
 
 export default function ConsultationCard() {
@@ -26,21 +27,25 @@ export default function ConsultationCard() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      style={{
-        position: 'absolute',
-        right: '72px',
-        top: '178px',
-        width: '354px',
-        background: '#D7A648',
-        borderRadius: '16px',
-        padding: '36px 25px 20px',
-        zIndex: 40,
-      }}
-    >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85, y: -30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.85, y: -30 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+          style={{
+            position: 'absolute',
+            right: '72px',
+            top: '178px',
+            width: '354px',
+            background: '#D7A648',
+            borderRadius: '16px',
+            padding: '36px 25px 20px',
+            zIndex: 40,
+          }}
+        >
       {/* Close X */}
       <button
         onClick={close}
@@ -239,6 +244,8 @@ export default function ConsultationCard() {
       >
         100% free · No spam · No obligation whatsoever
       </p>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

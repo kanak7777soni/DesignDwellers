@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
 
 const stats = [
@@ -570,8 +571,7 @@ export default function ServicePage() {
                     style={{
                       position: 'absolute',
                       top: '0',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
+                      right: '30px',
                       background: '#D7A648',
                       borderRadius: '0 0 7px 7px',
                       padding: '4px 12px',
@@ -805,90 +805,7 @@ export default function ServicePage() {
         </div>
 
         {/* ─── Section 5: CTA ─── */}
-        <div
-          className="w-full flex flex-col items-center"
-          style={{
-            background: '#FFFFFF',
-            paddingTop: '67px',
-            paddingBottom: '67px',
-            boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.25)',
-          }}
-        >
-          {/* Label */}
-          <div className="relative" style={{ width: '240px', height: '19px', marginBottom: '16px' }}>
-            <span
-              className="font-heading absolute"
-              style={{
-                left: 0,
-                top: 0,
-                fontSize: '16px',
-                lineHeight: '1.17em',
-                color: '#D7A648',
-                WebkitTextStroke: '0.5px #D8A648',
-              }}
-            >
-              Ready to Begin?
-            </span>
-            <div
-              className="absolute"
-              style={{ left: '112px', top: '16px', width: '128px', height: '1px', background: '#D7A648' }}
-            />
-          </div>
-
-          <h2
-            className="font-heading text-center"
-            style={{
-              fontSize: '48px',
-              lineHeight: '1.17em',
-              color: '#000000',
-              WebkitTextStroke: '0.5px #000000',
-              marginBottom: '16px',
-              maxWidth: '648px',
-            }}
-          >
-            Premium Interiors. Honest Pricing.
-          </h2>
-
-          <p
-            className="font-body text-center"
-            style={{ fontSize: '16px', lineHeight: '1em', color: '#000000', marginBottom: '8px', maxWidth: '475px' }}
-          >
-            Book your free consultation. Get an itemised quote. No obligation.
-          </p>
-
-          <Link
-            href="#"
-            className="font-heading flex items-center justify-center"
-            style={{
-              background: '#D7A648',
-              borderRadius: '55px',
-              width: '239px',
-              height: '30px',
-              fontSize: '16px',
-              lineHeight: '1.17em',
-              color: '#FFFFFF',
-              WebkitTextStroke: '0.5px #FFFFFF',
-              textDecoration: 'none',
-              marginBottom: '24px',
-            }}
-          >
-            Book My Free Consultation
-          </Link>
-
-          <p
-            className="font-body text-center"
-            style={{ fontSize: '16px', lineHeight: '1em', color: '#000000', marginBottom: '6px' }}
-          >
-            We only take on 3–4 new projects per month to maintain our quality standards.
-          </p>
-
-          <p
-            className="font-body text-center"
-            style={{ fontSize: '16px', lineHeight: '1em', color: '#000000' }}
-          >
-            Or WhatsApp us directly:&nbsp;+91 93805 76368
-          </p>
-        </div>
+        <ContactForm />
       </div>
 
       <Footer />

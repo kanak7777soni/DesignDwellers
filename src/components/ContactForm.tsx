@@ -69,8 +69,8 @@ export default function ContactForm() {
           style={{
             background: '#D7A648',
             borderRadius: '55px',
-            width: '239px',
-            height: '30px',
+            width: '260px',
+            height: '44px',
             fontSize: '16px',
             lineHeight: '1.17em',
             color: '#FFFFFF',

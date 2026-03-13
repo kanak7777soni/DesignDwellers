@@ -85,3 +85,11 @@
 .font-body {
   font-family: var(--font-josefin), sans-serif;
 }
+
+/* Image zoom on hover */
+.zoom-image {
+  transition: transform 0.4s ease;
+}
+.group:hover .zoom-image {
+  transform: scale(1.05);
+}

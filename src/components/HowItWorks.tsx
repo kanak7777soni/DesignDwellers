@@ -1,5 +1,4 @@
 'use client';
-import Image from 'next/image';
 
 export default function HowItWorks() {
   const steps = [
@@ -14,7 +13,7 @@ export default function HowItWorks() {
   const lines = [203, 446, 688, 930];
 
   return (
-    <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+    <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px', background: 'linear-gradient(180deg, #1a1a0f 0%, #141300 50%, #1a1a0f 100%)' }}>
       <div className="max-w-[1440px] mx-auto px-[80px]">
         {/* Section header centered */}
         <div className="relative" style={{ width: '223px', height: '19px', marginLeft: 'auto', marginRight: 'auto', marginBottom: '10px' }}>
@@ -107,10 +106,6 @@ export default function HowItWorks() {
           ))}
         </div>
 
-        {/* Scroll indicator */}
-        <div className="flex justify-center mt-[40px]">
-          <Image src="/images/how-it-works-diagram.svg" alt="" width={82} height={6} />
-        </div>
       </div>
     </section>
   );

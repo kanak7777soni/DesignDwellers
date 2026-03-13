@@ -85,8 +85,8 @@ export default function Navbar() {
           onClick={consultation.open}
           className="hidden md:flex items-center justify-center font-heading"
           style={{
-            width: '150px',
-            height: '30px',
+            width: '180px',
+            height: '44px',
             background: '#D7A648',
             borderRadius: '55px',
             fontSize: '16px',

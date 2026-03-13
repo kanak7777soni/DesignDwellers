@@ -97,8 +97,8 @@ export default function Hero() {
           style={{
             left: '80px',
             top: '500px',
-            width: '150px',
-            height: '30px',
+            width: '180px',
+            height: '44px',
             background: '#D7A648',
             borderRadius: '55px',
             cursor: 'pointer',
