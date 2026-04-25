@@ -1,139 +1,30 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import GlowEffects from '@/components/GlowEffects';
+import PortfolioMedia from '@/components/PortfolioMedia';
+import {
+  getProjectsByCategoryFromData,
+  getPublishedProjectsFromData,
+  getSeedPortfolioData,
+  getVisibleCategoriesFromData,
+  type PortfolioData,
+  type PortfolioProject,
+} from '@/lib/portfolio';
 
-const categories = ['All Projects', 'Living Room', 'BedRoom', 'Kitchen', 'Full Home', 'Luxury', 'Other'];
-
-const projects = [
-  {
-    name: 'The Mehta Residence',
-    details: 'Full Home · Whitefield, Bangalore · 2500 sq ft · 42 days',
-    image: '/images/portfolio-grid-5.png',
-    category: 'Full Home',
-    size: 'large',
-  },
-  {
-    name: 'Corvids Office',
-    details: 'Office · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-7.png',
-    category: 'Other',
-    size: 'small',
-  },
-  {
-    name: 'Reddy Homes',
-    details: 'Living & Dining · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-9.png',
-    category: 'Living Room',
-    size: 'small',
-  },
-  {
-    name: 'Sharma Living',
-    details: 'Living Room · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-3.png',
-    category: 'Living Room',
-    size: 'small',
-  },
-  {
-    name: 'Kumar Residence',
-    details: 'Bedroom · HITEC City, Hyderabad',
-    image: '/images/portfolio-grid-4.png',
-    category: 'BedRoom',
-    size: 'small',
-  },
-  {
-    name: 'Reddy Homes',
-    details: 'Kitchen & Dining · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-11.png',
-    category: 'Kitchen',
-    size: 'small',
-  },
-  {
-    name: 'The Mehta Residence',
-    details: 'Full Home · Whitefield, Bangalore · 2500 sq ft · 42 days',
-    image: '/images/portfolio-feature.png',
-    category: 'Full Home',
-    size: 'feature',
-  },
-  {
-    name: 'Reddy Homes',
-    details: 'Living & Dining · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-1.png',
-    category: 'Living Room',
-    size: 'small',
-  },
-  {
-    name: 'Reddy Homes',
-    details: 'Kitchen & Dining · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-10.png',
-    category: 'Kitchen',
-    size: 'small',
-  },
-  {
-    name: 'Corvids Office',
-    details: 'Office · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-12.png',
-    category: 'Other',
-    size: 'small',
-  },
-  {
-    name: 'The Mehta Residence',
-    details: 'Full Home · Whitefield, Bangalore · 2500 sq ft · 42 days',
-    image: '/images/portfolio-grid-6.png',
-    category: 'Full Home',
-    size: 'large',
-  },
-  {
-    name: 'Corvids Office',
-    details: 'Office · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-8.png',
-    category: 'Other',
-    size: 'small',
-  },
-  {
-    name: 'Sharma Living',
-    details: 'Living Room · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-2.png',
-    category: 'Living Room',
-    size: 'small',
-  },
-  {
-    name: 'Kumar Residence',
-    details: 'Bedroom · HITEC City, Hyderabad',
-    image: '/images/portfolio-grid-3.png',
-    category: 'BedRoom',
-    size: 'small',
-  },
-  {
-    name: 'Reddy Homes',
-    details: 'Living & Dining · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-4.png',
-    category: 'Living Room',
-    size: 'small',
-  },
-  {
-    name: 'Reddy Homes',
-    details: 'Kitchen & Dining · Koramangala, Bangalore',
-    image: '/images/portfolio-grid-9.png',
-    category: 'Kitchen',
-    size: 'small',
-  },
-];
-
-function ProjectCard({ project, isLarge }: { project: typeof projects[0]; isLarge: boolean }) {
+function ProjectCard({ project, isLarge }: { project: PortfolioProject; isLarge: boolean }) {
   const overlayHeight = isLarge ? 241 : 129;
   const overlayRadius = '22px';
 
   return (
-    <Link href="/portfolio/project" className="block relative group" style={{ width: '100%', height: '100%', borderRadius: overlayRadius, overflow: 'hidden' }}>
-      <Image
-        src={project.image}
-        alt={project.name}
-        fill
-        className="object-cover"
+    <Link href={`/portfolio/${project.slug}`} className="block relative group" style={{ width: '100%', height: '100%', borderRadius: overlayRadius, overflow: 'hidden' }}>
+      <PortfolioMedia
+        media={project.cardMedia}
         sizes={isLarge ? '845px' : '401px'}
+        className="object-cover"
+        priority={isLarge}
       />
       {/* Gradient overlay at bottom */}
       <div
@@ -177,8 +68,128 @@ function ProjectCard({ project, isLarge }: { project: typeof projects[0]; isLarg
   );
 }
 
+function SmallProjectBox({ project }: { project: PortfolioProject }) {
+  return (
+    <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
+      <ProjectCard project={project} isLarge={false} />
+    </div>
+  );
+}
+
+function LargeProjectBox({ project }: { project: PortfolioProject }) {
+  return (
+    <div style={{ width: '845px', height: '845px', borderRadius: '22px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+      <ProjectCard project={project} isLarge />
+    </div>
+  );
+}
+
+type GridBlock = {
+  type: 'large-left' | 'small-row' | 'large-right';
+  projects: PortfolioProject[];
+};
+
+function buildGridBlocks(projects: PortfolioProject[]) {
+  const pattern: GridBlock['type'][] = ['large-left', 'small-row', 'large-right', 'small-row'];
+  const blocks: GridBlock[] = [];
+  let projectIndex = 0;
+  let patternIndex = 0;
+
+  while (projectIndex < projects.length) {
+    const type = pattern[patternIndex % pattern.length];
+    const count = 3;
+    blocks.push({
+      type,
+      projects: projects.slice(projectIndex, projectIndex + count),
+    });
+    projectIndex += count;
+    patternIndex += 1;
+  }
+
+  return blocks;
+}
+
+function PortfolioGrid({ projects }: { projects: PortfolioProject[] }) {
+  const blocks = buildGridBlocks(projects);
+
+  return (
+    <div style={{ paddingLeft: '75px', paddingRight: '75px' }}>
+      {blocks.map((block, index) => {
+        const marginBottom = index === blocks.length - 1 ? '0' : '42px';
+
+        if (block.type === 'small-row') {
+          return (
+            <div key={`${block.type}-${index}`} className="flex" style={{ gap: '42px', marginBottom }}>
+              {block.projects.map((project) => (
+                <SmallProjectBox key={project.id} project={project} />
+              ))}
+            </div>
+          );
+        }
+
+        if (block.type === 'large-right') {
+          const [firstSmall, secondSmall, largeProject] = block.projects;
+
+          return (
+            <div key={`${block.type}-${index}`} className="flex" style={{ gap: '42px', marginBottom }}>
+              <div className="flex flex-col" style={{ gap: '42px' }}>
+                {firstSmall ? <SmallProjectBox project={firstSmall} /> : null}
+                {secondSmall ? <SmallProjectBox project={secondSmall} /> : null}
+              </div>
+              {largeProject ? <LargeProjectBox project={largeProject} /> : null}
+            </div>
+          );
+        }
+
+        const [largeProject, firstSmall, secondSmall] = block.projects;
+
+        return (
+          <div key={`${block.type}-${index}`} className="flex" style={{ gap: '42px', marginBottom }}>
+            {largeProject ? <LargeProjectBox project={largeProject} /> : null}
+            <div className="flex flex-col" style={{ gap: '42px', flex: 1 }}>
+              {firstSmall ? <SmallProjectBox project={firstSmall} /> : null}
+              {secondSmall ? <SmallProjectBox project={secondSmall} /> : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function PortfolioPage() {
-  const [active, setActive] = useState('All Projects');
+  const [active, setActive] = useState('all-projects');
+  const [portfolioData, setPortfolioData] = useState<PortfolioData>(() => getSeedPortfolioData());
+  const categories = [
+    { slug: 'all-projects', label: 'All Projects' },
+    ...getVisibleCategoriesFromData(portfolioData).map((category) => ({ slug: category.slug, label: category.label })),
+  ];
+  const projects = active === 'all-projects'
+    ? getPublishedProjectsFromData(portfolioData)
+    : getProjectsByCategoryFromData(portfolioData, active);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPortfolioData() {
+      try {
+        const response = await fetch('/api/portfolio', { cache: 'no-store' });
+        const data = (await response.json()) as PortfolioData;
+
+        if (isMounted) {
+          setPortfolioData(data);
+        }
+      } catch {
+        // Keep the seeded content if editable data is unavailable.
+      }
+    }
+
+    loadPortfolioData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
@@ -244,20 +255,20 @@ export default function PortfolioPage() {
           </div>
 
           {/* Filter tabs */}
-          <div className="flex" style={{ gap: '8px', marginBottom: '58px' }}>
+          <div className="flex flex-wrap" style={{ gap: '8px', marginBottom: '58px' }}>
             {categories.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setActive(cat)}
+                key={cat.slug}
+                onClick={() => setActive(cat.slug)}
                 className="font-body"
                 style={{
                   height: '21px',
                   paddingLeft: '6px',
                   paddingRight: '6px',
                   borderRadius: '55px',
-                  border: active === cat ? 'none' : '1px solid #D7A648',
-                  background: active === cat ? '#D7A648' : 'transparent',
-                  color: active === cat ? '#FFFFFF' : '#D7A648',
+                  border: active === cat.slug ? 'none' : '1px solid #D7A648',
+                  background: active === cat.slug ? '#D7A648' : 'transparent',
+                  color: active === cat.slug ? '#FFFFFF' : '#D7A648',
                   fontSize: '10px',
                   lineHeight: '1em',
                   textAlign: 'right',
@@ -265,102 +276,14 @@ export default function PortfolioPage() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
         </div>
 
         {/* Portfolio grid */}
-        <div style={{ paddingLeft: '75px', paddingRight: '75px' }}>
-          {/* Row 1: Large left (845×845) + column of small right */}
-          <div className="flex" style={{ gap: '42px', marginBottom: '42px' }}>
-            {/* Large image */}
-            <div style={{ width: '845px', height: '845px', borderRadius: '22px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
-              <ProjectCard project={projects[0]} isLarge />
-            </div>
-            {/* Right column: 2 small stacked */}
-            <div className="flex flex-col" style={{ gap: '42px', flex: 1 }}>
-              <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-                <ProjectCard project={projects[1]} isLarge={false} />
-              </div>
-              <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-                <ProjectCard project={projects[2]} isLarge={false} />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2: 3 small cards in a row */}
-          <div className="flex" style={{ gap: '42px', marginBottom: '42px' }}>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[3]} isLarge={false} />
-            </div>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[4]} isLarge={false} />
-            </div>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[5]} isLarge={false} />
-            </div>
-          </div>
-
-          {/* Row 3: Small left column + Large right (feature) */}
-          <div className="flex" style={{ gap: '42px', marginBottom: '42px' }}>
-            {/* Left column: 2 small stacked */}
-            <div className="flex flex-col" style={{ gap: '42px' }}>
-              <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-                <ProjectCard project={projects[7]} isLarge={false} />
-              </div>
-              <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-                <ProjectCard project={projects[8]} isLarge={false} />
-              </div>
-            </div>
-            {/* Large feature image */}
-            <div style={{ width: '845px', height: '845px', borderRadius: '22px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
-              <ProjectCard project={projects[6]} isLarge />
-            </div>
-          </div>
-
-          {/* Row 4: 3 small cards in a row */}
-          <div className="flex" style={{ gap: '42px', marginBottom: '42px' }}>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[9]} isLarge={false} />
-            </div>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[13]} isLarge={false} />
-            </div>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[14]} isLarge={false} />
-            </div>
-          </div>
-
-          {/* Row 5 (repeat): Large left + column right */}
-          <div className="flex" style={{ gap: '42px', marginBottom: '42px' }}>
-            <div style={{ width: '845px', height: '845px', borderRadius: '22px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
-              <ProjectCard project={projects[10]} isLarge />
-            </div>
-            <div className="flex flex-col" style={{ gap: '42px', flex: 1 }}>
-              <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-                <ProjectCard project={projects[11]} isLarge={false} />
-              </div>
-              <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-                <ProjectCard project={projects[15]} isLarge={false} />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 6: 3 small cards */}
-          <div className="flex" style={{ gap: '42px', marginBottom: '0' }}>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[12]} isLarge={false} />
-            </div>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[4]} isLarge={false} />
-            </div>
-            <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
-              <ProjectCard project={projects[5]} isLarge={false} />
-            </div>
-          </div>
-        </div>
+        <PortfolioGrid projects={projects} />
 
         {/* CTA Section */}
         <div
@@ -438,7 +361,7 @@ export default function PortfolioPage() {
             className="font-body text-center"
             style={{ fontSize: '16px', lineHeight: '1em', color: '#000000', marginBottom: '6px' }}
           >
-            We only take on 3–4 new projects per month to maintain our quality standards.
+            We only take on 3-4 new projects per month to maintain our quality standards.
           </p>
 
           <p

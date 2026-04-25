@@ -16,7 +16,32 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Instagram Videos
+
+The home page Instagram reel section is controlled from the admin CRM at `/admin/instagram`. No Instagram environment variables are required.
+
+Paste an Instagram access token in the CRM sync settings, save it, then use "Sync From Instagram" to import video/reel posts into the editable reel list. The token is encrypted with `ADMIN_SESSION_SECRET` before it is saved to local CRM data, and `data/instagram-reels.json` is gitignored so it is not committed.
+
+You can also add each reel manually with its Instagram permalink, caption, sort order, active/draft state, and optional uploaded video, uploaded thumbnail, thumbnail URL, or direct video URL. If a video file or direct MP4/WebM URL is provided, the existing card plays inline without changing the layout. If only the Instagram permalink is provided, the same card size is kept and the button opens the reel on Instagram.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+## Admin CRM
+
+The portfolio is editable from `/admin`.
+
+Create `.env.local` from `.env.example` and set:
+
+```bash
+ADMIN_PASSWORD=choose-a-strong-password
+ADMIN_SESSION_SECRET=choose-a-long-random-secret
+```
+
+After login, you can add/edit projects, categories, cover media, hero media, gallery media, videos, interior project details, SEO fields, and home page Instagram reels. The dashboard also supports project search/filtering, draft previews, delete confirmations, drag/drop media ordering, and portfolio backups. The admin saves editable portfolio data to `data/portfolio.json`; uploaded media is saved under `public/uploads/portfolio` for local development.
+
+The CRM creates automatic snapshots under `data/backups/portfolio` before saves and deletes, keeping the latest 30 backups. Use `/admin/backups` to restore or delete snapshots.
+
+For production hosting, replace the file-backed storage with a database and cloud media storage before relying on uploads for live client content.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

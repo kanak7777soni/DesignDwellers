@@ -1,45 +1,105 @@
-﻿'use client';
-import { useState } from 'react';
+'use client';
+
+import { useEffect, useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import PortfolioMedia from '@/components/PortfolioMedia';
+import {
+  getFeaturedProjectsFromData,
+  getProjectsByCategoryFromData,
+  getSeedPortfolioData,
+  getVisibleCategoriesFromData,
+  type PortfolioData,
+  type PortfolioProject,
+} from '@/lib/portfolio';
 
-const filters = ['All Projects', 'Living Room', 'BedRoom', 'Kitchen', 'Full Home', 'Luxury', 'Other'];
+function HomeProjectCard({
+  project,
+  isLarge = false,
+  children,
+}: {
+  project: PortfolioProject;
+  isLarge?: boolean;
+  children: ReactNode;
+}) {
+  const media = project.featuredMedia || project.cardMedia;
 
-const projects = [
-  {
-    img: '/images/portfolio-3.png',
-    title: 'The Mehta Residence',
-    desc: 'Full Home · Whitefield, Bangalore · 2500 sq ft · 42 days',
-  },
-  {
-    img: '/images/portfolio-5.png',
-    title: 'Corvids Office',
-    desc: 'Office · Koramangala, Bangalore',
-  },
-  {
-    img: '/images/portfolio-4.png',
-    title: 'Reddy Homes',
-    desc: 'Kitchen & Dining · Koramangala, Bangalore',
-  },
-  {
-    img: '/images/portfolio-1.png',
-    title: 'Sharma Living',
-    desc: 'Living Room · Koramangala, Bangalore',
-  },
-  {
-    img: '/images/portfolio-2.png',
-    title: 'Kumar Residence',
-    desc: 'Bedroom · HITEC City, Hyderabad',
-  },
-  {
-    img: '/images/portfolio-6.png',
-    title: 'Reddy Homes',
-    desc: 'Living & Dining · Koramangala, Bangalore',
-  },
-];
+  return (
+    <Link
+      href={`/portfolio/${project.slug}`}
+      className={`relative overflow-hidden group ${isLarge ? 'row-span-2' : ''}`}
+      style={{
+        width: isLarge ? '845px' : undefined,
+        height: isLarge ? '845px' : '401px',
+        borderRadius: '22px',
+        display: 'block',
+      }}
+    >
+      <PortfolioMedia
+        media={media}
+        sizes={isLarge ? '845px' : '401px'}
+        className="object-cover zoom-image"
+        priority={isLarge}
+      />
+      {children}
+    </Link>
+  );
+}
+
+function HomeProjectOverlay({ project, isLarge = false }: { project: PortfolioProject; isLarge?: boolean }) {
+  return (
+    <>
+      <div
+        className="absolute bottom-0 left-0 right-0"
+        style={{
+          height: isLarge ? '241px' : '129px',
+          background: isLarge
+            ? 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 78%)'
+            : 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)',
+          borderRadius: '0 0 22px 22px',
+        }}
+      />
+      <div className="absolute" style={{ bottom: isLarge ? '24px' : '16px', left: isLarge ? '40px' : '24px' }}>
+        <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{project.name}</h3>
+        <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{project.details}</p>
+      </div>
+    </>
+  );
+}
 
 export default function Portfolio() {
-  const [active, setActive] = useState('All Projects');
+  const [active, setActive] = useState('all-projects');
+  const [portfolioData, setPortfolioData] = useState<PortfolioData>(() => getSeedPortfolioData());
+  const filters = [
+    { slug: 'all-projects', label: 'All Projects' },
+    ...getVisibleCategoriesFromData(portfolioData).map((category) => ({ slug: category.slug, label: category.label })),
+  ];
+  const projects = active === 'all-projects'
+    ? getFeaturedProjectsFromData(portfolioData, 6)
+    : getProjectsByCategoryFromData(portfolioData, active).slice(0, 6);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPortfolioData() {
+      try {
+        const response = await fetch('/api/portfolio', { cache: 'no-store' });
+        const data = (await response.json()) as PortfolioData;
+
+        if (isMounted) {
+          setPortfolioData(data);
+        }
+      } catch {
+        // Keep the seeded content if editable data is unavailable.
+      }
+    }
+
+    loadPortfolioData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section id="portfolio" className="w-full" style={{ paddingTop: '70px', paddingBottom: '60px' }}>
@@ -66,11 +126,11 @@ export default function Portfolio() {
         </div>
 
         {/* Filter tabs */}
-        <div className="flex gap-[8px] mb-[40px]">
-          {filters.map((f) => (
+        <div className="flex flex-wrap gap-[8px] mb-[40px]">
+          {filters.map((filter) => (
             <button
-              key={f}
-              onClick={() => setActive(f)}
+              key={filter.slug}
+              onClick={() => setActive(filter.slug)}
               className="font-body"
               style={{
                 fontSize: '10px',
@@ -78,13 +138,13 @@ export default function Portfolio() {
                 textAlign: 'right',
                 padding: '6px 12px',
                 borderRadius: '55px',
-                border: active === f ? 'none' : '1px solid #D7A648',
-                background: active === f ? '#D7A648' : 'transparent',
-                color: active === f ? '#FFFFFF' : '#D7A648',
+                border: active === filter.slug ? 'none' : '1px solid #D7A648',
+                background: active === filter.slug ? '#D7A648' : 'transparent',
+                color: active === filter.slug ? '#FFFFFF' : '#D7A648',
                 cursor: 'pointer',
               }}
             >
-              {f}
+              {filter.label}
             </button>
           ))}
         </div>
@@ -92,53 +152,40 @@ export default function Portfolio() {
         {/* Portfolio grid */}
         <div className="relative" style={{ display: 'grid', gridTemplateColumns: '845px 401px', gridTemplateRows: '401px 401px 401px', gap: '42px' }}>
           {/* Large featured image - spans 2 rows */}
-          <Link href="/portfolio/project" className="relative overflow-hidden row-span-2 group" style={{ width: '845px', height: '845px', borderRadius: '22px', display: 'block' }}>
-            <Image src={projects[0].img} alt={projects[0].title} fill className="object-cover zoom-image" />
-            <div className="absolute bottom-0 left-0 right-0" style={{ height: '241px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 78%)', borderRadius: '0 0 22px 22px' }} />
-            <div className="absolute" style={{ bottom: '24px', left: '40px' }}>
-              <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{projects[0].title}</h3>
-              <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{projects[0].desc}</p>
-            </div>
-          </Link>
+          {projects[0] ? (
+            <HomeProjectCard project={projects[0]} isLarge>
+              <HomeProjectOverlay project={projects[0]} isLarge />
+            </HomeProjectCard>
+          ) : null}
 
           {/* Top right */}
-          <Link href="/portfolio/project" className="relative overflow-hidden group" style={{ height: '401px', borderRadius: '22px', display: 'block' }}>
-            <Image src={projects[1].img} alt={projects[1].title} fill className="object-cover zoom-image" />
-            <div className="absolute bottom-0 left-0 right-0" style={{ height: '129px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)', borderRadius: '0 0 22px 22px' }} />
-            <div className="absolute" style={{ bottom: '16px', left: '24px' }}>
-              <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{projects[1].title}</h3>
-              <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{projects[1].desc}</p>
-            </div>
-          </Link>
+          {projects[1] ? (
+            <HomeProjectCard project={projects[1]}>
+              <HomeProjectOverlay project={projects[1]} />
+            </HomeProjectCard>
+          ) : null}
 
           {/* Bottom right */}
-          <Link href="/portfolio/project" className="relative overflow-hidden group" style={{ height: '401px', borderRadius: '22px', display: 'block' }}>
-            <Image src={projects[2].img} alt={projects[2].title} fill className="object-cover zoom-image" />
-            <div className="absolute bottom-0 left-0 right-0" style={{ height: '129px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)', borderRadius: '0 0 22px 22px' }} />
-            <div className="absolute" style={{ bottom: '16px', left: '24px' }}>
-              <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{projects[2].title}</h3>
-              <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{projects[2].desc}</p>
-            </div>
-          </Link>
+          {projects[2] ? (
+            <HomeProjectCard project={projects[2]}>
+              <HomeProjectOverlay project={projects[2]} />
+            </HomeProjectCard>
+          ) : null}
 
           {/* Bottom row - 3 images spanning full width */}
           <div className="col-span-2 grid grid-cols-3" style={{ height: '401px', gap: '42px' }}>
-            {projects.slice(3).map((p, i) => (
-              <Link key={i} href="/portfolio/project" className="relative overflow-hidden group" style={{ height: '401px', borderRadius: '22px', display: 'block' }}>
-                <Image src={p.img} alt={p.title} fill className="object-cover zoom-image" />
-                <div className="absolute bottom-0 left-0 right-0" style={{ height: '129px', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 77%)', borderRadius: '0 0 22px 22px' }} />
-                <div className="absolute" style={{ bottom: '16px', left: '24px' }}>
-                  <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{p.title}</h3>
-                  <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{p.desc}</p>
-                </div>
-              </Link>
+            {projects.slice(3).map((project) => (
+              <HomeProjectCard key={project.id} project={project}>
+                <HomeProjectOverlay project={project} />
+              </HomeProjectCard>
             ))}
           </div>
         </div>
 
         {/* View Full Portfolio button */}
         <div className="flex justify-center" style={{ marginTop: '48px' }}>
-          <button
+          <Link
+            href="/portfolio"
             className="flex items-center gap-[12px] font-heading"
             style={{
               background: '#D7A648',
@@ -150,11 +197,12 @@ export default function Portfolio() {
               border: 'none',
               cursor: 'pointer',
               height: '44px',
+              textDecoration: 'none',
             }}
           >
             View Full Portfolio
             <Image src="/images/arrow-right.svg" alt="" width={13} height={8} />
-          </button>
+          </Link>
         </div>
       </div>
     </section>
