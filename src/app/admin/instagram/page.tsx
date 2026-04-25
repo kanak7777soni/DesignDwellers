@@ -82,7 +82,7 @@ function ReelForm({
           </label>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Order
-            <input name="sortOrder" type="number" defaultValue={reel?.sortOrder ?? fallbackOrder} className="font-body" style={inputStyle} />
+            <input name="sortOrder" type="number" defaultValue={reel?.sortOrder ?? fallbackOrder} className="font-body number-input-clean" style={inputStyle} />
           </label>
         </div>
 
@@ -200,7 +200,7 @@ export default async function AdminInstagramPage({
               </label>
               <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
                 Fetch limit
-                <input name="lookupLimit" type="number" min={1} max={100} defaultValue={data.settings.lookupLimit} className="font-body" style={inputStyle} />
+                <input name="lookupLimit" type="number" min={1} max={100} defaultValue={data.settings.lookupLimit} className="font-body number-input-clean" style={inputStyle} />
               </label>
             </div>
             <div className="flex items-center justify-between">

@@ -93,3 +93,15 @@
 .group:hover .zoom-image {
   transform: scale(1.05);
 }
+
+.number-input-clean {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.number-input-clean::-webkit-outer-spin-button,
+.number-input-clean::-webkit-inner-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+}

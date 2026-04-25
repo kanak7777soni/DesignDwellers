@@ -123,10 +123,10 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
             </select>
           </Field>
           <Field label="Portfolio order">
-            <input name="portfolioOrder" type="number" defaultValue={project?.portfolioOrder ?? ''} className="font-body" style={inputStyle} />
+            <input name="portfolioOrder" type="number" defaultValue={project?.portfolioOrder ?? ''} className="font-body number-input-clean" style={inputStyle} />
           </Field>
           <Field label="Featured order">
-            <input name="featuredOrder" type="number" defaultValue={project?.featuredOrder ?? ''} className="font-body" style={inputStyle} />
+            <input name="featuredOrder" type="number" defaultValue={project?.featuredOrder ?? ''} className="font-body number-input-clean" style={inputStyle} />
           </Field>
         </div>
 

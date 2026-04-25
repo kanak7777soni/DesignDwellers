@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import type { ProjectMedia } from '@/lib/portfolio';
 
 type MediaGroupName = 'heroMedia' | 'galleryMedia';
@@ -39,6 +40,23 @@ const fileInputStyle = {
   padding: '10px 12px 0',
   outline: 'none',
 };
+
+function reorderButtonStyle(isDisabled: boolean) {
+  return {
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    border: '1px solid rgba(215,166,72,0.38)',
+    background: isDisabled ? 'rgba(255,255,255,0.04)' : 'rgba(215,166,72,0.1)',
+    color: '#D7A648',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: isDisabled ? 'not-allowed' : 'pointer',
+    opacity: isDisabled ? 0.38 : 1,
+    transition: 'background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease',
+  };
+}
 
 function createInitialRows(media: ProjectMedia[], blankRows: number): MediaRow[] {
   return [
@@ -145,26 +163,26 @@ export default function AdminMediaRows({
             <input type="hidden" name={`${name}Indexes`} value={row.key} />
             <input type="hidden" name={`${name}Id-${row.key}`} value={row.media?.id || ''} />
             <input type="hidden" name={`${name}Order-${row.key}`} value={index + 1} />
-            <div className="flex flex-col" style={{ gap: '4px' }}>
+            <div className="flex flex-col items-center" style={{ gap: '6px' }}>
               <button
                 type="button"
-                className="font-body"
-                style={{ height: '28px', borderRadius: '6px', border: '1px solid rgba(215,166,72,0.35)', background: '#141300', color: '#D7A648', cursor: 'pointer' }}
+                style={reorderButtonStyle(index === 0)}
                 onClick={() => moveRow(index, index - 1)}
                 disabled={index === 0}
                 aria-label={`Move ${label} row up`}
+                title={`Move ${label} row up`}
               >
-                Up
+                <ArrowUp size={15} strokeWidth={2.2} />
               </button>
               <button
                 type="button"
-                className="font-body"
-                style={{ height: '28px', borderRadius: '6px', border: '1px solid rgba(215,166,72,0.35)', background: '#141300', color: '#D7A648', cursor: 'pointer' }}
+                style={reorderButtonStyle(index === rows.length - 1)}
                 onClick={() => moveRow(index, index + 1)}
                 disabled={index === rows.length - 1}
                 aria-label={`Move ${label} row down`}
+                title={`Move ${label} row down`}
               >
-                Down
+                <ArrowDown size={15} strokeWidth={2.2} />
               </button>
             </div>
             <MediaPreview media={row.media} />

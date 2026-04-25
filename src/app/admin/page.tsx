@@ -175,7 +175,7 @@ export default async function AdminPage({
                 <input form={`category-${category.slug}`} type="hidden" name="originalSlug" value={category.slug} />
                 <input form={`category-${category.slug}`} name="label" defaultValue={category.label} className="font-body" style={inputStyle} />
                 <input form={`category-${category.slug}`} name="slug" defaultValue={category.slug} className="font-body" style={inputStyle} />
-                <input form={`category-${category.slug}`} name="sortOrder" type="number" defaultValue={category.sortOrder} className="font-body" style={inputStyle} />
+                <input form={`category-${category.slug}`} name="sortOrder" type="number" defaultValue={category.sortOrder} className="font-body number-input-clean" style={inputStyle} />
                 <label className="font-body flex items-center" style={{ gap: '7px', fontSize: '13px' }}>
                   <input form={`category-${category.slug}`} type="checkbox" name="visibleInFilters" defaultChecked={category.visibleInFilters} />
                   Visible
@@ -198,7 +198,7 @@ export default async function AdminPage({
           <form action={saveCategoryAction} className="grid items-center" style={{ gridTemplateColumns: '1fr 1fr 110px 100px 110px', gap: '10px', marginTop: '22px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '18px' }}>
             <input name="label" placeholder="New category" className="font-body" style={inputStyle} />
             <input name="slug" placeholder="auto-slug" className="font-body" style={inputStyle} />
-            <input name="sortOrder" type="number" placeholder="70" className="font-body" style={inputStyle} />
+            <input name="sortOrder" type="number" placeholder="70" className="font-body number-input-clean" style={inputStyle} />
             <label className="font-body flex items-center" style={{ gap: '7px', fontSize: '13px' }}>
               <input type="checkbox" name="visibleInFilters" defaultChecked />
               Visible
