@@ -63,6 +63,20 @@ export default async function AdminProjectPreviewPage({
             {project.published ? 'Published' : 'Draft'}
           </span>
         </div>
+        <div className="flex items-center justify-between" style={{ border: '1px solid rgba(215,166,72,0.3)', borderRadius: '6px', padding: '12px', marginBottom: '24px', background: 'rgba(215,166,72,0.08)' }}>
+          <span className="font-body" style={{ color: '#FFFFFF', fontSize: '13px' }}>
+            Public URL: /portfolio/{project.slug}
+          </span>
+          {project.published ? (
+            <Link href={`/portfolio/${project.slug}`} className="font-body" style={{ color: '#D7A648', textDecoration: 'none', fontSize: '13px' }}>
+              Open live page
+            </Link>
+          ) : (
+            <span className="font-body" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+              Draft projects do not open on the public URL.
+            </span>
+          )}
+        </div>
 
         <div
           className="grid"
@@ -79,7 +93,6 @@ export default async function AdminProjectPreviewPage({
                 sizes={heroSizes}
                 className="object-cover"
                 priority={index === 0}
-                showVideoControls={media.type === 'video'}
               />
             </div>
           ))}
@@ -132,7 +145,6 @@ export default async function AdminProjectPreviewPage({
                 media={media}
                 sizes="401px"
                 className="object-cover"
-                showVideoControls={media.type === 'video'}
               />
             </div>
           ))}

@@ -121,6 +121,9 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
           </Field>
           <Field label="URL slug">
             <input name="slug" defaultValue={project?.slug || ''} className="font-body" style={inputStyle} />
+            <span style={{ color: 'rgba(255,255,255,0.58)', fontSize: '12px', lineHeight: '1.35em' }}>
+              {project?.slug ? `Current public URL: /portfolio/${project.slug}` : 'Leave blank to create the slug from the project name.'}
+            </span>
           </Field>
           <Field label="Card details shown publicly">
             <input name="details" defaultValue={project?.details || ''} className="font-body" style={inputStyle} />

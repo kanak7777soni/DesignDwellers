@@ -138,9 +138,15 @@ export default async function AdminPage({
                 <span className="font-body" style={{ fontSize: '13px', color: project.published ? '#FFFFFF' : 'rgba(255,255,255,0.45)' }}>
                   {project.published ? 'Published' : 'Draft'}
                 </span>
-                <Link href={`/portfolio/${project.slug}`} className="font-body" style={{ color: '#FFFFFF', opacity: 0.72, textDecoration: 'none', fontSize: '13px' }}>
-                  View
-                </Link>
+                {project.published ? (
+                  <Link href={`/portfolio/${project.slug}`} className="font-body" style={{ color: '#FFFFFF', opacity: 0.72, textDecoration: 'none', fontSize: '13px' }}>
+                    Live
+                  </Link>
+                ) : (
+                  <span className="font-body" style={{ color: 'rgba(255,255,255,0.42)', fontSize: '13px' }}>
+                    No live URL
+                  </span>
+                )}
                 <Link href={`/admin/preview/${project.id}`} className="font-body" style={{ color: '#FFFFFF', opacity: 0.72, textDecoration: 'none', fontSize: '13px' }}>
                   Preview
                 </Link>

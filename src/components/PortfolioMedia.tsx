@@ -6,7 +6,6 @@ type PortfolioMediaProps = {
   sizes: string;
   className?: string;
   priority?: boolean;
-  showVideoControls?: boolean;
 };
 
 function isRemoteUrl(src: string) {
@@ -18,7 +17,6 @@ export default function PortfolioMedia({
   sizes,
   className = 'object-cover',
   priority = false,
-  showVideoControls = false,
 }: PortfolioMediaProps) {
   if (media.type === 'video') {
     return (
@@ -27,12 +25,13 @@ export default function PortfolioMedia({
         poster={media.poster}
         aria-label={media.alt}
         className={`h-full w-full ${className}`}
-        autoPlay={!showVideoControls}
-        muted={!showVideoControls}
-        loop={!showVideoControls}
+        autoPlay
+        muted
+        loop
         playsInline
-        preload="metadata"
-        controls={showVideoControls}
+        preload="auto"
+        controls={false}
+        disablePictureInPicture
       />
     );
   }

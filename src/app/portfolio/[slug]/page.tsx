@@ -130,7 +130,6 @@ export default async function IndividualPortfolioPage({
                 sizes={heroSizes}
                 className="object-cover"
                 priority={index === 0}
-                showVideoControls={media.type === 'video'}
               />
             </div>
           ))}
@@ -290,7 +289,6 @@ export default async function IndividualPortfolioPage({
                 media={media}
                 sizes="401px"
                 className="object-cover"
-                showVideoControls={media.type === 'video'}
               />
             </div>
           ))}

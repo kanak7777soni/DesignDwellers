@@ -477,6 +477,9 @@ export async function saveProjectAction(formData: FormData) {
     ...data,
     projects: nextProjects,
   }, { backupReason: existing ? 'project saved' : 'project created' }, existing ? `/admin/projects/${id}` : '/admin/projects/new');
+  if (existing?.slug && existing.slug !== project.slug) {
+    touchPublicPaths(existing.slug);
+  }
   touchPublicPaths(project.slug);
   redirect(`/admin/projects/${project.id}?status=saved`);
 }

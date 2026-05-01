@@ -63,6 +63,11 @@ export default async function EditProjectPage({
               <Link href={`/admin/preview/${project.id}`} className="font-body" style={{ color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.32)', borderRadius: '55px', padding: '10px 16px', textDecoration: 'none', fontSize: '14px' }}>
                 Preview
               </Link>
+              {project.published ? (
+                <Link href={`/portfolio/${project.slug}`} className="font-body" style={{ color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.32)', borderRadius: '55px', padding: '10px 16px', textDecoration: 'none', fontSize: '14px' }}>
+                  Live Page
+                </Link>
+              ) : null}
               <ConfirmSubmitButton message={`Delete ${project.name}?`} className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.5)', borderRadius: '55px', padding: '10px 16px', cursor: 'pointer' }}>
                 Delete Project
               </ConfirmSubmitButton>
