@@ -88,8 +88,8 @@ function ReelForm({
             <input name="permalink" defaultValue={reel?.permalink || ''} placeholder="https://www.instagram.com/reel/..." className="font-body" style={inputStyle} />
           </label>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Direct video URL
-            <input name="videoUrl" defaultValue={reel?.videoUrl || ''} placeholder="Optional MP4/WebM URL" className="font-body" style={inputStyle} />
+            Saved/direct video URL
+            <input name="videoUrl" defaultValue={reel?.videoUrl || ''} placeholder="Auto-filled after upload, or paste MP4/WebM URL" className="font-body" style={inputStyle} />
           </label>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Order
@@ -99,8 +99,8 @@ function ReelForm({
 
         <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Thumbnail URL
-            <input name="thumbnailUrl" defaultValue={reel?.thumbnailUrl || ''} className="font-body" style={inputStyle} />
+            Saved thumbnail URL
+            <input name="thumbnailUrl" defaultValue={reel?.thumbnailUrl || ''} placeholder="Auto-filled after upload, or paste image URL" className="font-body" style={inputStyle} />
           </label>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Username

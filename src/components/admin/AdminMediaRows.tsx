@@ -210,9 +210,9 @@ export default function AdminMediaRows({
               <option value="image">Image</option>
               <option value="video">Video</option>
             </select>
-            <input name={`${name}Src-${row.key}`} defaultValue={row.media?.src || ''} placeholder={`${label} URL`} className="font-body" style={inputStyle} />
+            <input name={`${name}Src-${row.key}`} defaultValue={row.media?.src || ''} placeholder="Auto-filled after upload, or paste URL" className="font-body" style={inputStyle} />
             <label className="font-body" style={compactFileLabelStyle}>
-              Media upload
+              Upload / replace
               <input
                 name={`${name}File-${row.key}`}
                 type="file"
@@ -224,7 +224,7 @@ export default function AdminMediaRows({
               />
             </label>
             <input name={`${name}Alt-${row.key}`} defaultValue={row.media?.alt || ''} placeholder="Alt text" className="font-body" style={inputStyle} />
-            <input name={`${name}Poster-${row.key}`} defaultValue={row.media?.poster || ''} placeholder="Video poster URL" className="font-body" style={inputStyle} />
+            <input name={`${name}Poster-${row.key}`} defaultValue={row.media?.poster || ''} placeholder="Optional video poster URL" className="font-body" style={inputStyle} />
             <label className="font-body" style={compactFileLabelStyle}>
               Poster image
               <input
@@ -243,7 +243,7 @@ export default function AdminMediaRows({
                 Keep
               </label>
             ) : (
-              <span className="font-body" style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px' }}>New URL</span>
+              <span className="font-body" style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px' }}>New item</span>
             )}
           </div>
         ))}
@@ -260,7 +260,7 @@ export default function AdminMediaRows({
           style={{ height: '46px', borderRadius: '55px', border: '1px solid rgba(215,166,72,0.6)', background: 'transparent', color: '#D7A648', padding: '0 16px', cursor: 'pointer' }}
           onClick={addRow}
         >
-          Add URL Row
+          Add Direct URL Row
         </button>
       </div>
     </div>

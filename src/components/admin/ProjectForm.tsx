@@ -224,11 +224,11 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
               <option value="video">Video</option>
             </select>
           </Field>
-          <Field label="Card media URL">
-            <input name="cardSrc" defaultValue={project?.cardMedia.src || ''} className="font-body" style={inputStyle} />
+          <Field label="Saved card media URL">
+            <input name="cardSrc" defaultValue={project?.cardMedia.src || ''} placeholder="Auto-filled after upload, or paste a direct URL" className="font-body" style={inputStyle} />
           </Field>
-          <Field label="Card video poster URL">
-            <input name="cardPoster" defaultValue={project?.cardMedia.poster || ''} className="font-body" style={inputStyle} />
+          <Field label="Saved card video poster URL">
+            <input name="cardPoster" defaultValue={project?.cardMedia.poster || ''} placeholder="Optional poster image URL" className="font-body" style={inputStyle} />
           </Field>
           <Field label="Upload card poster image">
             <input name="cardPosterFile" type="file" accept="image/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
@@ -246,8 +246,8 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
               </label>
             ) : null}
           </div>
-          <Field label="Home featured media URL">
-            <input name="featuredSrc" defaultValue={project?.featuredMedia?.src || ''} className="font-body" style={inputStyle} />
+          <Field label="Saved home featured media URL">
+            <input name="featuredSrc" defaultValue={project?.featuredMedia?.src || ''} placeholder="Auto-filled after upload, or paste a direct URL" className="font-body" style={inputStyle} />
           </Field>
           <Field label="Home featured media type">
             <select name="featuredType" defaultValue={project?.featuredMedia?.type || 'image'} className="font-body" style={inputStyle}>
@@ -258,8 +258,8 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
           <Field label="Upload home featured image/video">
             <input name="featuredFile" type="file" accept="image/*,video/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </Field>
-          <Field label="Home featured video poster URL">
-            <input name="featuredPoster" defaultValue={project?.featuredMedia?.poster || ''} className="font-body" style={inputStyle} />
+          <Field label="Saved home featured video poster URL">
+            <input name="featuredPoster" defaultValue={project?.featuredMedia?.poster || ''} placeholder="Optional poster image URL" className="font-body" style={inputStyle} />
           </Field>
           <Field label="Upload home featured poster image">
             <input name="featuredPosterFile" type="file" accept="image/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
@@ -296,8 +296,8 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
           <Field label="SEO title">
             <input name="seoTitle" defaultValue={seo.title || ''} className="font-body" style={inputStyle} />
           </Field>
-          <Field label="SEO image URL">
-            <input name="seoImage" defaultValue={seo.image || ''} className="font-body" style={inputStyle} />
+          <Field label="Saved SEO image URL">
+            <input name="seoImage" defaultValue={seo.image || ''} placeholder="Auto-filled after upload, or paste a direct URL" className="font-body" style={inputStyle} />
           </Field>
           <Field label="Upload SEO image">
             <input name="seoImageFile" type="file" accept="image/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
