@@ -231,7 +231,9 @@ export default function UploadAwareForm({
           handleUploadUrl: '/api/admin/blob-upload',
           multipart: file.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES,
           onUploadProgress: ({ percentage }) => {
-            setStatus(`Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
+            setStatus(percentage >= 100
+              ? `Finalizing ${index + 1}/${fileUploads.length} files...`
+              : `Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
           },
         });
 

@@ -35,9 +35,6 @@ export async function POST(request: Request) {
           tokenPayload: clientPayload,
         };
       },
-      onUploadCompleted: async () => {
-        // The CRM form saves the returned Blob URL in its server action.
-      },
     });
 
     return NextResponse.json(response);
