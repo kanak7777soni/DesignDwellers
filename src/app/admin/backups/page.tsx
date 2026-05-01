@@ -14,7 +14,7 @@ function statusText(status?: string) {
 }
 
 function errorText(error?: string) {
-  if (error === 'storage') return 'CRM storage could not update backups. Check the CRM_BLOB_READ_WRITE_TOKEN Vercel environment variable or reconnect a private Blob store.';
+  if (error === 'storage') return 'CRM storage could not update backups. Add the private Blob token as CRM_BLOB_READ_WRITE_TOKEN, or use BLOB_READ_WRITE_TOKEN only if it points to a private Blob store.';
   return null;
 }
 

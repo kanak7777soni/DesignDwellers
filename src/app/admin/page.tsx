@@ -27,7 +27,7 @@ function statusText(status?: string) {
 function errorText(error?: string) {
   if (error === 'category-label') return 'Category name is required.';
   if (error === 'last-category') return 'Keep at least one category before deleting this one.';
-  if (error === 'storage') return 'CRM storage could not save. Check the CRM_BLOB_READ_WRITE_TOKEN Vercel environment variable or reconnect a private Blob store.';
+  if (error === 'storage') return 'CRM storage could not save. Add the private Blob token as CRM_BLOB_READ_WRITE_TOKEN, or use BLOB_READ_WRITE_TOKEN only if it points to a private Blob store.';
   return null;
 }
 
