@@ -92,7 +92,9 @@ export default async function IndividualPortfolioPage({
   }
 
   const categoryLabel = getCategoryLabelFromData(data, project.primaryCategorySlug);
-  const heroMedia = project.detail.heroMedia.slice(0, 2);
+  const heroMedia = project.detail.heroMedia.length > 0 ? project.detail.heroMedia : [project.cardMedia];
+  const heroColumnCount = Math.min(Math.max(heroMedia.length, 1), 3);
+  const heroSizes = heroColumnCount === 1 ? '1294px' : heroColumnCount === 2 ? '628px' : '407px';
   const stats = project.detail.stats.slice(0, 3);
 
   return (
@@ -103,12 +105,21 @@ export default async function IndividualPortfolioPage({
       ]} />
       <div className="max-w-[1440px] mx-auto" style={{ paddingTop: '186px' }}>
         {/* Hero Images */}
-        <div className="flex" style={{ paddingLeft: '73px', paddingRight: '73px', gap: '37px', marginBottom: '42px' }}>
+        <div
+          className="grid"
+          style={{
+            paddingLeft: '73px',
+            paddingRight: '73px',
+            gridTemplateColumns: `repeat(${heroColumnCount}, minmax(0, 1fr))`,
+            gap: '37px',
+            marginBottom: '42px',
+          }}
+        >
           {heroMedia.map((media, index) => (
-            <div key={media.id} style={{ width: '628px', height: '557px', position: 'relative', borderRadius: '0px', overflow: 'hidden', flexShrink: 0 }}>
+            <div key={media.id} style={{ width: '100%', height: '557px', position: 'relative', borderRadius: '0px', overflow: 'hidden' }}>
               <PortfolioMedia
                 media={media}
-                sizes="628px"
+                sizes={heroSizes}
                 className="object-cover"
                 priority={index === 0}
                 showVideoControls={media.type === 'video'}

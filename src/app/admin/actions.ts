@@ -456,7 +456,7 @@ export async function saveProjectAction(formData: FormData) {
       image: seoImageUpload || formString(formData, 'seoImage'),
     },
     detail: {
-      heroMedia: heroMedia.length > 0 ? heroMedia.slice(0, 2) : existing?.detail.heroMedia || [cardMedia],
+      heroMedia: heroMedia.length > 0 ? heroMedia : existing?.detail.heroMedia || [cardMedia],
       stats: stats.length > 0 ? stats : existing?.detail.stats || [],
       description: formString(formData, 'description') || existing?.detail.description || '',
       galleryMedia: galleryMedia.length > 0 ? galleryMedia : existing?.detail.galleryMedia || [cardMedia],
