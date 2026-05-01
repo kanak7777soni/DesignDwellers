@@ -49,15 +49,43 @@ function formFiles(formData: FormData, key: string) {
   return formData.getAll(key).filter((value): value is File => value instanceof File && value.size > 0);
 }
 
+function formIndexedFiles(formData: FormData, groupName: 'heroMedia' | 'galleryMedia', fileKey: string) {
+  return formData.getAll(`${groupName}Indexes`)
+    .map((value) => formFile(formData, `${groupName}${fileKey}-${String(value)}`))
+    .filter((file): file is File => Boolean(file));
+}
+
+function getImageUploadValidationError(file: File | null | undefined) {
+  const validationError = getUploadValidationError(file);
+
+  if (validationError) {
+    return validationError;
+  }
+
+  if (file && !file.type.startsWith('image/')) {
+    return 'Image upload must be an image file.';
+  }
+
+  return null;
+}
+
 function getProjectFormUploadError(formData: FormData) {
-  const files = [
+  const mediaFiles = [
     formFile(formData, 'cardFile'),
     formFile(formData, 'featuredFile'),
     ...formFiles(formData, 'heroFiles'),
     ...formFiles(formData, 'galleryFiles'),
   ];
+  const imageFiles = [
+    formFile(formData, 'cardPosterFile'),
+    formFile(formData, 'featuredPosterFile'),
+    formFile(formData, 'seoImageFile'),
+    ...formIndexedFiles(formData, 'heroMedia', 'PosterFile'),
+    ...formIndexedFiles(formData, 'galleryMedia', 'PosterFile'),
+  ];
+  const mediaError = mediaFiles.map(getUploadValidationError).find(Boolean);
 
-  return files.map(getUploadValidationError).find(Boolean) || null;
+  return mediaError || imageFiles.map(getImageUploadValidationError).find(Boolean) || null;
 }
 
 function getUniqueProjectSlug(data: { projects: PortfolioProject[] }, desiredSlug: string, projectId: string) {
@@ -86,10 +114,10 @@ function getUniqueCategorySlug(data: { categories: PortfolioCategory[] }, desire
   return candidate;
 }
 
-function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'galleryMedia', fallbackAlt: string, idPrefix: string) {
-  return formData.getAll(`${groupName}Indexes`)
+async function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'galleryMedia', fallbackAlt: string, idPrefix: string, projectSlug: string) {
+  const rows = await Promise.all(formData.getAll(`${groupName}Indexes`)
     .map((value) => String(value))
-    .map((index, rowPosition) => {
+    .map(async (index, rowPosition) => {
       const existingId = formString(formData, `${groupName}Id-${index}`);
       const src = formString(formData, `${groupName}Src-${index}`);
       const isExisting = Boolean(existingId);
@@ -99,20 +127,23 @@ function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'galleryMed
         return null;
       }
 
+      const posterUpload = await saveUploadedMedia(formFile(formData, `${groupName}PosterFile-${index}`), projectSlug);
       const typeValue = formString(formData, `${groupName}Type-${index}`);
       const media = createMediaFromSrc({
         id: existingId || `${idPrefix}-url-${rowPosition + 1}`,
         src,
         alt: formString(formData, `${groupName}Alt-${index}`) || `${fallbackAlt} media ${rowPosition + 1}`,
         type: typeValue === 'video' || typeValue === 'image' ? typeValue : mediaTypeFromValue(src),
-        poster: formString(formData, `${groupName}Poster-${index}`),
+        poster: posterUpload || formString(formData, `${groupName}Poster-${index}`),
       });
 
       return {
         order: formNumber(formData, `${groupName}Order-${index}`, rowPosition + 1),
         media,
       };
-    })
+    }));
+
+  return rows
     .filter((item): item is { order: number; media: ProjectMedia } => Boolean(item))
     .sort((a, b) => a.order - b.order)
     .map((item) => item.media);
@@ -125,6 +156,7 @@ async function resolveSingleMedia({
   altKey,
   typeKey,
   posterKey,
+  posterFileKey,
   existing,
   id,
   projectSlug,
@@ -136,6 +168,7 @@ async function resolveSingleMedia({
   altKey: string;
   typeKey: string;
   posterKey?: string;
+  posterFileKey?: string;
   existing?: ProjectMedia;
   id: string;
   projectSlug: string;
@@ -143,6 +176,7 @@ async function resolveSingleMedia({
 }) {
   const file = formFile(formData, fileKey);
   const uploadedSrc = await saveUploadedMedia(file, projectSlug);
+  const uploadedPoster = await saveUploadedMedia(posterFileKey ? formFile(formData, posterFileKey) : null, projectSlug);
   const src = uploadedSrc || formString(formData, srcKey) || existing?.src || '';
   const typeValue = formString(formData, typeKey);
   const type = typeValue === 'video' || typeValue === 'image' ? typeValue : mediaTypeFromValue(file || src);
@@ -153,7 +187,7 @@ async function resolveSingleMedia({
     src,
     alt,
     type,
-    poster: (posterKey ? formString(formData, posterKey) : '') || existing?.poster,
+    poster: uploadedPoster || (posterKey ? formString(formData, posterKey) : '') || existing?.poster,
   });
 }
 
@@ -312,6 +346,7 @@ export async function saveProjectAction(formData: FormData) {
     altKey: 'cardAlt',
     typeKey: 'cardType',
     posterKey: 'cardPoster',
+    posterFileKey: 'cardPosterFile',
     existing: existing?.cardMedia,
     id: `${slug}-card`,
     projectSlug: slug,
@@ -325,6 +360,7 @@ export async function saveProjectAction(formData: FormData) {
   const featuredSrc = formString(formData, 'featuredSrc');
   const featuredFile = formFile(formData, 'featuredFile');
   const featuredUpload = await saveUploadedMedia(featuredFile, slug);
+  const featuredPosterUpload = await saveUploadedMedia(formFile(formData, 'featuredPosterFile'), slug);
   const removeFeaturedMedia = formData.get('removeFeaturedMedia') === 'on';
   const featuredTypeValue = formString(formData, 'featuredType');
   const featuredMedia = !removeFeaturedMedia && (featuredUpload || featuredSrc || existing?.featuredMedia?.src)
@@ -335,12 +371,12 @@ export async function saveProjectAction(formData: FormData) {
       type: featuredTypeValue === 'video' || featuredTypeValue === 'image'
         ? featuredTypeValue
         : mediaTypeFromValue(featuredFile || featuredUpload || featuredSrc || existing?.featuredMedia?.src),
-      poster: formString(formData, 'featuredPoster') || existing?.featuredMedia?.poster,
+      poster: featuredPosterUpload || formString(formData, 'featuredPoster') || existing?.featuredMedia?.poster,
     })
     : undefined;
 
   const heroMedia = [
-    ...parseMediaRows(formData, 'heroMedia', name, `${slug}-hero`),
+    ...(await parseMediaRows(formData, 'heroMedia', name, `${slug}-hero`, slug)),
     ...await appendUploadedMedia({
       files: formFiles(formData, 'heroFiles'),
       projectSlug: slug,
@@ -349,7 +385,7 @@ export async function saveProjectAction(formData: FormData) {
     }),
   ];
   const galleryMedia = [
-    ...parseMediaRows(formData, 'galleryMedia', name, `${slug}-gallery`),
+    ...(await parseMediaRows(formData, 'galleryMedia', name, `${slug}-gallery`, slug)),
     ...await appendUploadedMedia({
       files: formFiles(formData, 'galleryFiles'),
       projectSlug: slug,
@@ -358,6 +394,7 @@ export async function saveProjectAction(formData: FormData) {
     }),
   ];
   const stats = parseStats(formString(formData, 'statsLines'));
+  const seoImageUpload = await saveUploadedMedia(formFile(formData, 'seoImageFile'), slug);
 
   const project: PortfolioProject = {
     id,
@@ -387,7 +424,7 @@ export async function saveProjectAction(formData: FormData) {
     seo: {
       title: formString(formData, 'seoTitle'),
       description: formString(formData, 'seoDescription'),
-      image: formString(formData, 'seoImage'),
+      image: seoImageUpload || formString(formData, 'seoImage'),
     },
     detail: {
       heroMedia: heroMedia.length > 0 ? heroMedia.slice(0, 2) : existing?.detail.heroMedia || [cardMedia],

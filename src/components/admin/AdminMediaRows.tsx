@@ -41,6 +41,17 @@ const fileInputStyle = {
   outline: 'none',
 };
 
+const compactFileInputStyle = {
+  height: '36px',
+  borderRadius: '6px',
+  border: '1px solid rgba(215,166,72,0.35)',
+  background: '#141300',
+  color: '#FFFFFF',
+  padding: '6px 8px 0',
+  outline: 'none',
+  fontSize: '11px',
+};
+
 function reorderButtonStyle(isDisabled: boolean) {
   return {
     width: '30px',
@@ -153,7 +164,7 @@ export default function AdminMediaRows({
             onDragEnd={() => setDraggedKey(null)}
             className="grid items-center"
             style={{
-              gridTemplateColumns: '38px 88px 92px 1.4fr 1.2fr 1fr 88px',
+              gridTemplateColumns: '38px 88px 90px minmax(170px,1.2fr) minmax(130px,0.9fr) minmax(130px,0.9fr) 150px 78px',
               gap: '10px',
               borderTop: index === 0 ? 'none' : '1px solid rgba(255,255,255,0.08)',
               paddingTop: index === 0 ? 0 : '12px',
@@ -193,6 +204,15 @@ export default function AdminMediaRows({
             <input name={`${name}Src-${row.key}`} defaultValue={row.media?.src || ''} placeholder={`${label} URL`} className="font-body" style={inputStyle} />
             <input name={`${name}Alt-${row.key}`} defaultValue={row.media?.alt || ''} placeholder="Alt text" className="font-body" style={inputStyle} />
             <input name={`${name}Poster-${row.key}`} defaultValue={row.media?.poster || ''} placeholder="Video poster URL" className="font-body" style={inputStyle} />
+            <input
+              name={`${name}PosterFile-${row.key}`}
+              type="file"
+              accept="image/*"
+              aria-label={`Upload ${label} poster image`}
+              title={`Upload ${label} poster image`}
+              className="font-body"
+              style={compactFileInputStyle}
+            />
             {row.isExisting ? (
               <label className="font-body flex items-center" style={{ gap: '7px', color: '#FFFFFF', fontSize: '13px' }}>
                 <input type="checkbox" name={`${name}Keep-${row.key}`} defaultChecked />
@@ -207,7 +227,7 @@ export default function AdminMediaRows({
 
       <div className="flex items-end" style={{ gap: '12px' }}>
         <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px', flex: 1 }}>
-          Upload {label.toLowerCase()} files
+          Upload {label.toLowerCase()} image/video files
           <input name={uploadName} type="file" accept="image/*,video/*" multiple className="font-body" style={fileInputStyle} />
         </label>
         <button

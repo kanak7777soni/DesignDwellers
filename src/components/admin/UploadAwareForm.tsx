@@ -21,11 +21,21 @@ type FileUploadTarget = {
   file: File;
 };
 
-const singleFileTargets: Record<string, { srcField: string; typeField?: string; altField?: string }> = {
+type SingleFileTarget = {
+  srcField: string;
+  typeField?: string;
+  altField?: string;
+  expectedType?: 'image' | 'video';
+};
+
+const singleFileTargets: Record<string, SingleFileTarget> = {
   cardFile: { srcField: 'cardSrc', typeField: 'cardType', altField: 'cardAlt' },
+  cardPosterFile: { srcField: 'cardPoster', expectedType: 'image' },
   featuredFile: { srcField: 'featuredSrc', typeField: 'featuredType', altField: 'featuredAlt' },
-  videoFile: { srcField: 'videoUrl' },
-  thumbnailFile: { srcField: 'thumbnailUrl' },
+  featuredPosterFile: { srcField: 'featuredPoster', expectedType: 'image' },
+  seoImageFile: { srcField: 'seoImage', expectedType: 'image' },
+  videoFile: { srcField: 'videoUrl', expectedType: 'video' },
+  thumbnailFile: { srcField: 'thumbnailUrl', expectedType: 'image' },
 };
 
 const multiFileTargets: Record<string, 'heroMedia' | 'galleryMedia'> = {
@@ -83,6 +93,31 @@ function setSubmitButtons(form: HTMLFormElement, disabled: boolean, label?: stri
 function collectFileUploads(form: HTMLFormElement): FileUploadTarget[] {
   return Array.from(form.querySelectorAll<HTMLInputElement>('input[type="file"]'))
     .flatMap((input) => Array.from(input.files || []).map((file) => ({ input, file })));
+}
+
+function getRowPosterTarget(inputName: string) {
+  const match = /^(heroMedia|galleryMedia)PosterFile-(.+)$/.exec(inputName);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    groupName: match[1] as 'heroMedia' | 'galleryMedia',
+    key: match[2],
+  };
+}
+
+function getExpectedTypeError(file: File, expectedType?: 'image' | 'video') {
+  if (expectedType === 'image' && !file.type.startsWith('image/')) {
+    return 'This upload must be an image file.';
+  }
+
+  if (expectedType === 'video' && !file.type.startsWith('video/')) {
+    return 'This upload must be a video file.';
+  }
+
+  return null;
 }
 
 function appendUploadedMediaRow({
@@ -162,6 +197,14 @@ export default function UploadAwareForm({
           throw new Error(validationError);
         }
 
+        const singleTarget = singleFileTargets[input.name];
+        const rowPosterTarget = getRowPosterTarget(input.name);
+        const expectedTypeError = getExpectedTypeError(file, singleTarget?.expectedType || (rowPosterTarget ? 'image' : undefined));
+
+        if (expectedTypeError) {
+          throw new Error(expectedTypeError);
+        }
+
         const pathname = [
           'crm',
           safePathPart(input.name || 'media'),
@@ -178,7 +221,6 @@ export default function UploadAwareForm({
           },
         });
 
-        const singleTarget = singleFileTargets[input.name];
         const multiTarget = multiFileTargets[input.name];
 
         if (singleTarget) {
@@ -204,6 +246,8 @@ export default function UploadAwareForm({
             url: blob.url,
             index,
           });
+        } else if (rowPosterTarget) {
+          setFieldValue(form, `${rowPosterTarget.groupName}Poster-${rowPosterTarget.key}`, blob.url);
         }
       }
 
