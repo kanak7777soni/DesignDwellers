@@ -13,13 +13,6 @@ const stats = [
   { value: '4.9', label: 'Client Rating', hasStar: true },
 ];
 
-const heroImages = [
-  { src: '/images/service-hero-4.png', label: 'Office', pos: 'left-top' },
-  { src: '/images/service-hero-3.png', label: 'Office', pos: 'right-top' },
-  { src: '/images/service-hero-2.png', label: 'Kitchen & Dining', pos: 'left-bottom' },
-  { src: '/images/service-hero-1.png', label: 'Kitchen & Dining', pos: 'right-bottom' },
-];
-
 const services = [
   {
     num: '01.',
@@ -171,7 +164,7 @@ export default function ServicePage() {
             {/* Buttons */}
             <div className="flex" style={{ gap: '11px', marginBottom: '46px' }}>
               <Link
-                href="#"
+                href="/contact"
                 className="font-heading flex items-center justify-center"
                 style={{
                   background: '#D7A648',
@@ -632,7 +625,7 @@ export default function ServicePage() {
                 {/* Get Free Quote button */}
                 <div style={{ position: 'absolute', bottom: '20px', right: '30px' }}>
                   <Link
-                    href="#"
+                    href="/contact"
                     className="font-heading flex items-center justify-center"
                     style={{
                       background: '#D7A648',

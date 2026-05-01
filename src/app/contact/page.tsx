@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
 import Footer from '@/components/Footer';
 import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
@@ -12,7 +11,7 @@ const trustBadges = [
   { title: '100% Confidential', desc: 'Your details stay with us' },
 ];
 
-const projectTypes = ['Full Home', 'Living Room', 'BedRoom', 'Kitchen', 'Full Home', 'Luxury', 'Other'];
+const projectTypes = ['Full Home', 'Living Room', 'BedRoom', 'Kitchen', 'Luxury', 'Other'];
 
 const faqItems = [
   { q: 'How much does a full home interior cost?', a: 'Our full home interiors start from ₹15L for a 2BHK, all-inclusive. The final cost depends on the size of your home, materials selected, and scope of work. We provide a detailed, transparent quote after our free consultation.' },
@@ -114,13 +113,13 @@ export default function ContactPage() {
                     onClick={() => setSelectedType(type)}
                     className="font-body"
                     style={{
-                      background: selectedType === type && i === 0 ? '#D7A648' : 'transparent',
-                      border: selectedType === type && i === 0 ? 'none' : '1px solid #D7A648',
+                      background: selectedType === type ? '#D7A648' : 'transparent',
+                      border: selectedType === type ? 'none' : '1px solid #D7A648',
                       borderRadius: '55px',
                       padding: '5px 16px',
                       fontSize: '10px',
                       lineHeight: '1em',
-                      color: selectedType === type && i === 0 ? '#FFFFFF' : '#D7A648',
+                      color: selectedType === type ? '#FFFFFF' : '#D7A648',
                       cursor: 'pointer',
                     }}
                   >

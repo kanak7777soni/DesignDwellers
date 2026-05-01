@@ -339,7 +339,7 @@ export default function PortfolioPage() {
           </p>
 
           <Link
-            href="#"
+            href="/contact"
             className="font-heading flex items-center justify-center"
             style={{
               background: '#D7A648',

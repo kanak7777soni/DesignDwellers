@@ -131,7 +131,7 @@ export default function AboutPage() {
               {/* Buttons BEFORE subtitle (Figma order: y:532 before y:593) */}
               <div className="flex items-center gap-[11px]" style={{ marginBottom: '30px' }}>
                 <Link
-                  href="#"
+                  href="/contact"
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
@@ -284,7 +284,7 @@ export default function AboutPage() {
               {/* CTA buttons */}
               <div className="flex items-center gap-[11px]">
                 <Link
-                  href="#"
+                  href="/contact"
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',

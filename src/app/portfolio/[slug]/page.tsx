@@ -297,7 +297,7 @@ export default async function IndividualPortfolioPage({
         {/* Action Buttons */}
         <div className="flex justify-center" style={{ gap: '11px', marginBottom: '48px' }}>
           <Link
-            href="#"
+            href="/contact"
             className="font-heading flex items-center justify-center"
             style={{
               background: '#D7A648',
@@ -386,7 +386,7 @@ export default async function IndividualPortfolioPage({
           </p>
 
           <Link
-            href="#"
+            href="/contact"
             className="font-heading flex items-center justify-center"
             style={{
               background: '#D7A648',

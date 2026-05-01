@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Link from 'next/link';
 
 export default function ContactForm() {
   return (
@@ -64,7 +64,8 @@ export default function ContactForm() {
         </p>
 
         {/* CTA Button */}
-        <button
+        <Link
+          href="/contact"
           className="font-heading flex items-center justify-center"
           style={{
             background: '#D7A648',
@@ -77,10 +78,11 @@ export default function ContactForm() {
             border: 'none',
             cursor: 'pointer',
             marginBottom: '16px',
+            textDecoration: 'none',
           }}
         >
           Book My Free Consultation
-        </button>
+        </Link>
 
         {/* Capacity note */}
         <p className="font-body text-center" style={{ fontSize: '12px', lineHeight: '1em', color: '#000000', opacity: 0.4 }}>

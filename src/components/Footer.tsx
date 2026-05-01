@@ -7,7 +7,6 @@ const quickLinks = [
   { label: 'Services', href: '/service' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
-  { label: 'Privacy Police', href: '#' },
 ];
 
 export default function Footer() {
@@ -110,15 +109,18 @@ export default function Footer() {
           <div className="flex flex-col items-end">
             {/* Social icons */}
             <div className="flex gap-[12px] mb-[24px]">
-              {[5, 6, 7].map((n) => (
-                <a key={n} href="#" className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <a href="https://wa.me/919380576368" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)' }}>
+                <Image src="/images/social-icon-5.svg" alt="WhatsApp" width={18} height={18} />
+              </a>
+              {[6, 7].map((n) => (
+                <span key={n} className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)' }}>
                   <Image src={`/images/social-icon-${n}.svg`} alt="" width={18} height={18} />
-                </a>
+                </span>
               ))}
             </div>
 
             {/* Instagram */}
-            <a href="#" className="flex items-center gap-[8px] mb-[16px]" style={{ textDecoration: 'none' }}>
+            <a href="https://www.instagram.com/designdwellersstudio/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px] mb-[16px]" style={{ textDecoration: 'none' }}>
               <Image src="/images/instagram-icon.svg" alt="Instagram" width={20} height={20} />
               <span className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.7 }}>
                 @DesignDwellersstudio
@@ -131,7 +133,8 @@ export default function Footer() {
             </p>
 
             {/* CTA Button */}
-            <button
+            <Link
+              href="/contact"
               className="font-heading flex items-center justify-center"
               style={{
                 background: '#D7A648',
@@ -143,10 +146,11 @@ export default function Footer() {
                 color: '#FFFFFF',
                 border: 'none',
                 cursor: 'pointer',
+                textDecoration: 'none',
               }}
             >
               Book My Free Consultation
-            </button>
+            </Link>
           </div>
         </div>
 
