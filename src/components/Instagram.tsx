@@ -55,7 +55,7 @@ export default function InstagramSection() {
 
     async function loadInstagramVideos() {
       try {
-        const response = await fetch('/api/instagram/videos');
+        const response = await fetch('/api/instagram/videos', { cache: 'no-store' });
         const payload = (await response.json()) as InstagramFeedResponse;
 
         if (!isMounted) {

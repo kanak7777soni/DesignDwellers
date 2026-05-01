@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getActiveInstagramReels, getInstagramReelsData } from '@/lib/instagram-reels-store';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const data = await getInstagramReelsData();
   const videos = getActiveInstagramReels(data, 6).map((reel) => ({

@@ -115,6 +115,14 @@ function getProjectFormUploadError(formData: FormData) {
   return mediaError || imageFiles.map(getImageUploadValidationError).find(Boolean) || null;
 }
 
+function resolveSubmittedMediaType(typeValue: string, value: string | File | null | undefined): ProjectMedia['type'] {
+  if (mediaTypeFromValue(value) === 'video') {
+    return 'video';
+  }
+
+  return typeValue === 'video' ? 'video' : 'image';
+}
+
 function getUniqueProjectSlug(data: { projects: PortfolioProject[] }, desiredSlug: string, projectId: string) {
   const baseSlug = slugify(desiredSlug) || 'project';
   let candidate = baseSlug;
@@ -162,7 +170,7 @@ async function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'gall
         id: existingId || `${idPrefix}-url-${rowPosition + 1}`,
         src,
         alt: formString(formData, `${groupName}Alt-${index}`) || `${fallbackAlt} media ${rowPosition + 1}`,
-        type: uploadedSrc ? mediaTypeFromValue(mediaFile) : typeValue === 'video' || typeValue === 'image' ? typeValue : mediaTypeFromValue(src),
+        type: resolveSubmittedMediaType(typeValue, mediaFile || src),
         poster: posterUpload || formString(formData, `${groupName}Poster-${index}`),
       });
 
@@ -208,7 +216,7 @@ async function resolveSingleMedia({
   const uploadedPoster = await saveUploadedMedia(posterFileKey ? formFile(formData, posterFileKey) : null, projectSlug);
   const src = uploadedSrc || formString(formData, srcKey) || existing?.src || '';
   const typeValue = formString(formData, typeKey);
-  const type = typeValue === 'video' || typeValue === 'image' ? typeValue : mediaTypeFromValue(file || src);
+  const type = resolveSubmittedMediaType(typeValue, file || src);
   const alt = formString(formData, altKey) || existing?.alt || fallbackAlt;
 
   return createMediaFromSrc({
@@ -397,9 +405,7 @@ export async function saveProjectAction(formData: FormData) {
       id: `${slug}-featured`,
       src: featuredUpload || featuredSrc || existing?.featuredMedia?.src || '',
       alt: formString(formData, 'featuredAlt') || existing?.featuredMedia?.alt || name,
-      type: featuredTypeValue === 'video' || featuredTypeValue === 'image'
-        ? featuredTypeValue
-        : mediaTypeFromValue(featuredFile || featuredUpload || featuredSrc || existing?.featuredMedia?.src),
+      type: resolveSubmittedMediaType(featuredTypeValue, featuredFile || featuredUpload || featuredSrc || existing?.featuredMedia?.src),
       poster: featuredPosterUpload || formString(formData, 'featuredPoster') || existing?.featuredMedia?.poster,
     })
     : undefined;

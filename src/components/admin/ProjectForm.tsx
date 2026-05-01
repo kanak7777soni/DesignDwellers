@@ -209,44 +209,44 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
         </div>
       </Section>
 
-      <Section title="Card & Featured Media">
+      <Section title="Portfolio Cards & Home Featured Media">
         <div className="grid grid-cols-2" style={{ gap: '16px' }}>
           <div>
-            <p className="font-body" style={{ color: '#D7A648', fontSize: '13px', marginBottom: '8px' }}>Current card media</p>
+            <p className="font-body" style={{ color: '#D7A648', fontSize: '13px', marginBottom: '8px' }}>Current portfolio card media</p>
             <MediaPreview media={project?.cardMedia} />
           </div>
-          <Field label="Upload card image/video">
+          <Field label="Upload/replace portfolio card image/video">
             <input name="cardFile" type="file" accept="image/*,video/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </Field>
-          <Field label="Card media type">
+          <Field label="Portfolio card media type">
             <select name="cardType" defaultValue={project?.cardMedia.type || 'image'} className="font-body" style={inputStyle}>
               <option value="image">Image</option>
               <option value="video">Video</option>
             </select>
           </Field>
-          <Field label="Saved card media URL">
+          <Field label="Portfolio card media URL">
             <input name="cardSrc" defaultValue={project?.cardMedia.src || ''} placeholder="Auto-filled after upload, or paste a direct URL" className="font-body" style={inputStyle} />
           </Field>
-          <Field label="Saved card video poster URL">
+          <Field label="Portfolio card video poster URL">
             <input name="cardPoster" defaultValue={project?.cardMedia.poster || ''} placeholder="Optional poster image URL" className="font-body" style={inputStyle} />
           </Field>
-          <Field label="Upload card poster image">
+          <Field label="Upload/replace portfolio card poster image">
             <input name="cardPosterFile" type="file" accept="image/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </Field>
-          <Field label="Card alt text">
+          <Field label="Portfolio card alt text">
             <input name="cardAlt" defaultValue={project?.cardMedia.alt || ''} className="font-body" style={inputStyle} />
           </Field>
           <div>
             <p className="font-body" style={{ color: '#D7A648', fontSize: '13px', marginBottom: '8px' }}>Current home featured media</p>
-            <MediaPreview media={project?.featuredMedia} />
+            <MediaPreview media={project?.featuredMedia || project?.cardMedia} />
             {project?.featuredMedia ? (
               <label className="font-body flex items-center" style={{ gap: '7px', color: '#FFFFFF', fontSize: '13px', marginTop: '10px' }}>
                 <input type="checkbox" name="removeFeaturedMedia" />
-                Remove featured media
+                Remove custom home media
               </label>
             ) : null}
           </div>
-          <Field label="Saved home featured media URL">
+          <Field label="Home featured media URL">
             <input name="featuredSrc" defaultValue={project?.featuredMedia?.src || ''} placeholder="Auto-filled after upload, or paste a direct URL" className="font-body" style={inputStyle} />
           </Field>
           <Field label="Home featured media type">
@@ -255,13 +255,13 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
               <option value="video">Video</option>
             </select>
           </Field>
-          <Field label="Upload home featured image/video">
+          <Field label="Upload/replace home featured image/video">
             <input name="featuredFile" type="file" accept="image/*,video/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </Field>
-          <Field label="Saved home featured video poster URL">
+          <Field label="Home featured video poster URL">
             <input name="featuredPoster" defaultValue={project?.featuredMedia?.poster || ''} placeholder="Optional poster image URL" className="font-body" style={inputStyle} />
           </Field>
-          <Field label="Upload home featured poster image">
+          <Field label="Upload/replace home featured poster image">
             <input name="featuredPosterFile" type="file" accept="image/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </Field>
           <Field label="Home featured alt text">
@@ -281,11 +281,11 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
         </div>
         <div className="flex flex-col" style={{ gap: '22px' }}>
           <div>
-            <h3 className="font-heading" style={{ color: '#FFFFFF', fontSize: '22px', marginBottom: '12px' }}>Hero Media</h3>
+            <h3 className="font-heading" style={{ color: '#FFFFFF', fontSize: '22px', marginBottom: '12px' }}>Project Page Hero Media</h3>
             <AdminMediaRows name="heroMedia" label="Hero media" media={project?.detail.heroMedia || []} uploadName="heroFiles" blankRows={2} />
           </div>
           <div>
-            <h3 className="font-heading" style={{ color: '#FFFFFF', fontSize: '22px', marginBottom: '12px' }}>Gallery Media</h3>
+            <h3 className="font-heading" style={{ color: '#FFFFFF', fontSize: '22px', marginBottom: '12px' }}>Project Page Gallery Media</h3>
             <AdminMediaRows name="galleryMedia" label="Gallery media" media={project?.detail.galleryMedia || []} uploadName="galleryFiles" blankRows={6} />
           </div>
         </div>

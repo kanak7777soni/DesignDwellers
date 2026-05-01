@@ -37,7 +37,7 @@ export async function generateMetadata({
 
   const title = project.seo?.title || `${project.name} | Design Dwellers`;
   const description = project.seo?.description || project.detail.description || project.details;
-  const image = project.seo?.image || project.featuredMedia?.src || project.cardMedia.src;
+  const image = project.seo?.image || mediaMetadataImage(project.featuredMedia) || mediaMetadataImage(project.cardMedia);
 
   return {
     title,
@@ -77,6 +77,14 @@ function StatItem({ stat }: { stat: ProjectStat }) {
 
 function StatDivider() {
   return <div style={{ width: '1px', height: '111px', background: '#D7A648' }} />;
+}
+
+function mediaMetadataImage(media?: { type: 'image' | 'video'; src: string; poster?: string }) {
+  if (!media) {
+    return '';
+  }
+
+  return media.type === 'video' ? media.poster || '' : media.src;
 }
 
 export default async function IndividualPortfolioPage({
