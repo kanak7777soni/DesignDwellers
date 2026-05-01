@@ -75,6 +75,8 @@ function getProjectFormUploadError(formData: FormData) {
     formFile(formData, 'featuredFile'),
     ...formFiles(formData, 'heroFiles'),
     ...formFiles(formData, 'galleryFiles'),
+    ...formIndexedFiles(formData, 'heroMedia', 'File'),
+    ...formIndexedFiles(formData, 'galleryMedia', 'File'),
   ];
   const imageFiles = [
     formFile(formData, 'cardPosterFile'),
@@ -119,11 +121,13 @@ async function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'gall
     .map((value) => String(value))
     .map(async (index, rowPosition) => {
       const existingId = formString(formData, `${groupName}Id-${index}`);
-      const src = formString(formData, `${groupName}Src-${index}`);
+      const mediaFile = formFile(formData, `${groupName}File-${index}`);
+      const uploadedSrc = await saveUploadedMedia(mediaFile, projectSlug);
+      const src = uploadedSrc || formString(formData, `${groupName}Src-${index}`);
       const isExisting = Boolean(existingId);
       const keepExisting = formData.get(`${groupName}Keep-${index}`) === 'on';
 
-      if (!src || (isExisting && !keepExisting)) {
+      if (!src || (isExisting && !keepExisting && !uploadedSrc)) {
         return null;
       }
 
@@ -133,7 +137,7 @@ async function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'gall
         id: existingId || `${idPrefix}-url-${rowPosition + 1}`,
         src,
         alt: formString(formData, `${groupName}Alt-${index}`) || `${fallbackAlt} media ${rowPosition + 1}`,
-        type: typeValue === 'video' || typeValue === 'image' ? typeValue : mediaTypeFromValue(src),
+        type: uploadedSrc ? mediaTypeFromValue(mediaFile) : typeValue === 'video' || typeValue === 'image' ? typeValue : mediaTypeFromValue(src),
         poster: posterUpload || formString(formData, `${groupName}Poster-${index}`),
       });
 

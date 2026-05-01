@@ -108,6 +108,19 @@ function getRowPosterTarget(inputName: string) {
   };
 }
 
+function getRowMediaTarget(inputName: string) {
+  const match = /^(heroMedia|galleryMedia)File-(.+)$/.exec(inputName);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    groupName: match[1] as 'heroMedia' | 'galleryMedia',
+    key: match[2],
+  };
+}
+
 function getExpectedTypeError(file: File, expectedType?: 'image' | 'video') {
   if (expectedType === 'image' && !file.type.startsWith('image/')) {
     return 'This upload must be an image file.';
@@ -198,11 +211,12 @@ export default function UploadAwareForm({
         }
 
         const singleTarget = singleFileTargets[input.name];
+        const rowMediaTarget = getRowMediaTarget(input.name);
         const rowPosterTarget = getRowPosterTarget(input.name);
         const expectedTypeError = getExpectedTypeError(file, singleTarget?.expectedType || (rowPosterTarget ? 'image' : undefined));
 
         if (expectedTypeError) {
-          throw new Error(expectedTypeError);
+          throw new Error(rowPosterTarget ? 'Poster image upload must be an image file. Use Media upload for videos.' : expectedTypeError);
         }
 
         const pathname = [
@@ -246,6 +260,16 @@ export default function UploadAwareForm({
             url: blob.url,
             index,
           });
+        } else if (rowMediaTarget) {
+          setFieldValue(form, `${rowMediaTarget.groupName}Src-${rowMediaTarget.key}`, blob.url);
+          setFieldValue(form, `${rowMediaTarget.groupName}Type-${rowMediaTarget.key}`, mediaTypeFromContentType(file.type));
+
+          const altField = form.elements.namedItem(`${rowMediaTarget.groupName}Alt-${rowMediaTarget.key}`);
+          const altText = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+
+          if (altText && altField instanceof HTMLInputElement && !altField.value.trim()) {
+            altField.value = altText;
+          }
         } else if (rowPosterTarget) {
           setFieldValue(form, `${rowPosterTarget.groupName}Poster-${rowPosterTarget.key}`, blob.url);
         }

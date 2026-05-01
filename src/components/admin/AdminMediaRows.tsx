@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
+import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import type { ProjectMedia } from '@/lib/portfolio';
@@ -49,6 +50,14 @@ const compactFileInputStyle = {
   color: '#FFFFFF',
   padding: '6px 8px 0',
   outline: 'none',
+  fontSize: '11px',
+};
+
+const compactFileLabelStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+  color: '#D7A648',
   fontSize: '11px',
 };
 
@@ -164,7 +173,7 @@ export default function AdminMediaRows({
             onDragEnd={() => setDraggedKey(null)}
             className="grid items-center"
             style={{
-              gridTemplateColumns: '38px 88px 90px minmax(170px,1.2fr) minmax(130px,0.9fr) minmax(130px,0.9fr) 150px 78px',
+              gridTemplateColumns: '38px 88px 90px minmax(160px,1.1fr) 145px minmax(120px,0.8fr) minmax(120px,0.8fr) 145px 78px',
               gap: '10px',
               borderTop: index === 0 ? 'none' : '1px solid rgba(255,255,255,0.08)',
               paddingTop: index === 0 ? 0 : '12px',
@@ -202,17 +211,32 @@ export default function AdminMediaRows({
               <option value="video">Video</option>
             </select>
             <input name={`${name}Src-${row.key}`} defaultValue={row.media?.src || ''} placeholder={`${label} URL`} className="font-body" style={inputStyle} />
+            <label className="font-body" style={compactFileLabelStyle}>
+              Media upload
+              <input
+                name={`${name}File-${row.key}`}
+                type="file"
+                accept="image/*,video/*"
+                aria-label={`Upload ${label} image or video`}
+                title={`Upload ${label} image or video`}
+                className="font-body"
+                style={compactFileInputStyle}
+              />
+            </label>
             <input name={`${name}Alt-${row.key}`} defaultValue={row.media?.alt || ''} placeholder="Alt text" className="font-body" style={inputStyle} />
             <input name={`${name}Poster-${row.key}`} defaultValue={row.media?.poster || ''} placeholder="Video poster URL" className="font-body" style={inputStyle} />
-            <input
-              name={`${name}PosterFile-${row.key}`}
-              type="file"
-              accept="image/*"
-              aria-label={`Upload ${label} poster image`}
-              title={`Upload ${label} poster image`}
-              className="font-body"
-              style={compactFileInputStyle}
-            />
+            <label className="font-body" style={compactFileLabelStyle}>
+              Poster image
+              <input
+                name={`${name}PosterFile-${row.key}`}
+                type="file"
+                accept="image/*"
+                aria-label={`Upload ${label} poster image`}
+                title={`Upload ${label} poster image`}
+                className="font-body"
+                style={compactFileInputStyle}
+              />
+            </label>
             {row.isExisting ? (
               <label className="font-body flex items-center" style={{ gap: '7px', color: '#FFFFFF', fontSize: '13px' }}>
                 <input type="checkbox" name={`${name}Keep-${row.key}`} defaultChecked />
