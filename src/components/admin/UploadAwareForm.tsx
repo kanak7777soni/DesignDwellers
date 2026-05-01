@@ -98,22 +98,12 @@ function appendHiddenInput(form: HTMLFormElement, name: string, value: string) {
   form.appendChild(input);
 }
 
-function setSubmitButtons(form: HTMLFormElement, disabled: boolean, label?: string) {
+function setSubmitButtons(form: HTMLFormElement, disabled: boolean) {
   const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"]'));
 
   buttons.forEach((button) => {
     button.disabled = disabled;
     button.style.cursor = disabled ? 'wait' : 'pointer';
-
-    if (label) {
-      if (!button.dataset.originalText) {
-        button.dataset.originalText = button.textContent || '';
-      }
-      button.textContent = label;
-    } else if (button.dataset.originalText) {
-      button.textContent = button.dataset.originalText;
-      delete button.dataset.originalText;
-    }
   });
 }
 
@@ -246,7 +236,7 @@ export default function UploadAwareForm({
     event.preventDefault();
     setError(null);
     setStatus(`Uploading 0/${fileUploads.length} files...`);
-    setSubmitButtons(form, true, 'Uploading...');
+    setSubmitButtons(form, true);
 
     try {
       for (const [index, { input, file }] of fileUploads.entries()) {
@@ -355,7 +345,7 @@ export default function UploadAwareForm({
       });
 
       setStatus('Upload complete. Saving...');
-      setSubmitButtons(form, true, 'Saving...');
+      setSubmitButtons(form, true);
       allowNextSubmit.current = true;
       form.requestSubmit();
     } catch (uploadError) {
@@ -369,7 +359,7 @@ export default function UploadAwareForm({
     <form action={action} className={className} style={style} onSubmit={handleSubmit} {...props}>
       {children}
       {status ? (
-        <p className="font-body" aria-live="polite" style={{ color: '#D7A648', fontSize: '13px', marginTop: '-12px' }}>
+        <p className="font-body" aria-live="polite" style={{ border: '1px solid rgba(215,166,72,0.42)', background: 'rgba(215,166,72,0.1)', color: '#D7A648', borderRadius: '6px', padding: '10px 12px', fontSize: '13px', margin: 0 }}>
           {status}
         </p>
       ) : null}
