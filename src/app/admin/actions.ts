@@ -17,6 +17,7 @@ import {
   savePortfolioData,
   saveUploadedMedia,
   slugify,
+  type PortfolioData,
 } from '@/lib/portfolio-store';
 
 function formString(formData: FormData, key: string) {
@@ -38,6 +39,30 @@ function formOptionalNumber(formData: FormData, key: string) {
   const value = formData.get(key);
   const parsed = Number(value);
   return value !== null && value !== '' && Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function withErrorParam(pathname: string, error: string) {
+  const separator = pathname.includes('?') ? '&' : '?';
+  return `${pathname}${separator}error=${encodeURIComponent(error)}`;
+}
+
+function logStorageError(action: string, error: unknown) {
+  console.error(`[admin] ${action} failed`, {
+    message: error instanceof Error ? error.message : String(error),
+  });
+}
+
+async function savePortfolioDataOrRedirect(
+  data: PortfolioData,
+  options: Parameters<typeof savePortfolioData>[1],
+  errorRedirectPath: string,
+) {
+  try {
+    return await savePortfolioData(data, options);
+  } catch (error) {
+    logStorageError('Portfolio data save', error);
+    redirect(withErrorParam(errorRedirectPath, 'storage'));
+  }
 }
 
 function formFile(formData: FormData, key: string) {
@@ -274,10 +299,10 @@ export async function saveCategoryAction(formData: FormData) {
     nextCategories.push(category);
   }
 
-  await savePortfolioData({
+  await savePortfolioDataOrRedirect({
     ...data,
     categories: nextCategories,
-  }, { backupReason: originalSlug ? 'category saved' : 'category created' });
+  }, { backupReason: originalSlug ? 'category saved' : 'category created' }, '/admin');
   touchPublicPaths();
   redirect('/admin?status=category-saved');
 }
@@ -308,11 +333,11 @@ export async function deleteCategoryAction(formData: FormData) {
     };
   });
 
-  await savePortfolioData({
+  await savePortfolioDataOrRedirect({
     ...data,
     categories: nextCategories,
     projects: nextProjects,
-  }, { backupReason: 'category deleted' });
+  }, { backupReason: 'category deleted' }, '/admin');
   touchPublicPaths();
   redirect('/admin?status=category-deleted');
 }
@@ -442,10 +467,10 @@ export async function saveProjectAction(formData: FormData) {
     ? data.projects.map((item) => item.id === id ? project : item)
     : [...data.projects, project];
 
-  await savePortfolioData({
+  await savePortfolioDataOrRedirect({
     ...data,
     projects: nextProjects,
-  }, { backupReason: existing ? 'project saved' : 'project created' });
+  }, { backupReason: existing ? 'project saved' : 'project created' }, existing ? `/admin/projects/${id}` : '/admin/projects/new');
   touchPublicPaths(project.slug);
   redirect(`/admin/projects/${project.id}?status=saved`);
 }
@@ -457,10 +482,10 @@ export async function deleteProjectAction(formData: FormData) {
   const id = formString(formData, 'id');
   const project = data.projects.find((item) => item.id === id);
 
-  await savePortfolioData({
+  await savePortfolioDataOrRedirect({
     ...data,
     projects: data.projects.filter((item) => item.id !== id),
-  }, { backupReason: 'project deleted' });
+  }, { backupReason: 'project deleted' }, '/admin');
   touchPublicPaths(project?.slug);
   redirect('/admin?status=project-deleted');
 }
@@ -469,7 +494,13 @@ export async function restoreBackupAction(formData: FormData) {
   await requireAdmin();
 
   const id = formString(formData, 'id');
-  await restorePortfolioBackup(id);
+  try {
+    await restorePortfolioBackup(id);
+  } catch (error) {
+    logStorageError('Portfolio backup restore', error);
+    redirect('/admin/backups?error=storage');
+  }
+
   touchPublicPaths();
   revalidatePath('/admin/backups');
   redirect('/admin/backups?status=restored');
@@ -479,7 +510,13 @@ export async function deleteBackupAction(formData: FormData) {
   await requireAdmin();
 
   const id = formString(formData, 'id');
-  await deletePortfolioBackup(id);
+  try {
+    await deletePortfolioBackup(id);
+  } catch (error) {
+    logStorageError('Portfolio backup delete', error);
+    redirect('/admin/backups?error=storage');
+  }
+
   revalidatePath('/admin/backups');
   redirect('/admin/backups?status=backup-deleted');
 }

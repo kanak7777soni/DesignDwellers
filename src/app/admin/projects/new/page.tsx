@@ -11,6 +11,7 @@ function getErrorMessage(error?: string) {
   if (error === 'name') return 'Project name is required.';
   if (error === 'card-media') return 'Add a card media upload or card media URL before saving.';
   if (error === 'upload') return 'Upload JPG, PNG, WebP, GIF, MP4, WebM, or MOV files only.';
+  if (error === 'storage') return 'CRM storage could not save this project. Check the CRM_BLOB_READ_WRITE_TOKEN Vercel environment variable or reconnect a private Blob store.';
   return null;
 }
 

@@ -13,6 +13,11 @@ function statusText(status?: string) {
   return null;
 }
 
+function errorText(error?: string) {
+  if (error === 'storage') return 'CRM storage could not update backups. Check the CRM_BLOB_READ_WRITE_TOKEN Vercel environment variable or reconnect a private Blob store.';
+  return null;
+}
+
 function formatDate(value: string) {
   const date = new Date(value);
 
@@ -29,11 +34,12 @@ function formatDate(value: string) {
 export default async function AdminBackupsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; error?: string }>;
 }) {
   await requireAdmin();
-  const [{ status }, backups] = await Promise.all([searchParams, listPortfolioBackups()]);
+  const [{ status, error }, backups] = await Promise.all([searchParams, listPortfolioBackups()]);
   const message = statusText(status);
+  const errorMessage = errorText(error);
 
   return (
     <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
@@ -57,6 +63,12 @@ export default async function AdminBackupsPage({
         {message ? (
           <p className="font-body" style={{ border: '1px solid rgba(215,166,72,0.4)', background: 'rgba(215,166,72,0.12)', borderRadius: '6px', padding: '12px', marginBottom: '22px' }}>
             {message}
+          </p>
+        ) : null}
+
+        {errorMessage ? (
+          <p className="font-body" style={{ border: '1px solid rgba(215,166,72,0.55)', background: 'rgba(215,166,72,0.16)', borderRadius: '6px', padding: '12px', marginBottom: '22px' }}>
+            {errorMessage}
           </p>
         ) : null}
 
