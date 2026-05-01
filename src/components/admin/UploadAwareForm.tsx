@@ -32,6 +32,8 @@ type SingleFileTarget = {
   expectedType?: 'image' | 'video';
 };
 
+const UPLOAD_STALL_TIMEOUT_MS = 60_000;
+
 const singleFileTargets: Record<string, SingleFileTarget> = {
   cardFile: { srcField: 'cardSrc', typeField: 'cardType', altField: 'cardAlt' },
   cardPosterFile: { srcField: 'cardPoster', expectedType: 'image' },
@@ -165,6 +167,25 @@ function appendUploadedMediaRow({
   appendHiddenInput(form, `${groupName}Poster-${key}`, '');
 }
 
+function uploadErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : 'Upload failed. Please try again.';
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes('private store')) {
+    return 'The media upload token is connected to a private Blob store. Public website images/videos need a public Blob token in MEDIA_BLOB_READ_WRITE_TOKEN.';
+  }
+
+  if (lowerMessage.includes('store_not_found') || lowerMessage.includes('store not found')) {
+    return 'The media upload token points to a deleted or missing Blob store. Update MEDIA_BLOB_READ_WRITE_TOKEN with the current public Blob store token.';
+  }
+
+  if (lowerMessage.includes('aborted') || lowerMessage.includes('abort')) {
+    return 'The upload stopped because Vercel Blob did not respond after the browser finished sending the file. Check that MEDIA_BLOB_READ_WRITE_TOKEN points to a public Blob store.';
+  }
+
+  return message;
+}
+
 export default function UploadAwareForm({
   action,
   children,
@@ -229,17 +250,32 @@ export default function UploadAwareForm({
           `${Date.now()}-${index + 1}-${safePathPart(file.name)}`,
         ].join('/');
 
-        const blob: UploadedBlob = await upload(pathname, file, {
-          access: 'public',
-          contentType: file.type,
-          handleUploadUrl: '/api/admin/blob-upload',
-          multipart: file.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES,
-          onUploadProgress: ({ percentage }) => {
-            setStatus(percentage >= 100
-              ? `Finalizing ${index + 1}/${fileUploads.length} files...`
-              : `Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
-          },
-        });
+        const abortController = new AbortController();
+        let lastProgressAt = Date.now();
+        const stallTimer = window.setInterval(() => {
+          if (Date.now() - lastProgressAt > UPLOAD_STALL_TIMEOUT_MS) {
+            abortController.abort();
+          }
+        }, 5000);
+        let blob: UploadedBlob;
+
+        try {
+          blob = await upload(pathname, file, {
+            access: 'public',
+            contentType: file.type,
+            handleUploadUrl: '/api/admin/blob-upload',
+            multipart: file.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES,
+            abortSignal: abortController.signal,
+            onUploadProgress: ({ percentage }) => {
+              lastProgressAt = Date.now();
+              setStatus(percentage >= 100
+                ? `Finalizing ${index + 1}/${fileUploads.length} files...`
+                : `Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
+            },
+          });
+        } finally {
+          window.clearInterval(stallTimer);
+        }
 
         const multiTarget = multiFileTargets[input.name];
 
@@ -290,10 +326,7 @@ export default function UploadAwareForm({
       allowNextSubmit.current = true;
       form.requestSubmit();
     } catch (uploadError) {
-      const message = uploadError instanceof Error ? uploadError.message : 'Upload failed. Please try again.';
-      setError(message.includes('private store')
-        ? 'The media Blob token is connected to a private Blob store. Public website media needs a public Blob store token in MEDIA_BLOB_READ_WRITE_TOKEN.'
-        : message);
+      setError(uploadErrorMessage(uploadError));
       setStatus(null);
       setSubmitButtons(form, false);
     }
