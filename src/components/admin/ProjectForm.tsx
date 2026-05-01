@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import type { ReactNode } from 'react';
 import AdminMediaRows from '@/components/admin/AdminMediaRows';
+import UploadAwareForm from '@/components/admin/UploadAwareForm';
+import { hasMediaBlobToken } from '@/lib/blob-tokens';
 import type { PortfolioCategory, PortfolioProject, ProjectMedia } from '@/lib/portfolio';
 import { formatList, formatStats } from '@/lib/portfolio-store';
 
@@ -99,9 +101,17 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
   const primaryCategorySlug = project?.primaryCategorySlug || categories[0]?.slug || '';
   const meta = project?.meta || {};
   const seo = project?.seo || {};
+  const clientUploadsEnabled = hasMediaBlobToken();
+  const serverUploadFallbackEnabled = !process.env.VERCEL;
 
   return (
-    <form action={action} encType="multipart/form-data" className="flex flex-col" style={{ gap: '24px' }}>
+    <UploadAwareForm
+      action={action}
+      clientUploadsEnabled={clientUploadsEnabled}
+      serverUploadFallbackEnabled={serverUploadFallbackEnabled}
+      className="flex flex-col"
+      style={{ gap: '24px' }}
+    >
       <input type="hidden" name="id" value={project?.id || ''} />
 
       <Section title="Project Details">
@@ -199,13 +209,13 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
         </div>
       </Section>
 
-      <Section title="Card Media">
+      <Section title="Card & Featured Media">
         <div className="grid grid-cols-2" style={{ gap: '16px' }}>
           <div>
             <p className="font-body" style={{ color: '#D7A648', fontSize: '13px', marginBottom: '8px' }}>Current card media</p>
             <MediaPreview media={project?.cardMedia} />
           </div>
-          <Field label="Upload card image/video">
+          <Field label="Upload card media">
             <input name="cardFile" type="file" accept="image/*,video/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </Field>
           <Field label="Card media type">
@@ -216,6 +226,9 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
           </Field>
           <Field label="Card media URL">
             <input name="cardSrc" defaultValue={project?.cardMedia.src || ''} className="font-body" style={inputStyle} />
+          </Field>
+          <Field label="Card video poster URL">
+            <input name="cardPoster" defaultValue={project?.cardMedia.poster || ''} className="font-body" style={inputStyle} />
           </Field>
           <Field label="Card alt text">
             <input name="cardAlt" defaultValue={project?.cardMedia.alt || ''} className="font-body" style={inputStyle} />
@@ -233,8 +246,17 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
           <Field label="Home featured media URL">
             <input name="featuredSrc" defaultValue={project?.featuredMedia?.src || ''} className="font-body" style={inputStyle} />
           </Field>
+          <Field label="Home featured media type">
+            <select name="featuredType" defaultValue={project?.featuredMedia?.type || 'image'} className="font-body" style={inputStyle}>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+            </select>
+          </Field>
           <Field label="Upload home featured media">
             <input name="featuredFile" type="file" accept="image/*,video/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
+          </Field>
+          <Field label="Home featured video poster URL">
+            <input name="featuredPoster" defaultValue={project?.featuredMedia?.poster || ''} className="font-body" style={inputStyle} />
           </Field>
           <Field label="Home featured alt text">
             <input name="featuredAlt" defaultValue={project?.featuredMedia?.alt || ''} className="font-body" style={inputStyle} />
@@ -284,6 +306,6 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
       >
         Save Project
       </button>
-    </form>
+    </UploadAwareForm>
   );
 }

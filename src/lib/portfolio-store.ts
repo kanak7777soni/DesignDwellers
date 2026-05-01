@@ -8,6 +8,18 @@ import {
   type ProjectMedia,
   type ProjectStat,
 } from '@/lib/portfolio';
+import {
+  getUploadValidationErrorForFile,
+  mediaTypeFromContentType,
+  mediaTypeFromUrl,
+} from '@/lib/media-upload';
+import {
+  deleteCrmBlobFile,
+  listCrmBlobFiles,
+  readCrmBlobText,
+  shouldUseBlobCrmStorage,
+  writeCrmBlobText,
+} from '@/lib/crm-blob-storage';
 
 export type PortfolioData = {
   categories: PortfolioCategory[];
@@ -28,19 +40,9 @@ const PORTFOLIO_FILE = path.join(DATA_DIR, 'portfolio.json');
 const BACKUP_DIR = path.join(DATA_DIR, 'backups', 'portfolio');
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'portfolio');
 const PUBLIC_UPLOAD_PATH = '/uploads/portfolio';
-const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
-const MAX_VIDEO_UPLOAD_BYTES = 75 * 1024 * 1024;
+const BLOB_PORTFOLIO_FILE = 'crm/data/portfolio.json';
+const BLOB_BACKUP_PREFIX = 'crm/backups/portfolio/';
 const MAX_PORTFOLIO_BACKUPS = 30;
-
-const allowedUploadTypes = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-  'video/mp4',
-  'video/webm',
-  'video/quicktime',
-]);
 
 export function getSeedPortfolioData(): PortfolioData {
   return {
@@ -87,6 +89,11 @@ function normalizeProject(project: PortfolioProject): PortfolioProject {
 
 export async function getPortfolioData(): Promise<PortfolioData> {
   try {
+    if (shouldUseBlobCrmStorage()) {
+      const content = await readCrmBlobText(BLOB_PORTFOLIO_FILE);
+      return content ? sortData(JSON.parse(content) as PortfolioData) : sortData(getSeedPortfolioData());
+    }
+
     const content = await fs.readFile(PORTFOLIO_FILE, 'utf8');
     return sortData(JSON.parse(content) as PortfolioData);
   } catch {
@@ -103,6 +110,11 @@ function backupId(createdAt: string, reason: string) {
 
 async function readBackupSourceData() {
   try {
+    if (shouldUseBlobCrmStorage()) {
+      const content = await readCrmBlobText(BLOB_PORTFOLIO_FILE);
+      return content ? sortData(JSON.parse(content) as PortfolioData) : sortData(getSeedPortfolioData());
+    }
+
     const content = await fs.readFile(PORTFOLIO_FILE, 'utf8');
     return sortData(JSON.parse(content) as PortfolioData);
   } catch {
@@ -112,6 +124,20 @@ async function readBackupSourceData() {
 
 async function prunePortfolioBackups() {
   try {
+    if (shouldUseBlobCrmStorage()) {
+      const backups = await listCrmBlobFiles(BLOB_BACKUP_PREFIX);
+      const staleBackups = backups
+        .filter((blob) => blob.pathname.endsWith('.json'))
+        .sort((a, b) => b.pathname.localeCompare(a.pathname))
+        .slice(MAX_PORTFOLIO_BACKUPS);
+
+      if (staleBackups.length > 0) {
+        await deleteCrmBlobFile(staleBackups.map((blob) => blob.pathname));
+      }
+
+      return;
+    }
+
     const files = (await fs.readdir(BACKUP_DIR))
       .filter((file) => file.endsWith('.json'))
       .sort()
@@ -125,17 +151,31 @@ async function prunePortfolioBackups() {
 }
 
 async function createPortfolioBackup(reason = 'change') {
-  await ensureBackupDir();
   const data = await readBackupSourceData();
   const createdAt = new Date().toISOString();
   const id = backupId(createdAt, reason);
-
-  await fs.writeFile(path.join(BACKUP_DIR, id), `${JSON.stringify({
+  const backupContent = `${JSON.stringify({
     id,
     createdAt,
     reason,
     data,
-  }, null, 2)}\n`, 'utf8');
+  }, null, 2)}\n`;
+
+  if (shouldUseBlobCrmStorage()) {
+    await writeCrmBlobText(`${BLOB_BACKUP_PREFIX}${id}`, backupContent);
+    await prunePortfolioBackups();
+
+    return {
+      id,
+      createdAt,
+      reason,
+      projectCount: data.projects.length,
+      categoryCount: data.categories.length,
+    };
+  }
+
+  await ensureBackupDir();
+  await fs.writeFile(path.join(BACKUP_DIR, id), backupContent, 'utf8');
   await prunePortfolioBackups();
 
   return {
@@ -154,6 +194,43 @@ function safeBackupId(id: string) {
 
 export async function listPortfolioBackups(): Promise<PortfolioBackup[]> {
   try {
+    if (shouldUseBlobCrmStorage()) {
+      const files = (await listCrmBlobFiles(BLOB_BACKUP_PREFIX))
+        .filter((blob) => blob.pathname.endsWith('.json'));
+      const backups = await Promise.all(files.map(async (blob) => {
+        try {
+          const id = blob.pathname.slice(BLOB_BACKUP_PREFIX.length);
+          const content = await readCrmBlobText(blob.pathname);
+
+          if (!content) {
+            return null;
+          }
+
+          const parsed = JSON.parse(content) as {
+            id?: string;
+            createdAt?: string;
+            reason?: string;
+            data?: PortfolioData;
+          };
+          const data = parsed.data || (parsed as unknown as PortfolioData);
+
+          return {
+            id: parsed.id || id,
+            createdAt: parsed.createdAt || id.slice(0, 24),
+            reason: parsed.reason || 'legacy backup',
+            projectCount: data.projects?.length || 0,
+            categoryCount: data.categories?.length || 0,
+          };
+        } catch {
+          return null;
+        }
+      }));
+
+      return backups
+        .filter((backup): backup is PortfolioBackup => Boolean(backup))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    }
+
     const files = (await fs.readdir(BACKUP_DIR)).filter((file) => file.endsWith('.json'));
     const backups = await Promise.all(files.map(async (file) => {
       try {
@@ -193,7 +270,14 @@ export async function restorePortfolioBackup(id: string) {
     throw new Error('Invalid backup id.');
   }
 
-  const content = await fs.readFile(path.join(BACKUP_DIR, safeId), 'utf8');
+  const content = shouldUseBlobCrmStorage()
+    ? await readCrmBlobText(`${BLOB_BACKUP_PREFIX}${safeId}`)
+    : await fs.readFile(path.join(BACKUP_DIR, safeId), 'utf8');
+
+  if (!content) {
+    throw new Error('Backup not found.');
+  }
+
   const parsed = JSON.parse(content) as { data?: PortfolioData };
   const data = parsed.data || (parsed as PortfolioData);
 
@@ -208,12 +292,15 @@ export async function deletePortfolioBackup(id: string) {
     throw new Error('Invalid backup id.');
   }
 
+  if (shouldUseBlobCrmStorage()) {
+    await deleteCrmBlobFile(`${BLOB_BACKUP_PREFIX}${safeId}`);
+    return;
+  }
+
   await fs.unlink(path.join(BACKUP_DIR, safeId));
 }
 
 export async function savePortfolioData(data: PortfolioData, options?: { backupReason?: string; skipBackup?: boolean }) {
-  await ensureDataDir();
-
   if (!options?.skipBackup) {
     await createPortfolioBackup(options?.backupReason || 'content change');
   }
@@ -223,7 +310,15 @@ export async function savePortfolioData(data: PortfolioData, options?: { backupR
     updatedAt: new Date().toISOString(),
   });
 
-  await fs.writeFile(PORTFOLIO_FILE, `${JSON.stringify(nextData, null, 2)}\n`, 'utf8');
+  const content = `${JSON.stringify(nextData, null, 2)}\n`;
+
+  if (shouldUseBlobCrmStorage()) {
+    await writeCrmBlobText(BLOB_PORTFOLIO_FILE, content);
+    return nextData;
+  }
+
+  await ensureDataDir();
+  await fs.writeFile(PORTFOLIO_FILE, content, 'utf8');
   return nextData;
 }
 
@@ -289,34 +384,16 @@ function getExtension(file: File) {
   return file.type.startsWith('video/') ? 'mp4' : 'jpg';
 }
 
-function maxUploadBytes(file: File) {
-  return file.type.startsWith('video/') ? MAX_VIDEO_UPLOAD_BYTES : MAX_IMAGE_UPLOAD_BYTES;
-}
-
 export function getUploadValidationError(file: File | null | undefined) {
-  if (!file || file.size === 0) {
-    return null;
-  }
-
-  if (!allowedUploadTypes.has(file.type)) {
-    return 'Unsupported file type.';
-  }
-
-  if (file.size > maxUploadBytes(file)) {
-    const maxMegabytes = Math.round(maxUploadBytes(file) / 1024 / 1024);
-    return `File is too large. Maximum size is ${maxMegabytes}MB.`;
-  }
-
-  return null;
+  return getUploadValidationErrorForFile(file);
 }
 
 export function mediaTypeFromValue(value: string | File | null | undefined): ProjectMedia['type'] {
   if (value instanceof File) {
-    return value.type.startsWith('video/') ? 'video' : 'image';
+    return mediaTypeFromContentType(value.type);
   }
 
-  const src = value?.toString().toLowerCase() || '';
-  return /\.(mp4|webm|mov)(\?|#|$)/.test(src) ? 'video' : 'image';
+  return mediaTypeFromUrl(value?.toString());
 }
 
 export async function saveUploadedMedia(file: File | null | undefined, projectSlug: string) {

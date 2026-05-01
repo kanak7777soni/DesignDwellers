@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { readCrmBlobText, shouldUseBlobCrmStorage, writeCrmBlobText } from '@/lib/crm-blob-storage';
 
 export type ManagedInstagramReel = {
   id: string;
@@ -37,6 +38,7 @@ export type InstagramReelsData = {
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const REELS_FILE = path.join(DATA_DIR, 'instagram-reels.json');
+const BLOB_REELS_FILE = 'crm/data/instagram-reels.json';
 
 const defaultProfile = {
   username: 'DesignDwellersstudio',
@@ -204,6 +206,11 @@ function normalizeData(data: Partial<InstagramReelsData>): InstagramReelsData {
 
 export async function getInstagramReelsData(): Promise<InstagramReelsData> {
   try {
+    if (shouldUseBlobCrmStorage()) {
+      const content = await readCrmBlobText(BLOB_REELS_FILE);
+      return content ? normalizeData(JSON.parse(content) as InstagramReelsData) : normalizeData(getSeedInstagramReelsData());
+    }
+
     const content = await fs.readFile(REELS_FILE, 'utf8');
     return normalizeData(JSON.parse(content) as InstagramReelsData);
   } catch {
@@ -212,7 +219,6 @@ export async function getInstagramReelsData(): Promise<InstagramReelsData> {
 }
 
 export async function saveInstagramReelsData(data: InstagramReelsData) {
-  await ensureDataDir();
   const nextData = normalizeData({
     ...data,
     updatedAt: new Date().toISOString(),
@@ -224,8 +230,15 @@ export async function saveInstagramReelsData(data: InstagramReelsData) {
       accessToken: encryptAccessToken(nextData.settings.accessToken),
     },
   };
+  const content = `${JSON.stringify(diskData, null, 2)}\n`;
 
-  await fs.writeFile(REELS_FILE, `${JSON.stringify(diskData, null, 2)}\n`, 'utf8');
+  if (shouldUseBlobCrmStorage()) {
+    await writeCrmBlobText(BLOB_REELS_FILE, content);
+    return nextData;
+  }
+
+  await ensureDataDir();
+  await fs.writeFile(REELS_FILE, content, 'utf8');
   return nextData;
 }
 

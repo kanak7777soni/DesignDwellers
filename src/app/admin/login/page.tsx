@@ -46,7 +46,7 @@ export default async function AdminLoginPage({
           Admin Login
         </h1>
         <p className="font-body" style={{ fontSize: '15px', lineHeight: '1.45em', color: 'rgba(255,255,255,0.72)', marginBottom: '24px' }}>
-          Manage portfolio categories, projects, images, and videos from here.
+          Manage portfolio categories, projects, and media from here.
         </p>
 
         {errorMessage ? (

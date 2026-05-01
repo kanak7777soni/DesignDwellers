@@ -9,6 +9,10 @@ type PortfolioMediaProps = {
   showVideoControls?: boolean;
 };
 
+function isRemoteUrl(src: string) {
+  return /^https?:\/\//i.test(src);
+}
+
 export default function PortfolioMedia({
   media,
   sizes,
@@ -29,6 +33,17 @@ export default function PortfolioMedia({
         playsInline
         preload="metadata"
         controls={showVideoControls}
+      />
+    );
+  }
+
+  if (isRemoteUrl(media.src)) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={media.src}
+        alt={media.alt}
+        className={`h-full w-full ${className}`}
       />
     );
   }

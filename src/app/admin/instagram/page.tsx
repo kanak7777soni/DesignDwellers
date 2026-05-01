@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import AdminHeader from '@/components/admin/AdminHeader';
 import ConfirmSubmitButton from '@/components/admin/ConfirmSubmitButton';
+import UploadAwareForm from '@/components/admin/UploadAwareForm';
+import { hasMediaBlobToken } from '@/lib/blob-tokens';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getInstagramReelsData, type ManagedInstagramReel } from '@/lib/instagram-reels-store';
 import {
@@ -62,10 +64,19 @@ function ReelForm({
   fallbackOrder: number;
 }) {
   const formId = isNew ? 'new-reel' : `reel-${reel?.id}`;
+  const clientUploadsEnabled = hasMediaBlobToken();
+  const serverUploadFallbackEnabled = !process.env.VERCEL;
 
   return (
     <div className="flex flex-col" style={{ gap: '12px' }}>
-      <form id={formId} action={saveInstagramReelAction} encType="multipart/form-data" className="flex flex-col" style={{ gap: '14px' }}>
+      <UploadAwareForm
+        id={formId}
+        action={saveInstagramReelAction}
+        clientUploadsEnabled={clientUploadsEnabled}
+        serverUploadFallbackEnabled={serverUploadFallbackEnabled}
+        className="flex flex-col"
+        style={{ gap: '14px' }}
+      >
         <input type="hidden" name="id" value={reel?.id || ''} />
         <div className="grid" style={{ gridTemplateColumns: '1.2fr 1fr 1fr 90px', gap: '10px' }}>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
@@ -127,7 +138,7 @@ function ReelForm({
             {isNew ? 'Add Reel' : 'Save Reel'}
           </button>
         </div>
-      </form>
+      </UploadAwareForm>
       {!isNew && reel ? (
         <form action={deleteInstagramReelAction} className="flex justify-end">
           <input type="hidden" name="id" value={reel.id} />

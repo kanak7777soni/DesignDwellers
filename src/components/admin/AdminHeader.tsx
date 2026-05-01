@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { logoutAction } from '@/app/admin/actions';
+import { logoutAction } from '@/app/admin/login/actions';
 
 export default function AdminHeader() {
   return (
@@ -9,7 +9,7 @@ export default function AdminHeader() {
           Design Dwellers CRM
         </Link>
         <p className="font-body" style={{ color: 'rgba(255,255,255,0.62)', fontSize: '14px', marginTop: '6px' }}>
-          Portfolio, categories, images, and videos
+          Portfolio, categories, and media
         </p>
       </div>
       <nav className="flex items-center" style={{ gap: '12px' }}>

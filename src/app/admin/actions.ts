@@ -18,9 +18,6 @@ import {
   saveUploadedMedia,
   slugify,
 } from '@/lib/portfolio-store';
-import { logoutAction } from './login/actions';
-
-export { logoutAction };
 
 function formString(formData: FormData, key: string) {
   return String(formData.get(key) || '').trim();
@@ -127,6 +124,7 @@ async function resolveSingleMedia({
   srcKey,
   altKey,
   typeKey,
+  posterKey,
   existing,
   id,
   projectSlug,
@@ -137,6 +135,7 @@ async function resolveSingleMedia({
   srcKey: string;
   altKey: string;
   typeKey: string;
+  posterKey?: string;
   existing?: ProjectMedia;
   id: string;
   projectSlug: string;
@@ -154,7 +153,7 @@ async function resolveSingleMedia({
     src,
     alt,
     type,
-    poster: existing?.poster,
+    poster: (posterKey ? formString(formData, posterKey) : '') || existing?.poster,
   });
 }
 
@@ -312,6 +311,7 @@ export async function saveProjectAction(formData: FormData) {
     srcKey: 'cardSrc',
     altKey: 'cardAlt',
     typeKey: 'cardType',
+    posterKey: 'cardPoster',
     existing: existing?.cardMedia,
     id: `${slug}-card`,
     projectSlug: slug,
@@ -326,13 +326,16 @@ export async function saveProjectAction(formData: FormData) {
   const featuredFile = formFile(formData, 'featuredFile');
   const featuredUpload = await saveUploadedMedia(featuredFile, slug);
   const removeFeaturedMedia = formData.get('removeFeaturedMedia') === 'on';
+  const featuredTypeValue = formString(formData, 'featuredType');
   const featuredMedia = !removeFeaturedMedia && (featuredUpload || featuredSrc || existing?.featuredMedia?.src)
     ? createMediaFromSrc({
       id: `${slug}-featured`,
       src: featuredUpload || featuredSrc || existing?.featuredMedia?.src || '',
       alt: formString(formData, 'featuredAlt') || existing?.featuredMedia?.alt || name,
-      type: mediaTypeFromValue(featuredFile || featuredUpload || featuredSrc || existing?.featuredMedia?.src),
-      poster: existing?.featuredMedia?.poster,
+      type: featuredTypeValue === 'video' || featuredTypeValue === 'image'
+        ? featuredTypeValue
+        : mediaTypeFromValue(featuredFile || featuredUpload || featuredSrc || existing?.featuredMedia?.src),
+      poster: formString(formData, 'featuredPoster') || existing?.featuredMedia?.poster,
     })
     : undefined;
 
