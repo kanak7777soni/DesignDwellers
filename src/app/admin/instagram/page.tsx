@@ -2,8 +2,8 @@ import Link from 'next/link';
 import AdminHeader from '@/components/admin/AdminHeader';
 import ConfirmSubmitButton from '@/components/admin/ConfirmSubmitButton';
 import UploadAwareForm from '@/components/admin/UploadAwareForm';
-import { hasMediaBlobToken } from '@/lib/blob-tokens';
 import { requireAdmin } from '@/lib/admin-auth';
+import { hasImageKitUploadConfig } from '@/lib/imagekit';
 import { getInstagramReelsData, type ManagedInstagramReel } from '@/lib/instagram-reels-store';
 import {
   deleteInstagramReelAction,
@@ -64,7 +64,7 @@ function ReelForm({
   fallbackOrder: number;
 }) {
   const formId = isNew ? 'new-reel' : `reel-${reel?.id}`;
-  const clientUploadsEnabled = hasMediaBlobToken();
+  const clientUploadsEnabled = hasImageKitUploadConfig();
   const serverUploadFallbackEnabled = !process.env.VERCEL;
 
   return (

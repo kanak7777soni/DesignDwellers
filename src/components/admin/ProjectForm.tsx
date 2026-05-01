@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import AdminMediaRows from '@/components/admin/AdminMediaRows';
 import UploadAwareForm from '@/components/admin/UploadAwareForm';
-import { hasMediaBlobToken } from '@/lib/blob-tokens';
+import { hasImageKitUploadConfig } from '@/lib/imagekit';
 import type { PortfolioCategory, PortfolioProject, ProjectMedia } from '@/lib/portfolio';
 import { formatList, formatStats } from '@/lib/portfolio-store';
 
@@ -101,7 +101,7 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
   const primaryCategorySlug = project?.primaryCategorySlug || categories[0]?.slug || '';
   const meta = project?.meta || {};
   const seo = project?.seo || {};
-  const clientUploadsEnabled = hasMediaBlobToken();
+  const clientUploadsEnabled = hasImageKitUploadConfig();
   const serverUploadFallbackEnabled = !process.env.VERCEL;
 
   return (

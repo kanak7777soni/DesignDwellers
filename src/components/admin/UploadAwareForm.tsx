@@ -1,6 +1,6 @@
 'use client';
 
-import { upload } from '@vercel/blob/client';
+import { upload } from '@imagekit/javascript';
 import type { ComponentPropsWithoutRef, FormEvent, ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import {
@@ -21,8 +21,11 @@ type FileUploadTarget = {
   file: File;
 };
 
-type UploadedBlob = {
-  url: string;
+type ImageKitUploadAuth = {
+  publicKey: string;
+  token: string;
+  expire: number;
+  signature: string;
 };
 
 type SingleFileTarget = {
@@ -32,7 +35,7 @@ type SingleFileTarget = {
   expectedType?: 'image' | 'video';
 };
 
-const UPLOAD_STALL_TIMEOUT_MS = 60_000;
+const UPLOAD_STALL_TIMEOUT_MS = 5 * 60_000;
 
 const singleFileTargets: Record<string, SingleFileTarget> = {
   cardFile: { srcField: 'cardSrc', typeField: 'cardType', altField: 'cardAlt' },
@@ -56,6 +59,24 @@ function safePathPart(value: string) {
     .replace(/[^a-z0-9.]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 90) || 'upload';
+}
+
+async function getImageKitUploadAuth() {
+  const response = await fetch('/api/admin/imagekit-auth', {
+    cache: 'no-store',
+    credentials: 'same-origin',
+  });
+  const payload = await response.json().catch(() => ({})) as Partial<ImageKitUploadAuth> & { error?: string };
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'ImageKit upload credentials could not be created.');
+  }
+
+  if (!payload.publicKey || !payload.token || !payload.signature || !payload.expire) {
+    throw new Error('ImageKit upload credentials were incomplete.');
+  }
+
+  return payload as ImageKitUploadAuth;
 }
 
 function setFieldValue(form: HTMLFormElement, name: string, value: string) {
@@ -152,7 +173,7 @@ function appendUploadedMediaRow({
   url: string;
   index: number;
 }) {
-  const key = `blob-${Date.now()}-${index}`;
+  const key = `upload-${Date.now()}-${index}`;
   const existingRows = form.querySelectorAll(`input[name="${groupName}Indexes"]`).length;
   const order = existingRows + index + 1;
   const mediaType = mediaTypeFromContentType(file.type);
@@ -171,16 +192,16 @@ function uploadErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : 'Upload failed. Please try again.';
   const lowerMessage = message.toLowerCase();
 
-  if (lowerMessage.includes('private store')) {
-    return 'The media upload token is connected to a private Blob store. Public website images/videos need a public Blob token in MEDIA_BLOB_READ_WRITE_TOKEN.';
+  if (lowerMessage.includes('unauthorized')) {
+    return 'Your admin session expired. Log in again before uploading media.';
   }
 
-  if (lowerMessage.includes('store_not_found') || lowerMessage.includes('store not found')) {
-    return 'The media upload token points to a deleted or missing Blob store. Update MEDIA_BLOB_READ_WRITE_TOKEN with the current public Blob store token.';
+  if (lowerMessage.includes('imagekit media storage is not configured')) {
+    return 'ImageKit media storage is not configured. Add IMAGEKIT_PUBLIC_KEY and IMAGEKIT_PRIVATE_KEY in Vercel, then redeploy.';
   }
 
   if (lowerMessage.includes('aborted') || lowerMessage.includes('abort')) {
-    return 'The upload stopped because Vercel Blob did not respond after the browser finished sending the file. Check that MEDIA_BLOB_READ_WRITE_TOKEN points to a public Blob store.';
+    return 'The ImageKit upload did not respond for several minutes. Try again, or use a direct media URL for very large files.';
   }
 
   return message;
@@ -218,7 +239,7 @@ export default function UploadAwareForm({
       }
 
       event.preventDefault();
-      setError('File upload storage is not configured for this deployment. Paste a media URL instead, or connect Vercel Blob.');
+      setError('File upload storage is not configured for this deployment. Paste a media URL instead, or connect ImageKit.');
       return;
     }
 
@@ -244,35 +265,47 @@ export default function UploadAwareForm({
           throw new Error(rowPosterTarget ? 'Poster image upload must be an image file. Use Media upload for videos.' : expectedTypeError);
         }
 
-        const pathname = [
-          'crm',
-          safePathPart(input.name || 'media'),
-          `${Date.now()}-${index + 1}-${safePathPart(file.name)}`,
-        ].join('/');
+        const auth = await getImageKitUploadAuth();
+        const folder = `/crm/${safePathPart(input.name || 'media')}`;
+        const fileName = `${Date.now()}-${index + 1}-${safePathPart(file.name)}`;
 
         const abortController = new AbortController();
         let lastProgressAt = Date.now();
+        let uploadUrl = '';
         const stallTimer = window.setInterval(() => {
           if (Date.now() - lastProgressAt > UPLOAD_STALL_TIMEOUT_MS) {
             abortController.abort();
           }
         }, 5000);
-        let blob: UploadedBlob;
 
         try {
-          blob = await upload(pathname, file, {
-            access: 'public',
-            contentType: file.type,
-            handleUploadUrl: '/api/admin/blob-upload',
-            multipart: file.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES,
+          const uploaded = await upload({
+            file,
+            fileName,
+            folder,
+            publicKey: auth.publicKey,
+            token: auth.token,
+            expire: auth.expire,
+            signature: auth.signature,
+            useUniqueFileName: true,
+            tags: ['crm', mediaTypeFromContentType(file.type)],
             abortSignal: abortController.signal,
-            onUploadProgress: ({ percentage }) => {
+            onProgress: (progressEvent) => {
               lastProgressAt = Date.now();
+              const percentage = progressEvent.total > 0
+                ? Math.min(100, Math.round((progressEvent.loaded / progressEvent.total) * 100))
+                : 0;
               setStatus(percentage >= 100
                 ? `Finalizing ${index + 1}/${fileUploads.length} files...`
-                : `Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
+                : `Uploading ${index + 1}/${fileUploads.length} files (${percentage}%)...`);
             },
           });
+
+          if (!uploaded.url) {
+            throw new Error('ImageKit did not return a media URL.');
+          }
+
+          uploadUrl = uploaded.url;
         } finally {
           window.clearInterval(stallTimer);
         }
@@ -280,7 +313,7 @@ export default function UploadAwareForm({
         const multiTarget = multiFileTargets[input.name];
 
         if (singleTarget) {
-          setFieldValue(form, singleTarget.srcField, blob.url);
+          setFieldValue(form, singleTarget.srcField, uploadUrl);
 
           if (singleTarget.typeField) {
             setFieldValue(form, singleTarget.typeField, mediaTypeFromContentType(file.type));
@@ -299,11 +332,11 @@ export default function UploadAwareForm({
             form,
             groupName: multiTarget,
             file,
-            url: blob.url,
+            url: uploadUrl,
             index,
           });
         } else if (rowMediaTarget) {
-          setFieldValue(form, `${rowMediaTarget.groupName}Src-${rowMediaTarget.key}`, blob.url);
+          setFieldValue(form, `${rowMediaTarget.groupName}Src-${rowMediaTarget.key}`, uploadUrl);
           setFieldValue(form, `${rowMediaTarget.groupName}Type-${rowMediaTarget.key}`, mediaTypeFromContentType(file.type));
 
           const altField = form.elements.namedItem(`${rowMediaTarget.groupName}Alt-${rowMediaTarget.key}`);
@@ -313,7 +346,7 @@ export default function UploadAwareForm({
             altField.value = altText;
           }
         } else if (rowPosterTarget) {
-          setFieldValue(form, `${rowPosterTarget.groupName}Poster-${rowPosterTarget.key}`, blob.url);
+          setFieldValue(form, `${rowPosterTarget.groupName}Poster-${rowPosterTarget.key}`, uploadUrl);
         }
       }
 

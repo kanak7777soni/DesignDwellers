@@ -37,9 +37,9 @@ ADMIN_PASSWORD=choose-a-strong-password
 ADMIN_SESSION_SECRET=choose-a-long-random-secret
 ```
 
-For Vercel Blob, use exact environment variable names. Public website media uses `MEDIA_BLOB_READ_WRITE_TOKEN` or Vercel's default `BLOB_READ_WRITE_TOKEN`. Private CRM JSON and backups use `CRM_BLOB_READ_WRITE_TOKEN`, with `BLOB_READ_WRITE_TOKEN` supported only when that default token points to a private Blob store. A custom variable name such as `test` will be ignored unless its value is copied into one of these names.
+Use Vercel Blob only for private CRM JSON and backups: set `BLOB_READ_WRITE_TOKEN` or `CRM_BLOB_READ_WRITE_TOKEN`. Use ImageKit for public website images/videos: set `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, and optionally `IMAGEKIT_URL_ENDPOINT`. A custom Vercel variable name such as `test` will be ignored unless its value is copied into one of these names.
 
-After login, you can add/edit projects, categories, cover media, hero media, gallery media, videos, interior project details, SEO fields, and home page Instagram reels. The dashboard also supports project search/filtering, draft previews, delete confirmations, drag/drop media ordering, and portfolio backups. The admin saves editable portfolio data to `data/portfolio.json`; uploaded media is saved under `public/uploads/portfolio` for local development.
+After login, you can add/edit projects, categories, cover media, hero media, gallery media, videos, interior project details, SEO fields, and home page Instagram reels. The dashboard also supports project search/filtering, draft previews, delete confirmations, drag/drop media ordering, and portfolio backups. The admin saves editable portfolio data to `data/portfolio.json`; uploaded media is saved under `public/uploads/portfolio` for local development when ImageKit is not configured.
 
 The CRM creates automatic snapshots under `data/backups/portfolio` before saves and deletes, keeping the latest 30 backups. Use `/admin/backups` to restore or delete snapshots.
 

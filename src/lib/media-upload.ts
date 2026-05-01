@@ -1,6 +1,5 @@
 import type { ProjectMedia } from '@/lib/portfolio';
 
-export const MAX_BLOB_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024 * 1024;
 export const VERCEL_FUNCTION_BODY_LIMIT_BYTES = 4.5 * 1024 * 1024;
 
 export const ALLOWED_UPLOAD_TYPES = [
@@ -26,10 +25,6 @@ export function getUploadValidationErrorForFile(file: { size: number; type: stri
 
   if (!allowedUploadTypes.has(file.type)) {
     return 'Unsupported file type.';
-  }
-
-  if (file.size > MAX_BLOB_UPLOAD_BYTES) {
-    return 'File is too large. Maximum size is 5TB.';
   }
 
   return null;
