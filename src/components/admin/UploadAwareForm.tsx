@@ -165,24 +165,6 @@ function appendUploadedMediaRow({
   appendHiddenInput(form, `${groupName}Poster-${key}`, '');
 }
 
-async function uploadThroughSite(pathname: string, file: File) {
-  const formData = new FormData();
-  formData.set('pathname', pathname);
-  formData.set('file', file);
-
-  const response = await fetch('/api/admin/media-upload', {
-    method: 'POST',
-    body: formData,
-  });
-  const payload = await response.json().catch(() => null) as (UploadedBlob & { error?: string }) | null;
-
-  if (!response.ok || !payload?.url) {
-    throw new Error(payload?.error || 'Upload failed. Please try again.');
-  }
-
-  return payload;
-}
-
 export default function UploadAwareForm({
   action,
   children,
@@ -247,24 +229,17 @@ export default function UploadAwareForm({
           `${Date.now()}-${index + 1}-${safePathPart(file.name)}`,
         ].join('/');
 
-        let blob: UploadedBlob;
-
-        if (file.size <= VERCEL_FUNCTION_BODY_LIMIT_BYTES) {
-          setStatus(`Uploading ${index + 1}/${fileUploads.length} files through site...`);
-          blob = await uploadThroughSite(pathname, file);
-        } else {
-          blob = await upload(pathname, file, {
-            access: 'public',
-            contentType: file.type,
-            handleUploadUrl: '/api/admin/blob-upload',
-            multipart: true,
-            onUploadProgress: ({ percentage }) => {
-              setStatus(percentage >= 100
-                ? `Finalizing ${index + 1}/${fileUploads.length} files...`
-                : `Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
-            },
-          });
-        }
+        const blob: UploadedBlob = await upload(pathname, file, {
+          access: 'public',
+          contentType: file.type,
+          handleUploadUrl: '/api/admin/blob-upload',
+          multipart: file.size > VERCEL_FUNCTION_BODY_LIMIT_BYTES,
+          onUploadProgress: ({ percentage }) => {
+            setStatus(percentage >= 100
+              ? `Finalizing ${index + 1}/${fileUploads.length} files...`
+              : `Uploading ${index + 1}/${fileUploads.length} files (${Math.round(percentage)}%)...`);
+          },
+        });
 
         const multiTarget = multiFileTargets[input.name];
 
@@ -315,7 +290,10 @@ export default function UploadAwareForm({
       allowNextSubmit.current = true;
       form.requestSubmit();
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : 'Upload failed. Please try again.');
+      const message = uploadError instanceof Error ? uploadError.message : 'Upload failed. Please try again.';
+      setError(message.includes('private store')
+        ? 'The media Blob token is connected to a private Blob store. Public website media needs a public Blob store token in MEDIA_BLOB_READ_WRITE_TOKEN.'
+        : message);
       setStatus(null);
       setSubmitButtons(form, false);
     }

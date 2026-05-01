@@ -49,7 +49,7 @@ function errorText(error?: string) {
   if (error === 'permalink') return 'Instagram reel link is required.';
   if (error === 'profile-url') return 'Profile URL must start with http:// or https://.';
   if (error === 'media-url') return 'Video and thumbnail URLs must be http://, https://, or a saved upload path.';
-  if (error === 'upload') return 'Upload JPG, PNG, WebP, GIF thumbnails or MP4, WebM, MOV videos only. Images can be up to 10MB and videos up to 75MB.';
+  if (error === 'upload') return 'Upload JPG, PNG, WebP, GIF thumbnails or MP4, WebM, MOV videos only.';
   if (error === 'sync') return 'Instagram sync failed. Check the saved sync message below.';
   return null;
 }

@@ -20,7 +20,7 @@ function getStatusMessage(status?: string) {
 function getErrorMessage(error?: string) {
   if (error === 'name') return 'Project name is required.';
   if (error === 'card-media') return 'Add a card media upload or card media URL before saving.';
-  if (error === 'upload') return 'Upload JPG, PNG, WebP, GIF, MP4, WebM, or MOV files only. Images can be up to 10MB and videos up to 75MB.';
+  if (error === 'upload') return 'Upload JPG, PNG, WebP, GIF, MP4, WebM, or MOV files only.';
   return null;
 }
 
