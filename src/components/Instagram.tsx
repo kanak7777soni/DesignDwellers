@@ -41,6 +41,7 @@ const fallbackPosts = Array.from({ length: 6 }, (_, index) => ({
   id: `fallback-instagram-${index + 1}`,
   caption: 'Modular Kitchen Reveal',
 }));
+const VIDEO_VISIBILITY_THRESHOLD = 0.35;
 
 export default function InstagramSection() {
   const [feed, setFeed] = useState<FeedState>({
@@ -196,6 +197,74 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayable = Boolean(video.videoUrl);
 
+  useEffect(() => {
+    const element = videoRef.current;
+
+    if (!element || !isPlayable) {
+      return;
+    }
+
+    const videoElement = element;
+    let shouldPlay = false;
+
+    async function playVisibleVideo() {
+      if (!shouldPlay || !videoElement.paused) {
+        return;
+      }
+
+      try {
+        videoElement.muted = true;
+        await videoElement.play();
+        setIsPlaying(true);
+      } catch {
+        setIsPlaying(false);
+      }
+    }
+
+    function pauseHiddenVideo() {
+      if (!videoElement.paused) {
+        videoElement.pause();
+      }
+      setIsPlaying(false);
+    }
+
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        pauseHiddenVideo();
+        return;
+      }
+
+      if (shouldPlay) {
+        void playVisibleVideo();
+      }
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        shouldPlay = Boolean(entry?.isIntersecting && entry.intersectionRatio >= VIDEO_VISIBILITY_THRESHOLD);
+
+        if (shouldPlay && !document.hidden) {
+          void playVisibleVideo();
+          return;
+        }
+
+        pauseHiddenVideo();
+      },
+      {
+        threshold: [0, 0.2, VIDEO_VISIBILITY_THRESHOLD, 0.6, 1],
+      },
+    );
+
+    observer.observe(videoElement);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      pauseHiddenVideo();
+    };
+  }, [isPlayable, video.videoUrl]);
+
   async function playVideo() {
     const element = videoRef.current;
 
@@ -241,8 +310,6 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
     <article
       className="relative group overflow-hidden"
       style={{ width: '204px', height: '363px', flexShrink: 0, background: '#0f0f0f' }}
-      onMouseEnter={playVideo}
-      onMouseLeave={pauseVideo}
     >
       {isPlayable ? (
         <video

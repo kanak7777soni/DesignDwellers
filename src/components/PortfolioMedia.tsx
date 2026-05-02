@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import ViewportVideo from '@/components/ViewportVideo';
 import type { ProjectMedia } from '@/lib/portfolio';
 
 type PortfolioMediaProps = {
@@ -20,18 +21,11 @@ export default function PortfolioMedia({
 }: PortfolioMediaProps) {
   if (media.type === 'video') {
     return (
-      <video
+      <ViewportVideo
         src={media.src}
         poster={media.poster}
-        aria-label={media.alt}
+        ariaLabel={media.alt}
         className={`h-full w-full ${className}`}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        controls={false}
-        disablePictureInPicture
       />
     );
   }
