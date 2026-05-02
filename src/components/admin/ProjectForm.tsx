@@ -113,6 +113,11 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
       style={{ gap: '24px' }}
     >
       <input type="hidden" name="id" value={project?.id || ''} />
+      <input type="hidden" name="cardStorage" value={project?.cardMedia.storage ? JSON.stringify(project.cardMedia.storage) : ''} />
+      <input type="hidden" name="cardPosterStorage" value={project?.cardMedia.posterStorage ? JSON.stringify(project.cardMedia.posterStorage) : ''} />
+      <input type="hidden" name="featuredStorage" value={project?.featuredMedia?.storage ? JSON.stringify(project.featuredMedia.storage) : ''} />
+      <input type="hidden" name="featuredPosterStorage" value={project?.featuredMedia?.posterStorage ? JSON.stringify(project.featuredMedia.posterStorage) : ''} />
+      <input type="hidden" name="seoImageStorage" value={project?.seo?.imageStorage ? JSON.stringify(project.seo.imageStorage) : ''} />
 
       <Section title="Project Details">
         <div className="grid grid-cols-2" style={{ gap: '16px' }}>

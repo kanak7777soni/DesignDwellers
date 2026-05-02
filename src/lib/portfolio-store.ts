@@ -13,6 +13,7 @@ import {
   mediaTypeFromContentType,
   mediaTypeFromUrl,
 } from '@/lib/media-upload';
+import { normalizeMediaStorage, type MediaStorageMetadata } from '@/lib/media-storage';
 import {
   deleteCrmBlobFile,
   listCrmBlobFiles,
@@ -425,19 +426,28 @@ export function createMediaFromSrc({
   alt,
   type,
   poster,
+  storage,
+  posterStorage,
 }: {
   id: string;
   src: string;
   alt: string;
   type?: ProjectMedia['type'];
   poster?: string;
+  storage?: MediaStorageMetadata;
+  posterStorage?: MediaStorageMetadata;
 }): ProjectMedia {
+  const normalizedStorage = normalizeMediaStorage(storage);
+  const normalizedPosterStorage = normalizeMediaStorage(posterStorage);
+
   return {
     id,
     type: type || mediaTypeFromValue(src),
     src,
     alt,
     ...(poster ? { poster } : {}),
+    ...(normalizedStorage ? { storage: normalizedStorage } : {}),
+    ...(normalizedPosterStorage ? { posterStorage: normalizedPosterStorage } : {}),
   };
 }
 

@@ -28,23 +28,33 @@ type ImageKitUploadAuth = {
   signature: string;
 };
 
+type ImageKitUploadResult = {
+  url?: string;
+  fileId?: string;
+  filePath?: string;
+  name?: string;
+  size?: number;
+  fileType?: string;
+};
+
 type SingleFileTarget = {
   srcField: string;
   typeField?: string;
   altField?: string;
+  storageField?: string;
   expectedType?: 'image' | 'video';
 };
 
 const UPLOAD_STALL_TIMEOUT_MS = 5 * 60_000;
 
 const singleFileTargets: Record<string, SingleFileTarget> = {
-  cardFile: { srcField: 'cardSrc', typeField: 'cardType', altField: 'cardAlt' },
-  cardPosterFile: { srcField: 'cardPoster', expectedType: 'image' },
-  featuredFile: { srcField: 'featuredSrc', typeField: 'featuredType', altField: 'featuredAlt' },
-  featuredPosterFile: { srcField: 'featuredPoster', expectedType: 'image' },
-  seoImageFile: { srcField: 'seoImage', expectedType: 'image' },
-  videoFile: { srcField: 'videoUrl', expectedType: 'video' },
-  thumbnailFile: { srcField: 'thumbnailUrl', expectedType: 'image' },
+  cardFile: { srcField: 'cardSrc', typeField: 'cardType', altField: 'cardAlt', storageField: 'cardStorage' },
+  cardPosterFile: { srcField: 'cardPoster', storageField: 'cardPosterStorage', expectedType: 'image' },
+  featuredFile: { srcField: 'featuredSrc', typeField: 'featuredType', altField: 'featuredAlt', storageField: 'featuredStorage' },
+  featuredPosterFile: { srcField: 'featuredPoster', storageField: 'featuredPosterStorage', expectedType: 'image' },
+  seoImageFile: { srcField: 'seoImage', storageField: 'seoImageStorage', expectedType: 'image' },
+  videoFile: { srcField: 'videoUrl', storageField: 'videoStorage', expectedType: 'video' },
+  thumbnailFile: { srcField: 'thumbnailUrl', storageField: 'thumbnailStorage', expectedType: 'image' },
 };
 
 const multiFileTargets: Record<string, 'heroMedia' | 'galleryMedia'> = {
@@ -96,6 +106,23 @@ function appendHiddenInput(form: HTMLFormElement, name: string, value: string) {
   input.name = name;
   input.value = value;
   form.appendChild(input);
+}
+
+function createUploadStorageJson(uploaded: ImageKitUploadResult) {
+  if (!uploaded.fileId || !uploaded.url) {
+    return '';
+  }
+
+  return JSON.stringify({
+    provider: 'imagekit',
+    fileId: uploaded.fileId,
+    url: uploaded.url,
+    ...(uploaded.filePath ? { filePath: uploaded.filePath } : {}),
+    ...(uploaded.name ? { name: uploaded.name } : {}),
+    ...(Number.isFinite(uploaded.size) ? { size: uploaded.size } : {}),
+    ...(uploaded.fileType ? { fileType: uploaded.fileType } : {}),
+    uploadedAt: new Date().toISOString(),
+  });
 }
 
 function setSubmitButtons(form: HTMLFormElement, disabled: boolean) {
@@ -155,12 +182,14 @@ function appendUploadedMediaRow({
   groupName,
   file,
   url,
+  storageJson,
   index,
 }: {
   form: HTMLFormElement;
   groupName: 'heroMedia' | 'galleryMedia';
   file: File;
   url: string;
+  storageJson: string;
   index: number;
 }) {
   const key = `upload-${Date.now()}-${index}`;
@@ -176,6 +205,8 @@ function appendUploadedMediaRow({
   appendHiddenInput(form, `${groupName}Src-${key}`, url);
   appendHiddenInput(form, `${groupName}Alt-${key}`, altText);
   appendHiddenInput(form, `${groupName}Poster-${key}`, '');
+  appendHiddenInput(form, `${groupName}Storage-${key}`, storageJson);
+  appendHiddenInput(form, `${groupName}PosterStorage-${key}`, '');
 }
 
 function uploadErrorMessage(error: unknown) {
@@ -262,6 +293,7 @@ export default function UploadAwareForm({
         const abortController = new AbortController();
         let lastProgressAt = Date.now();
         let uploadUrl = '';
+        let storageJson = '';
         const stallTimer = window.setInterval(() => {
           if (Date.now() - lastProgressAt > UPLOAD_STALL_TIMEOUT_MS) {
             abortController.abort();
@@ -289,13 +321,14 @@ export default function UploadAwareForm({
                 ? `Finalizing ${index + 1}/${fileUploads.length} files...`
                 : `Uploading ${index + 1}/${fileUploads.length} files (${percentage}%)...`);
             },
-          });
+          }) as ImageKitUploadResult;
 
           if (!uploaded.url) {
             throw new Error('ImageKit did not return a media URL.');
           }
 
           uploadUrl = uploaded.url;
+          storageJson = createUploadStorageJson(uploaded);
         } finally {
           window.clearInterval(stallTimer);
         }
@@ -304,6 +337,10 @@ export default function UploadAwareForm({
 
         if (singleTarget) {
           setFieldValue(form, singleTarget.srcField, uploadUrl);
+
+          if (singleTarget.storageField) {
+            setFieldValue(form, singleTarget.storageField, storageJson);
+          }
 
           if (singleTarget.typeField) {
             setFieldValue(form, singleTarget.typeField, mediaTypeFromContentType(file.type));
@@ -323,11 +360,13 @@ export default function UploadAwareForm({
             groupName: multiTarget,
             file,
             url: uploadUrl,
+            storageJson,
             index,
           });
         } else if (rowMediaTarget) {
           setFieldValue(form, `${rowMediaTarget.groupName}Src-${rowMediaTarget.key}`, uploadUrl);
           setFieldValue(form, `${rowMediaTarget.groupName}Type-${rowMediaTarget.key}`, mediaTypeFromContentType(file.type));
+          setFieldValue(form, `${rowMediaTarget.groupName}Storage-${rowMediaTarget.key}`, storageJson);
 
           const altField = form.elements.namedItem(`${rowMediaTarget.groupName}Alt-${rowMediaTarget.key}`);
           const altText = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
@@ -337,6 +376,7 @@ export default function UploadAwareForm({
           }
         } else if (rowPosterTarget) {
           setFieldValue(form, `${rowPosterTarget.groupName}Poster-${rowPosterTarget.key}`, uploadUrl);
+          setFieldValue(form, `${rowPosterTarget.groupName}PosterStorage-${rowPosterTarget.key}`, storageJson);
         }
       }
 

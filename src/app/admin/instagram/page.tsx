@@ -78,6 +78,8 @@ function ReelForm({
         style={{ gap: '14px' }}
       >
         <input type="hidden" name="id" value={reel?.id || ''} />
+        <input type="hidden" name="videoStorage" value={reel?.videoStorage ? JSON.stringify(reel.videoStorage) : ''} />
+        <input type="hidden" name="thumbnailStorage" value={reel?.thumbnailStorage ? JSON.stringify(reel.thumbnailStorage) : ''} />
         <div className="grid" style={{ gridTemplateColumns: '1.2fr 1fr 1fr 90px', gap: '10px' }}>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Caption

@@ -4,6 +4,8 @@ import crypto from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin-auth';
+import { registerMediaAssets } from '@/lib/media-library-store';
+import { parseMediaStorageJson, type MediaStorageMetadata } from '@/lib/media-storage';
 import { getUploadValidationError, saveUploadedMedia } from '@/lib/portfolio-store';
 import {
   cleanHttpUrl,
@@ -35,6 +37,38 @@ type InstagramGraphResponse = {
 
 function formString(formData: FormData, key: string) {
   return String(formData.get(key) || '').trim();
+}
+
+function formMediaStorage(formData: FormData, key: string) {
+  return parseMediaStorageJson(formData.get(key));
+}
+
+function mediaStorageForUrl({
+  url,
+  uploadedStorage,
+  existingStorage,
+  existingUrl,
+}: {
+  url: string | null;
+  uploadedStorage?: MediaStorageMetadata;
+  existingStorage?: MediaStorageMetadata | null;
+  existingUrl?: string | null;
+}) {
+  if (uploadedStorage && uploadedStorage.url === url) {
+    return uploadedStorage;
+  }
+
+  return url && existingUrl === url ? existingStorage || null : null;
+}
+
+async function registerReelMediaAssets(reel: ManagedInstagramReel) {
+  try {
+    await registerMediaAssets([reel.videoStorage, reel.thumbnailStorage], `instagram:${reel.id}`);
+  } catch (error) {
+    console.error('[admin] Instagram media library register failed', {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 function formNumber(formData: FormData, key: string, fallback: number) {
@@ -167,6 +201,10 @@ function mergeImportedReels({
       const existingIndex = nextReels.findIndex((reel) => reel.sourceId === sourceId || reel.id === sourceId || reel.id === `ig-${sourceId}`);
       const existing = existingIndex >= 0 ? nextReels[existingIndex] : null;
       const permalink = cleanHttpUrl(media.permalink) || existing?.permalink || '';
+      const importedVideoUrl = cleanMediaUrl(media.media_url);
+      const importedThumbnailUrl = cleanMediaUrl(media.thumbnail_url);
+      const videoUrl = importedVideoUrl || existing?.videoUrl || null;
+      const thumbnailUrl = importedThumbnailUrl || existing?.thumbnailUrl || null;
 
       if (!permalink) {
         return;
@@ -176,8 +214,10 @@ function mergeImportedReels({
         id: existing?.id || `ig-${sourceId}`,
         sourceId,
         caption: media.caption?.trim() || existing?.caption || 'Design Dwellers Studio',
-        videoUrl: cleanMediaUrl(media.media_url) || existing?.videoUrl || null,
-        thumbnailUrl: cleanMediaUrl(media.thumbnail_url) || existing?.thumbnailUrl || null,
+        videoUrl,
+        thumbnailUrl,
+        videoStorage: existing?.videoUrl === videoUrl ? existing?.videoStorage || null : null,
+        thumbnailStorage: existing?.thumbnailUrl === thumbnailUrl ? existing?.thumbnailStorage || null : null,
         permalink,
         timestamp: media.timestamp?.trim() || existing?.timestamp || null,
         username: media.username?.trim() || existing?.username || profileUsername,
@@ -238,13 +278,27 @@ export async function saveInstagramReelAction(formData: FormData) {
 
   const videoUpload = await saveUploadedMedia(formFile(formData, 'videoFile'), 'instagram-reels');
   const thumbnailUpload = await saveUploadedMedia(formFile(formData, 'thumbnailFile'), 'instagram-reels');
+  const videoUrl = videoUpload || formMediaUrl(formData, 'videoUrl');
+  const thumbnailUrl = thumbnailUpload || formMediaUrl(formData, 'thumbnailUrl');
 
   const reel: ManagedInstagramReel = {
     id,
     sourceId: existing?.sourceId || null,
     caption: formString(formData, 'caption') || existing?.caption || 'Design Dwellers Studio',
-    videoUrl: videoUpload || formMediaUrl(formData, 'videoUrl'),
-    thumbnailUrl: thumbnailUpload || formMediaUrl(formData, 'thumbnailUrl'),
+    videoUrl,
+    thumbnailUrl,
+    videoStorage: mediaStorageForUrl({
+      url: videoUrl,
+      uploadedStorage: formMediaStorage(formData, 'videoStorage'),
+      existingStorage: existing?.videoStorage,
+      existingUrl: existing?.videoUrl,
+    }),
+    thumbnailStorage: mediaStorageForUrl({
+      url: thumbnailUrl,
+      uploadedStorage: formMediaStorage(formData, 'thumbnailStorage'),
+      existingStorage: existing?.thumbnailStorage,
+      existingUrl: existing?.thumbnailUrl,
+    }),
     permalink: formHttpUrl(formData, 'permalink') || '',
     timestamp: formOptionalString(formData, 'timestamp'),
     username: formOptionalString(formData, 'username') || data.profile.username,
@@ -261,6 +315,7 @@ export async function saveInstagramReelAction(formData: FormData) {
     ...data,
     reels: nextReels,
   });
+  await registerReelMediaAssets(reel);
 
   touchInstagramPaths();
   redirect('/admin/instagram?status=reel-saved');

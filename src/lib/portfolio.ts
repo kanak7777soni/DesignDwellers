@@ -1,3 +1,5 @@
+import type { MediaStorageMetadata } from '@/lib/media-storage';
+
 export type PortfolioCategory = {
   slug: string;
   label: string;
@@ -11,6 +13,8 @@ export type ProjectMedia = {
   src: string;
   alt: string;
   poster?: string;
+  storage?: MediaStorageMetadata;
+  posterStorage?: MediaStorageMetadata;
 };
 
 export type ProjectStat = {
@@ -36,6 +40,7 @@ export type ProjectSeo = {
   title?: string;
   description?: string;
   image?: string;
+  imageStorage?: MediaStorageMetadata;
 };
 
 export type PortfolioProject = {

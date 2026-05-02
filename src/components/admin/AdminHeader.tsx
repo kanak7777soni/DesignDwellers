@@ -19,6 +19,9 @@ export default function AdminHeader() {
         <Link href="/admin/instagram" className="font-body" style={{ color: '#FFFFFF', opacity: 0.75, textDecoration: 'none', fontSize: '14px' }}>
           Instagram
         </Link>
+        <Link href="/admin/media-cleanup" className="font-body" style={{ color: '#FFFFFF', opacity: 0.75, textDecoration: 'none', fontSize: '14px' }}>
+          Media Cleanup
+        </Link>
         <Link href="/admin/backups" className="font-body" style={{ color: '#FFFFFF', opacity: 0.75, textDecoration: 'none', fontSize: '14px' }}>
           Backups
         </Link>

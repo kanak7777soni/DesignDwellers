@@ -183,6 +183,8 @@ export default function AdminMediaRows({
             <input type="hidden" name={`${name}Indexes`} value={row.key} />
             <input type="hidden" name={`${name}Id-${row.key}`} value={row.media?.id || ''} />
             <input type="hidden" name={`${name}Order-${row.key}`} value={index + 1} />
+            <input type="hidden" name={`${name}Storage-${row.key}`} value={row.media?.storage ? JSON.stringify(row.media.storage) : ''} />
+            <input type="hidden" name={`${name}PosterStorage-${row.key}`} value={row.media?.posterStorage ? JSON.stringify(row.media.posterStorage) : ''} />
             <div className="flex flex-col items-center" style={{ gap: '6px' }}>
               <button
                 type="button"

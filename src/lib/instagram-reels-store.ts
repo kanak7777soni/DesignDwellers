@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { readCrmBlobText, shouldUseBlobCrmStorage, writeCrmBlobText } from '@/lib/crm-blob-storage';
+import { normalizeMediaStorage, type MediaStorageMetadata } from '@/lib/media-storage';
 
 export type ManagedInstagramReel = {
   id: string;
@@ -9,6 +10,8 @@ export type ManagedInstagramReel = {
   caption: string;
   videoUrl: string | null;
   thumbnailUrl: string | null;
+  videoStorage?: MediaStorageMetadata | null;
+  thumbnailStorage?: MediaStorageMetadata | null;
   permalink: string;
   timestamp: string | null;
   username: string | null;
@@ -181,6 +184,8 @@ function normalizeReel(reel: Partial<ManagedInstagramReel>, index: number): Mana
     caption: reel.caption?.trim() || 'Design Dwellers Studio',
     videoUrl: cleanMediaUrl(reel.videoUrl),
     thumbnailUrl: cleanMediaUrl(reel.thumbnailUrl),
+    videoStorage: normalizeMediaStorage(reel.videoStorage) || null,
+    thumbnailStorage: normalizeMediaStorage(reel.thumbnailStorage) || null,
     permalink: cleanHttpUrl(reel.permalink) || defaultProfile.url,
     timestamp: reel.timestamp?.trim() || null,
     username: reel.username?.trim() || defaultProfile.username,

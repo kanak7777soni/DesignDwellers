@@ -4,6 +4,12 @@ import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin-auth';
+import { registerMediaAssets } from '@/lib/media-library-store';
+import {
+  parseMediaStorageJson,
+  uniqueMediaStorages,
+  type MediaStorageMetadata,
+} from '@/lib/media-storage';
 import type { PortfolioCategory, PortfolioProject, ProjectMedia } from '@/lib/portfolio';
 import {
   createMediaFromSrc,
@@ -22,6 +28,28 @@ import {
 
 function formString(formData: FormData, key: string) {
   return String(formData.get(key) || '').trim();
+}
+
+function formMediaStorage(formData: FormData, key: string) {
+  return parseMediaStorageJson(formData.get(key));
+}
+
+function mediaStorageForSrc({
+  src,
+  uploadedStorage,
+  existingStorage,
+  existingSrc,
+}: {
+  src: string;
+  uploadedStorage?: MediaStorageMetadata;
+  existingStorage?: MediaStorageMetadata;
+  existingSrc?: string;
+}) {
+  if (uploadedStorage && uploadedStorage.url === src) {
+    return uploadedStorage;
+  }
+
+  return src && existingSrc === src ? existingStorage : undefined;
 }
 
 function formNumber(formData: FormData, key: string, fallback: number) {
@@ -50,6 +78,28 @@ function logStorageError(action: string, error: unknown) {
   console.error(`[admin] ${action} failed`, {
     message: error instanceof Error ? error.message : String(error),
   });
+}
+
+function collectMediaStorages(media: ProjectMedia | null | undefined) {
+  return [media?.storage, media?.posterStorage];
+}
+
+function collectProjectMediaStorages(project: PortfolioProject) {
+  return uniqueMediaStorages([
+    ...collectMediaStorages(project.cardMedia),
+    ...collectMediaStorages(project.featuredMedia),
+    project.seo?.imageStorage,
+    ...project.detail.heroMedia.flatMap(collectMediaStorages),
+    ...project.detail.galleryMedia.flatMap(collectMediaStorages),
+  ]);
+}
+
+async function registerProjectMediaAssets(project: PortfolioProject) {
+  try {
+    await registerMediaAssets(collectProjectMediaStorages(project), `project:${project.id}`);
+  } catch (error) {
+    logStorageError('Media library register', error);
+  }
 }
 
 async function savePortfolioDataOrRedirect(
@@ -149,11 +199,19 @@ function getUniqueCategorySlug(data: { categories: PortfolioCategory[] }, desire
   return candidate;
 }
 
-async function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'galleryMedia', fallbackAlt: string, idPrefix: string, projectSlug: string) {
+async function parseMediaRows(
+  formData: FormData,
+  groupName: 'heroMedia' | 'galleryMedia',
+  fallbackAlt: string,
+  idPrefix: string,
+  projectSlug: string,
+  existingMedia: ProjectMedia[] = [],
+) {
   const rows = await Promise.all(formData.getAll(`${groupName}Indexes`)
     .map((value) => String(value))
     .map(async (index, rowPosition) => {
       const existingId = formString(formData, `${groupName}Id-${index}`);
+      const existingItem = existingMedia.find((media) => media.id === existingId);
       const mediaFile = formFile(formData, `${groupName}File-${index}`);
       const uploadedSrc = await saveUploadedMedia(mediaFile, projectSlug);
       const src = uploadedSrc || formString(formData, `${groupName}Src-${index}`);
@@ -165,13 +223,26 @@ async function parseMediaRows(formData: FormData, groupName: 'heroMedia' | 'gall
       }
 
       const posterUpload = await saveUploadedMedia(formFile(formData, `${groupName}PosterFile-${index}`), projectSlug);
+      const poster = posterUpload || formString(formData, `${groupName}Poster-${index}`);
       const typeValue = formString(formData, `${groupName}Type-${index}`);
       const media = createMediaFromSrc({
         id: existingId || `${idPrefix}-url-${rowPosition + 1}`,
         src,
         alt: formString(formData, `${groupName}Alt-${index}`) || `${fallbackAlt} media ${rowPosition + 1}`,
         type: resolveSubmittedMediaType(typeValue, mediaFile || src),
-        poster: posterUpload || formString(formData, `${groupName}Poster-${index}`),
+        poster,
+        storage: mediaStorageForSrc({
+          src,
+          uploadedStorage: formMediaStorage(formData, `${groupName}Storage-${index}`),
+          existingStorage: existingItem?.storage,
+          existingSrc: existingItem?.src,
+        }),
+        posterStorage: mediaStorageForSrc({
+          src: poster,
+          uploadedStorage: formMediaStorage(formData, `${groupName}PosterStorage-${index}`),
+          existingStorage: existingItem?.posterStorage,
+          existingSrc: existingItem?.poster,
+        }),
       });
 
       return {
@@ -194,6 +265,8 @@ async function resolveSingleMedia({
   typeKey,
   posterKey,
   posterFileKey,
+  storageKey,
+  posterStorageKey,
   existing,
   id,
   projectSlug,
@@ -206,6 +279,8 @@ async function resolveSingleMedia({
   typeKey: string;
   posterKey?: string;
   posterFileKey?: string;
+  storageKey?: string;
+  posterStorageKey?: string;
   existing?: ProjectMedia;
   id: string;
   projectSlug: string;
@@ -218,13 +293,26 @@ async function resolveSingleMedia({
   const typeValue = formString(formData, typeKey);
   const type = resolveSubmittedMediaType(typeValue, file || src);
   const alt = formString(formData, altKey) || existing?.alt || fallbackAlt;
+  const poster = uploadedPoster || (posterKey ? formString(formData, posterKey) : '') || existing?.poster || '';
 
   return createMediaFromSrc({
     id,
     src,
     alt,
     type,
-    poster: uploadedPoster || (posterKey ? formString(formData, posterKey) : '') || existing?.poster,
+    poster,
+    storage: mediaStorageForSrc({
+      src,
+      uploadedStorage: storageKey ? formMediaStorage(formData, storageKey) : undefined,
+      existingStorage: existing?.storage,
+      existingSrc: existing?.src,
+    }),
+    posterStorage: mediaStorageForSrc({
+      src: poster,
+      uploadedStorage: posterStorageKey ? formMediaStorage(formData, posterStorageKey) : undefined,
+      existingStorage: existing?.posterStorage,
+      existingSrc: existing?.poster,
+    }),
   });
 }
 
@@ -384,6 +472,8 @@ export async function saveProjectAction(formData: FormData) {
     typeKey: 'cardType',
     posterKey: 'cardPoster',
     posterFileKey: 'cardPosterFile',
+    storageKey: 'cardStorage',
+    posterStorageKey: 'cardPosterStorage',
     existing: existing?.cardMedia,
     id: `${slug}-card`,
     projectSlug: slug,
@@ -400,18 +490,32 @@ export async function saveProjectAction(formData: FormData) {
   const featuredPosterUpload = await saveUploadedMedia(formFile(formData, 'featuredPosterFile'), slug);
   const removeFeaturedMedia = formData.get('removeFeaturedMedia') === 'on';
   const featuredTypeValue = formString(formData, 'featuredType');
+  const nextFeaturedSrc = featuredUpload || featuredSrc || existing?.featuredMedia?.src || '';
+  const nextFeaturedPoster = featuredPosterUpload || formString(formData, 'featuredPoster') || existing?.featuredMedia?.poster || '';
   const featuredMedia = !removeFeaturedMedia && (featuredUpload || featuredSrc || existing?.featuredMedia?.src)
     ? createMediaFromSrc({
       id: `${slug}-featured`,
-      src: featuredUpload || featuredSrc || existing?.featuredMedia?.src || '',
+      src: nextFeaturedSrc,
       alt: formString(formData, 'featuredAlt') || existing?.featuredMedia?.alt || name,
       type: resolveSubmittedMediaType(featuredTypeValue, featuredFile || featuredUpload || featuredSrc || existing?.featuredMedia?.src),
-      poster: featuredPosterUpload || formString(formData, 'featuredPoster') || existing?.featuredMedia?.poster,
+      poster: nextFeaturedPoster,
+      storage: mediaStorageForSrc({
+        src: nextFeaturedSrc,
+        uploadedStorage: formMediaStorage(formData, 'featuredStorage'),
+        existingStorage: existing?.featuredMedia?.storage,
+        existingSrc: existing?.featuredMedia?.src,
+      }),
+      posterStorage: mediaStorageForSrc({
+        src: nextFeaturedPoster,
+        uploadedStorage: formMediaStorage(formData, 'featuredPosterStorage'),
+        existingStorage: existing?.featuredMedia?.posterStorage,
+        existingSrc: existing?.featuredMedia?.poster,
+      }),
     })
     : undefined;
 
   const heroMedia = [
-    ...(await parseMediaRows(formData, 'heroMedia', name, `${slug}-hero`, slug)),
+    ...(await parseMediaRows(formData, 'heroMedia', name, `${slug}-hero`, slug, existing?.detail.heroMedia || [])),
     ...await appendUploadedMedia({
       files: formFiles(formData, 'heroFiles'),
       projectSlug: slug,
@@ -420,7 +524,7 @@ export async function saveProjectAction(formData: FormData) {
     }),
   ];
   const galleryMedia = [
-    ...(await parseMediaRows(formData, 'galleryMedia', name, `${slug}-gallery`, slug)),
+    ...(await parseMediaRows(formData, 'galleryMedia', name, `${slug}-gallery`, slug, existing?.detail.galleryMedia || [])),
     ...await appendUploadedMedia({
       files: formFiles(formData, 'galleryFiles'),
       projectSlug: slug,
@@ -430,6 +534,13 @@ export async function saveProjectAction(formData: FormData) {
   ];
   const stats = parseStats(formString(formData, 'statsLines'));
   const seoImageUpload = await saveUploadedMedia(formFile(formData, 'seoImageFile'), slug);
+  const seoImage = seoImageUpload || formString(formData, 'seoImage');
+  const seoImageStorage = mediaStorageForSrc({
+    src: seoImage,
+    uploadedStorage: formMediaStorage(formData, 'seoImageStorage'),
+    existingStorage: existing?.seo?.imageStorage,
+    existingSrc: existing?.seo?.image,
+  });
 
   const project: PortfolioProject = {
     id,
@@ -459,7 +570,8 @@ export async function saveProjectAction(formData: FormData) {
     seo: {
       title: formString(formData, 'seoTitle'),
       description: formString(formData, 'seoDescription'),
-      image: seoImageUpload || formString(formData, 'seoImage'),
+      image: seoImage,
+      ...(seoImageStorage ? { imageStorage: seoImageStorage } : {}),
     },
     detail: {
       heroMedia: heroMedia.length > 0 ? heroMedia : existing?.detail.heroMedia || [cardMedia],
@@ -477,6 +589,7 @@ export async function saveProjectAction(formData: FormData) {
     ...data,
     projects: nextProjects,
   }, { backupReason: existing ? 'project saved' : 'project created' }, existing ? `/admin/projects/${id}` : '/admin/projects/new');
+  await registerProjectMediaAssets(project);
   if (existing?.slug && existing.slug !== project.slug) {
     touchPublicPaths(existing.slug);
   }
