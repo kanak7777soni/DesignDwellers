@@ -152,19 +152,21 @@ function touchInstagramPaths() {
 }
 
 function getInstagramMediaEndpoints(settings: InstagramSyncSettings) {
-  if (settings.userId) {
-    const userId = encodeURIComponent(settings.userId);
-
-    return [
-      `https://graph.instagram.com/${settings.apiVersion}/${userId}/media`,
-      `https://graph.facebook.com/${settings.apiVersion}/${userId}/media`,
-    ];
-  }
-
-  return [
+  const endpoints = [
     `https://graph.instagram.com/${settings.apiVersion}/me/media`,
     'https://graph.instagram.com/me/media',
   ];
+
+  if (settings.userId) {
+    const userId = encodeURIComponent(settings.userId);
+
+    endpoints.push(
+      `https://graph.instagram.com/${settings.apiVersion}/${userId}/media`,
+      `https://graph.facebook.com/${settings.apiVersion}/${userId}/media`,
+    );
+  }
+
+  return endpoints;
 }
 
 async function fetchInstagramMedia(settings: InstagramSyncSettings) {
