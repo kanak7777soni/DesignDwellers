@@ -35,6 +35,18 @@ type InstagramGraphResponse = {
   };
 };
 
+type InstagramUserResponse = {
+  data?: Array<{
+    user_id?: string;
+    username?: string;
+  }>;
+  user_id?: string;
+  username?: string;
+  error?: {
+    message?: string;
+  };
+};
+
 function formString(formData: FormData, key: string) {
   return String(formData.get(key) || '').trim();
 }
@@ -151,22 +163,47 @@ function touchInstagramPaths() {
   revalidatePath('/api/instagram/videos');
 }
 
-function getInstagramMediaEndpoints(settings: InstagramSyncSettings) {
+function getInstagramUserId(payload: InstagramUserResponse) {
+  return payload.user_id?.trim() || payload.data?.[0]?.user_id?.trim() || null;
+}
+
+async function resolveInstagramUserId(settings: InstagramSyncSettings) {
   const endpoints = [
-    `https://graph.instagram.com/${settings.apiVersion}/me/media`,
-    'https://graph.instagram.com/me/media',
+    `https://graph.instagram.com/${settings.apiVersion}/me`,
+    'https://graph.instagram.com/me',
   ];
+  let lastError = '';
 
-  if (settings.userId) {
-    const userId = encodeURIComponent(settings.userId);
+  for (const endpoint of endpoints) {
+    const url = new URL(endpoint);
+    url.searchParams.set('fields', 'user_id,username');
+    url.searchParams.set('access_token', settings.accessToken || '');
 
-    endpoints.push(
-      `https://graph.instagram.com/${settings.apiVersion}/${userId}/media`,
-      `https://graph.facebook.com/${settings.apiVersion}/${userId}/media`,
-    );
+    const response = await fetch(url, { cache: 'no-store' });
+    const payload = await response.json().catch(() => ({})) as InstagramUserResponse;
+    const userId = response.ok && !payload.error ? getInstagramUserId(payload) : null;
+
+    if (userId) {
+      return userId;
+    }
+
+    lastError = payload.error?.message || lastError;
   }
 
-  return endpoints;
+  if (settings.userId) {
+    return settings.userId;
+  }
+
+  throw new Error(lastError || 'Instagram user ID could not be resolved from this access token.');
+}
+
+function getInstagramMediaEndpoints(settings: InstagramSyncSettings, userId: string) {
+  const encodedUserId = encodeURIComponent(userId);
+
+  return [
+    `https://graph.instagram.com/${settings.apiVersion}/${encodedUserId}/media`,
+    `https://graph.facebook.com/${settings.apiVersion}/${encodedUserId}/media`,
+  ];
 }
 
 async function fetchInstagramMedia(settings: InstagramSyncSettings) {
@@ -174,9 +211,10 @@ async function fetchInstagramMedia(settings: InstagramSyncSettings) {
     throw new Error('Add an Instagram access token before syncing.');
   }
 
+  const userId = await resolveInstagramUserId(settings);
   let lastError = 'Instagram sync failed.';
 
-  for (const endpoint of getInstagramMediaEndpoints(settings)) {
+  for (const endpoint of getInstagramMediaEndpoints(settings, userId)) {
     const url = new URL(endpoint);
     url.searchParams.set('fields', 'id,caption,media_type,media_product_type,media_url,thumbnail_url,permalink,timestamp,username');
     url.searchParams.set('limit', String(settings.lookupLimit));
