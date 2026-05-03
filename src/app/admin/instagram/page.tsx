@@ -177,7 +177,7 @@ export default async function AdminInstagramPage({
             Instagram Reels
           </h1>
           <p className="font-body" style={{ color: 'rgba(255,255,255,0.62)', fontSize: '14px', marginTop: '8px', maxWidth: '760px' }}>
-            Control the home page Instagram section from here. Save an Instagram token to sync reels automatically, or add reel cards manually with uploads and links.
+            Control the home page Instagram section from here. Save an Instagram token, sync reels from Instagram, or add reel cards manually with uploads and links.
           </p>
         </div>
 

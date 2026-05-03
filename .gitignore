@@ -24,6 +24,8 @@
 .DS_Store
 *.pem
 public/uploads/portfolio/
+data/portfolio.json
+data/media-library.json
 data/backups/portfolio/
 data/instagram-reels.json
 

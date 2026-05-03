@@ -151,12 +151,20 @@ function touchInstagramPaths() {
   revalidatePath('/api/instagram/videos');
 }
 
-function getInstagramMediaEndpoint(settings: InstagramSyncSettings) {
+function getInstagramMediaEndpoints(settings: InstagramSyncSettings) {
   if (settings.userId) {
-    return `https://graph.facebook.com/${settings.apiVersion}/${encodeURIComponent(settings.userId)}/media`;
+    const userId = encodeURIComponent(settings.userId);
+
+    return [
+      `https://graph.instagram.com/${settings.apiVersion}/${userId}/media`,
+      `https://graph.facebook.com/${settings.apiVersion}/${userId}/media`,
+    ];
   }
 
-  return 'https://graph.instagram.com/me/media';
+  return [
+    `https://graph.instagram.com/${settings.apiVersion}/me/media`,
+    'https://graph.instagram.com/me/media',
+  ];
 }
 
 async function fetchInstagramMedia(settings: InstagramSyncSettings) {
@@ -164,19 +172,25 @@ async function fetchInstagramMedia(settings: InstagramSyncSettings) {
     throw new Error('Add an Instagram access token before syncing.');
   }
 
-  const url = new URL(getInstagramMediaEndpoint(settings));
-  url.searchParams.set('fields', 'id,caption,media_type,media_product_type,media_url,thumbnail_url,permalink,timestamp,username');
-  url.searchParams.set('limit', String(settings.lookupLimit));
-  url.searchParams.set('access_token', settings.accessToken);
+  let lastError = 'Instagram sync failed.';
 
-  const response = await fetch(url, { cache: 'no-store' });
-  const payload = await response.json().catch(() => ({})) as InstagramGraphResponse;
+  for (const endpoint of getInstagramMediaEndpoints(settings)) {
+    const url = new URL(endpoint);
+    url.searchParams.set('fields', 'id,caption,media_type,media_product_type,media_url,thumbnail_url,permalink,timestamp,username');
+    url.searchParams.set('limit', String(settings.lookupLimit));
+    url.searchParams.set('access_token', settings.accessToken);
 
-  if (!response.ok || payload.error) {
-    throw new Error(payload.error?.message || 'Instagram sync failed.');
+    const response = await fetch(url, { cache: 'no-store' });
+    const payload = await response.json().catch(() => ({})) as InstagramGraphResponse;
+
+    if (response.ok && !payload.error) {
+      return payload.data || [];
+    }
+
+    lastError = payload.error?.message || lastError;
   }
 
-  return payload.data || [];
+  throw new Error(lastError);
 }
 
 function isVideoLikeMedia(media: InstagramGraphMedia) {
