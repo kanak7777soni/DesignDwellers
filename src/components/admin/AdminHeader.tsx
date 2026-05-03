@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { logoutAction } from '@/app/admin/login/actions';
+import SubmitButton from './SubmitButton';
 
 export default function AdminHeader() {
   return (
@@ -29,9 +30,9 @@ export default function AdminHeader() {
           New Project
         </Link>
         <form action={logoutAction}>
-          <button type="submit" className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.6)', borderRadius: '55px', padding: '10px 16px', cursor: 'pointer' }}>
+          <SubmitButton pendingLabel="Logging out..." className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.6)', borderRadius: '55px', padding: '10px 16px', cursor: 'pointer' }}>
             Logout
-          </button>
+          </SubmitButton>
         </form>
       </nav>
     </header>

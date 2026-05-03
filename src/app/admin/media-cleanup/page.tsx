@@ -122,6 +122,7 @@ function AssetRow({ asset, canDelete }: { asset: MediaCleanupAsset; canDelete: b
           <input type="hidden" name="fileId" value={asset.fileId} />
           <ConfirmSubmitButton
             message={`Permanently delete ${asset.name || 'this unused media file'} from ImageKit?`}
+            pendingLabel="Deleting..."
             className="font-body"
             style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 13px', cursor: 'pointer' }}
           >

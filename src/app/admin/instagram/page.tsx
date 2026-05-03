@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import AdminHeader from '@/components/admin/AdminHeader';
 import ConfirmSubmitButton from '@/components/admin/ConfirmSubmitButton';
+import InstagramReelMediaFields from '@/components/admin/InstagramReelMediaFields';
+import SubmitButton from '@/components/admin/SubmitButton';
 import UploadAwareForm from '@/components/admin/UploadAwareForm';
 import { requireAdmin } from '@/lib/admin-auth';
 import { hasImageKitUploadConfig } from '@/lib/imagekit';
@@ -80,7 +82,7 @@ function ReelForm({
         <input type="hidden" name="id" value={reel?.id || ''} />
         <input type="hidden" name="videoStorage" value={reel?.videoStorage ? JSON.stringify(reel.videoStorage) : ''} />
         <input type="hidden" name="thumbnailStorage" value={reel?.thumbnailStorage ? JSON.stringify(reel.thumbnailStorage) : ''} />
-        <div className="grid" style={{ gridTemplateColumns: '1.2fr 1fr 1fr 90px', gap: '10px' }}>
+        <div className="grid" style={{ gridTemplateColumns: '1.3fr 1fr 130px', gap: '10px' }}>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Caption
             <textarea name="caption" defaultValue={reel?.caption || ''} className="font-body" style={textAreaStyle} />
@@ -90,20 +92,21 @@ function ReelForm({
             <input name="permalink" defaultValue={reel?.permalink || ''} placeholder="https://www.instagram.com/reel/..." className="font-body" style={inputStyle} />
           </label>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Saved/direct video URL
-            <input name="videoUrl" defaultValue={reel?.videoUrl || ''} placeholder="Auto-filled after upload, or paste MP4/WebM URL" className="font-body" style={inputStyle} />
-          </label>
-          <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Order
+            Website order
             <input name="sortOrder" type="number" defaultValue={reel?.sortOrder ?? fallbackOrder} className="font-body number-input-clean" style={inputStyle} />
+            <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '12px' }}>
+              Lower shows first
+            </span>
           </label>
         </div>
 
-        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-          <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Saved thumbnail URL
-            <input name="thumbnailUrl" defaultValue={reel?.thumbnailUrl || ''} placeholder="Auto-filled after upload, or paste image URL" className="font-body" style={inputStyle} />
-          </label>
+        <InstagramReelMediaFields
+          videoUrl={reel?.videoUrl || ''}
+          thumbnailUrl={reel?.thumbnailUrl || ''}
+          caption={reel?.caption || ''}
+        />
+
+        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Username
             <input name="username" defaultValue={reel?.username || ''} placeholder="designdwellersstudio" className="font-body" style={inputStyle} />
@@ -111,17 +114,6 @@ function ReelForm({
           <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
             Date/time
             <input name="timestamp" defaultValue={reel?.timestamp || ''} placeholder="Optional ISO date" className="font-body" style={inputStyle} />
-          </label>
-        </div>
-
-        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Upload reel video
-            <input name="videoFile" type="file" accept="video/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
-          </label>
-          <label className="font-body flex flex-col" style={{ gap: '8px', color: '#D7A648', fontSize: '13px' }}>
-            Upload thumbnail
-            <input name="thumbnailFile" type="file" accept="image/*" className="font-body" style={{ ...inputStyle, paddingTop: '9px' }} />
           </label>
         </div>
 
@@ -136,15 +128,15 @@ function ReelForm({
               Reel badge
             </label>
           </div>
-          <button type="submit" className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 14px', cursor: 'pointer' }}>
+          <SubmitButton pendingLabel={isNew ? 'Adding...' : 'Saving...'} className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 14px', cursor: 'pointer' }}>
             {isNew ? 'Add Reel' : 'Save Reel'}
-          </button>
+          </SubmitButton>
         </div>
       </UploadAwareForm>
       {!isNew && reel ? (
         <form action={deleteInstagramReelAction} className="flex justify-end">
           <input type="hidden" name="id" value={reel.id} />
-          <ConfirmSubmitButton message="Delete this Instagram reel from the CRM?" className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.65, border: 'none', padding: '0', cursor: 'pointer' }}>
+          <ConfirmSubmitButton message="Delete this Instagram reel from the CRM?" pendingLabel="Deleting..." className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.65, border: 'none', padding: '0', cursor: 'pointer' }}>
             Delete Reel
           </ConfirmSubmitButton>
         </form>
@@ -163,6 +155,7 @@ export default async function AdminInstagramPage({
   const message = statusText(status, count);
   const errorMessage = errorText(error);
   const hasSavedToken = Boolean(data.settings.accessToken);
+  const newReelOrder = data.reels[0] ? data.reels[0].sortOrder - 10 : 10;
 
   return (
     <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
@@ -226,9 +219,9 @@ export default async function AdminInstagramPage({
                   <input type="checkbox" name="clearToken" />
                   Clear saved token
                 </label>
-                <button type="submit" className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 14px', cursor: 'pointer' }}>
+                <SubmitButton pendingLabel="Saving..." className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 14px', cursor: 'pointer' }}>
                   Save Settings
-                </button>
+                </SubmitButton>
               </div>
             </div>
           </form>
@@ -237,9 +230,9 @@ export default async function AdminInstagramPage({
               {data.settings.lastSyncError || 'Sync imports video/reel posts into the list below. Imported reels can still be reordered, hidden, edited, or deleted from the CRM.'}
             </p>
             <form action={syncInstagramReelsAction}>
-              <button type="submit" className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.6)', borderRadius: '55px', padding: '9px 14px', cursor: 'pointer' }}>
+              <SubmitButton pendingLabel="Syncing..." className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.6)', borderRadius: '55px', padding: '9px 14px', cursor: 'pointer' }}>
                 Sync From Instagram
-              </button>
+              </SubmitButton>
             </form>
           </div>
         </section>
@@ -257,16 +250,19 @@ export default async function AdminInstagramPage({
               Profile URL
               <input name="url" defaultValue={data.profile.url || ''} className="font-body" style={inputStyle} />
             </label>
-            <button type="submit" className="font-body" style={{ height: '38px', background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', cursor: 'pointer' }}>
+            <SubmitButton pendingLabel="Saving..." className="font-body" style={{ height: '38px', background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', cursor: 'pointer' }}>
               Save
-            </button>
+            </SubmitButton>
           </form>
         </section>
 
         <section style={{ background: '#000000', border: '1px solid rgba(215,166,72,0.25)', borderRadius: '8px', padding: '24px' }}>
           <h2 className="font-heading" style={{ fontSize: '30px', color: '#FFFFFF', marginBottom: '18px' }}>
-            Reels
+            Reels ({data.reels.length})
           </h2>
+          <p className="font-body" style={{ color: 'rgba(255,255,255,0.62)', fontSize: '13px', marginTop: '-10px', marginBottom: '18px' }}>
+            Website order controls the home page order. Newly fetched Instagram reels are placed first by default, then you can adjust the numbers and save.
+          </p>
           <div className="flex flex-col" style={{ gap: '18px' }}>
             {data.reels.map((reel, index) => (
               <div key={reel.id} id={`reel-${reel.id}`} style={{ borderTop: index === 0 ? 'none' : '1px solid rgba(255,255,255,0.08)', paddingTop: index === 0 ? 0 : '18px' }}>
@@ -277,7 +273,7 @@ export default async function AdminInstagramPage({
               <h3 className="font-heading" style={{ color: '#D7A648', fontSize: '24px', marginBottom: '12px' }}>
                 Add New Reel
               </h3>
-              <ReelForm isNew fallbackOrder={data.reels.length * 10 + 10} />
+              <ReelForm isNew fallbackOrder={newReelOrder} />
             </div>
           </div>
         </section>

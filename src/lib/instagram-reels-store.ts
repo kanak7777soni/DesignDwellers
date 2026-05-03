@@ -274,9 +274,10 @@ export async function saveInstagramReelsData(data: InstagramReelsData) {
   return nextData;
 }
 
-export function getActiveInstagramReels(data: InstagramReelsData, limit = 6) {
-  return data.reels
+export function getActiveInstagramReels(data: InstagramReelsData, limit?: number) {
+  const activeReels = data.reels
     .filter((reel) => reel.active)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-    .slice(0, limit);
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  return typeof limit === 'number' ? activeReels.slice(0, limit) : activeReels;
 }

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import SubmitButton from '@/components/admin/SubmitButton';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 import { loginAction } from './actions';
 
@@ -67,13 +68,13 @@ export default async function AdminLoginPage({
             className="font-body"
             style={{ height: '44px', borderRadius: '6px', border: '1px solid rgba(215,166,72,0.45)', background: '#141300', color: '#FFFFFF', padding: '0 14px', outline: 'none' }}
           />
-          <button
-            type="submit"
+          <SubmitButton
+            pendingLabel="Logging in..."
             className="font-heading"
             style={{ height: '44px', borderRadius: '55px', border: 'none', background: '#D7A648', color: '#FFFFFF', fontSize: '16px', cursor: 'pointer', marginTop: '8px' }}
           >
             Login
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </main>

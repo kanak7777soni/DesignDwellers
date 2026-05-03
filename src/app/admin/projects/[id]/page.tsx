@@ -68,7 +68,7 @@ export default async function EditProjectPage({
                   Live Page
                 </Link>
               ) : null}
-              <ConfirmSubmitButton message={`Delete ${project.name}?`} className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.5)', borderRadius: '55px', padding: '10px 16px', cursor: 'pointer' }}>
+              <ConfirmSubmitButton message={`Delete ${project.name}?`} pendingLabel="Deleting..." className="font-body" style={{ background: 'transparent', color: '#D7A648', border: '1px solid rgba(215,166,72,0.5)', borderRadius: '55px', padding: '10px 16px', cursor: 'pointer' }}>
                 Delete Project
               </ConfirmSubmitButton>
             </div>

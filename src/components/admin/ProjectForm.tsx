@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import type { ReactNode } from 'react';
 import AdminMediaRows from '@/components/admin/AdminMediaRows';
+import SubmitButton from '@/components/admin/SubmitButton';
 import UploadAwareForm from '@/components/admin/UploadAwareForm';
 import { hasImageKitUploadConfig } from '@/lib/imagekit';
 import type { PortfolioCategory, PortfolioProject, ProjectMedia } from '@/lib/portfolio';
@@ -316,13 +317,13 @@ export default function ProjectForm({ project, categories, action }: ProjectForm
         </div>
       </Section>
 
-      <button
-        type="submit"
+      <SubmitButton
+        pendingLabel="Saving project..."
         className="font-heading"
         style={{ height: '48px', borderRadius: '55px', border: 'none', background: '#D7A648', color: '#FFFFFF', fontSize: '18px', cursor: 'pointer' }}
       >
         Save Project
-      </button>
+      </SubmitButton>
     </UploadAwareForm>
   );
 }

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const data = await getInstagramReelsData();
-  const videos = getActiveInstagramReels(data, 6).map((reel) => ({
+  const videos = getActiveInstagramReels(data).map((reel) => ({
     id: reel.id,
     sourceId: reel.sourceId || reel.id,
     caption: reel.caption,

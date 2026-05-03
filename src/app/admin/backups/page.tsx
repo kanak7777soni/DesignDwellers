@@ -98,13 +98,13 @@ export default async function AdminBackupsPage({
                   <div className="flex" style={{ gap: '10px' }}>
                     <form action={restoreBackupAction}>
                       <input type="hidden" name="id" value={backup.id} />
-                      <ConfirmSubmitButton message={`Restore backup from ${formatDate(backup.createdAt)}? Current data will be backed up first.`} className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 13px', cursor: 'pointer' }}>
+                      <ConfirmSubmitButton message={`Restore backup from ${formatDate(backup.createdAt)}? Current data will be backed up first.`} pendingLabel="Restoring..." className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '9px 13px', cursor: 'pointer' }}>
                         Restore
                       </ConfirmSubmitButton>
                     </form>
                     <form action={deleteBackupAction}>
                       <input type="hidden" name="id" value={backup.id} />
-                      <ConfirmSubmitButton message={`Delete backup from ${formatDate(backup.createdAt)}?`} className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.65, border: 'none', padding: '9px 0', cursor: 'pointer' }}>
+                      <ConfirmSubmitButton message={`Delete backup from ${formatDate(backup.createdAt)}?`} pendingLabel="Deleting..." className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.65, border: 'none', padding: '9px 0', cursor: 'pointer' }}>
                         Delete
                       </ConfirmSubmitButton>
                     </form>

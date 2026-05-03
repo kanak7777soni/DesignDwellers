@@ -241,27 +241,45 @@ function mergeImportedReels({
   currentReels,
   importedMedia,
   profileUsername,
+  pruneMissingImported,
 }: {
   currentReels: ManagedInstagramReel[];
   importedMedia: InstagramGraphMedia[];
   profileUsername: string | null;
+  pruneMissingImported?: boolean;
 }) {
-  const nextReels = [...currentReels];
+  const importedVideoMedia = importedMedia.filter((media) => media.id && isVideoLikeMedia(media));
+  const importedSourceIds = new Set(importedVideoMedia.map((media) => String(media.id)));
+  const nextReels = currentReels
+    .filter((reel) => !pruneMissingImported || !reel.sourceId || importedSourceIds.has(reel.sourceId))
+    .map((reel) => ({ ...reel }));
+  const findImportedReelIndex = (sourceId: string) => nextReels.findIndex((reel) => reel.sourceId === sourceId || reel.id === sourceId || reel.id === `ig-${sourceId}`);
+  const existingSortOrders = nextReels
+    .map((reel) => reel.sortOrder)
+    .filter((sortOrder) => Number.isFinite(sortOrder));
+  const hasExistingReels = existingSortOrders.length > 0;
+  const minExistingSortOrder = hasExistingReels ? Math.min(...existingSortOrders) : 10;
+  const newImportedCount = importedVideoMedia.filter((media) => findImportedReelIndex(String(media.id)) < 0).length;
+  let nextNewSortOrder = hasExistingReels ? minExistingSortOrder - newImportedCount * 10 : 10;
 
-  importedMedia
-    .filter((media) => media.id && isVideoLikeMedia(media))
+  importedVideoMedia
     .forEach((media, index) => {
       const sourceId = String(media.id);
-      const existingIndex = nextReels.findIndex((reel) => reel.sourceId === sourceId || reel.id === sourceId || reel.id === `ig-${sourceId}`);
+      const existingIndex = findImportedReelIndex(sourceId);
       const existing = existingIndex >= 0 ? nextReels[existingIndex] : null;
       const permalink = cleanHttpUrl(media.permalink) || existing?.permalink || '';
       const importedVideoUrl = cleanMediaUrl(media.media_url);
       const importedThumbnailUrl = cleanMediaUrl(media.thumbnail_url);
       const videoUrl = importedVideoUrl || existing?.videoUrl || null;
       const thumbnailUrl = importedThumbnailUrl || existing?.thumbnailUrl || null;
+      const sortOrder = existing?.sortOrder ?? (hasExistingReels ? nextNewSortOrder : (index + 1) * 10);
 
       if (!permalink) {
         return;
+      }
+
+      if (!existing) {
+        nextNewSortOrder += 10;
       }
 
       const reel: ManagedInstagramReel = {
@@ -277,7 +295,7 @@ function mergeImportedReels({
         username: media.username?.trim() || existing?.username || profileUsername,
         isReel: existing?.isReel ?? true,
         active: existing?.active ?? true,
-        sortOrder: existing?.sortOrder ?? (index + 1) * 10,
+        sortOrder,
       };
 
       if (existingIndex >= 0) {
@@ -414,6 +432,7 @@ export async function syncInstagramReelsAction() {
         currentReels: data.reels,
         importedMedia,
         profileUsername: data.profile.username,
+        pruneMissingImported: videoMedia.length < data.settings.lookupLimit,
       }),
       settings: {
         ...data.settings,

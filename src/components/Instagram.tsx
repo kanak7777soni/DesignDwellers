@@ -41,7 +41,18 @@ const fallbackPosts = Array.from({ length: 6 }, (_, index) => ({
   id: `fallback-instagram-${index + 1}`,
   caption: 'Modular Kitchen Reveal',
 }));
-const VIDEO_VISIBILITY_THRESHOLD = 0.35;
+const VIDEO_VISIBILITY_THRESHOLD = 0.25;
+
+const scrollStripStyle = {
+  display: 'flex',
+  gap: '12px',
+  overflowX: 'auto',
+  overflowY: 'hidden',
+  paddingBottom: '12px',
+  scrollBehavior: 'smooth',
+  scrollSnapType: 'x mandatory',
+  WebkitOverflowScrolling: 'touch',
+} as const;
 
 export default function InstagramSection() {
   const [feed, setFeed] = useState<FeedState>({
@@ -144,13 +155,8 @@ export default function InstagramSection() {
 
         <InstagramVideoGrid feed={feed} />
 
-        {/* Navigation dots */}
-        <div className="flex justify-center mt-[30px] mb-[24px]">
-          <Image src="/images/testimonial-dots.svg" alt="" width={82} height={9} />
-        </div>
-
         {/* Follow button */}
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-[30px]">
           <a
             href={profileUrl}
             target="_blank"
@@ -184,7 +190,7 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
   }
 
   return (
-    <div className="flex gap-[12px]">
+    <div style={scrollStripStyle} aria-label={`${feed.videos.length} Instagram reels`}>
       {feed.videos.map((video) => (
         <InstagramVideoCard key={video.id} video={video} />
       ))}
@@ -194,7 +200,6 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
 
 function InstagramVideoCard({ video }: { video: InstagramVideo }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const isPlayable = Boolean(video.videoUrl);
 
   useEffect(() => {
@@ -215,9 +220,8 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
       try {
         videoElement.muted = true;
         await videoElement.play();
-        setIsPlaying(true);
       } catch {
-        setIsPlaying(false);
+        // Muted autoplay can still be blocked until the browser allows media playback.
       }
     }
 
@@ -225,7 +229,6 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
       if (!videoElement.paused) {
         videoElement.pause();
       }
-      setIsPlaying(false);
     }
 
     function handleVisibilityChange() {
@@ -265,51 +268,10 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
     };
   }, [isPlayable, video.videoUrl]);
 
-  async function playVideo() {
-    const element = videoRef.current;
-
-    if (!element || !isPlayable) {
-      return;
-    }
-
-    try {
-      element.muted = true;
-      await element.play();
-      setIsPlaying(true);
-    } catch {
-      setIsPlaying(false);
-    }
-  }
-
-  function pauseVideo() {
-    const element = videoRef.current;
-
-    if (!element || !isPlayable) {
-      return;
-    }
-
-    element.pause();
-    setIsPlaying(false);
-  }
-
-  async function togglePlayback() {
-    if (!isPlayable) {
-      window.open(video.permalink, '_blank', 'noopener,noreferrer');
-      return;
-    }
-
-    if (isPlaying) {
-      pauseVideo();
-      return;
-    }
-
-    await playVideo();
-  }
-
   return (
     <article
       className="relative group overflow-hidden"
-      style={{ width: '204px', height: '363px', flexShrink: 0, background: '#0f0f0f' }}
+      style={{ width: '204px', height: '363px', flexShrink: 0, background: '#0f0f0f', scrollSnapAlign: 'start' }}
     >
       {isPlayable ? (
         <video
@@ -320,27 +282,25 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
           muted
           loop
           playsInline
-          preload="metadata"
-          onPause={() => setIsPlaying(false)}
-          onPlay={() => setIsPlaying(true)}
+          autoPlay
+          preload="auto"
         />
       ) : video.thumbnailUrl ? (
-        <img src={video.thumbnailUrl} alt={video.caption} className="h-full w-full object-cover zoom-image" />
+        <a href={video.permalink} target="_blank" rel="noopener noreferrer" className="block h-full w-full" aria-label="Open Instagram reel">
+          <img src={video.thumbnailUrl} alt={video.caption} className="h-full w-full object-cover zoom-image" />
+        </a>
       ) : (
-        <div className="h-full w-full flex items-center justify-center" style={{ background: '#0f0f0f' }}>
+        <a
+          href={video.permalink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="h-full w-full flex items-center justify-center"
+          style={{ background: '#0f0f0f' }}
+          aria-label="Open Instagram reel"
+        >
           <Image src="/images/instagram-icon.svg" alt="" width={42} height={42} />
-        </div>
+        </a>
       )}
-
-      <button
-        type="button"
-        onClick={togglePlayback}
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-        aria-label={isPlayable ? (isPlaying ? 'Pause Instagram video' : 'Play Instagram video') : 'Open Instagram reel'}
-      >
-        <Image src="/images/instagram-overlay.svg" alt="" width={41} height={41} style={{ opacity: 0.7 }} />
-      </button>
 
       <p
         className="font-body absolute text-right"
@@ -355,18 +315,19 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
 
 function InstagramFallbackGrid() {
   return (
-    <div className="flex gap-[12px]">
+    <div style={scrollStripStyle} aria-label="Instagram reel previews">
       {fallbackPosts.map((post) => (
-        <div key={post.id} className="relative group overflow-hidden" style={{ width: '204px', height: '363px', flexShrink: 0 }}>
+        <div
+          key={post.id}
+          className="relative group overflow-hidden"
+          style={{ width: '204px', height: '363px', flexShrink: 0, scrollSnapAlign: 'start' }}
+        >
           <Image
             src="/images/instagram-post.png"
             alt={post.caption}
             fill
             className="object-cover zoom-image"
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Image src="/images/instagram-overlay.svg" alt="" width={41} height={41} style={{ opacity: 0.7 }} />
-          </div>
           <p
             className="font-body absolute text-right"
             style={{ bottom: '24px', right: '8px', fontSize: '7px', lineHeight: '1em', color: '#FFFFFF' }}

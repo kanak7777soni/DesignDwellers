@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import ConfirmSubmitButton from '@/components/admin/ConfirmSubmitButton';
 import AdminHeader from '@/components/admin/AdminHeader';
+import SubmitButton from '@/components/admin/SubmitButton';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getPortfolioData } from '@/lib/portfolio-store';
 import { deleteCategoryAction, deleteProjectAction, saveCategoryAction } from './actions';
@@ -123,9 +124,9 @@ export default async function AdminPage({
                 ))}
               </select>
             </label>
-            <button type="submit" className="font-body" style={{ height: '38px', background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', cursor: 'pointer' }}>
+            <SubmitButton pendingLabel="Filtering..." className="font-body" style={{ height: '38px', background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', cursor: 'pointer' }}>
               Filter
-            </button>
+            </SubmitButton>
           </form>
 
           <div className="flex flex-col" style={{ gap: '10px' }}>
@@ -156,7 +157,7 @@ export default async function AdminPage({
                   </Link>
                   <form action={deleteProjectAction}>
                     <input type="hidden" name="id" value={project.id} />
-                    <ConfirmSubmitButton message={`Delete ${project.name}?`} className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.6, border: 'none', cursor: 'pointer', fontSize: '13px' }}>
+                    <ConfirmSubmitButton message={`Delete ${project.name}?`} pendingLabel="Deleting..." className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.6, border: 'none', cursor: 'pointer', fontSize: '13px' }}>
                       Delete
                     </ConfirmSubmitButton>
                   </form>
@@ -177,27 +178,26 @@ export default async function AdminPage({
           </h2>
           <div className="flex flex-col" style={{ gap: '12px' }}>
             {data.categories.map((category) => (
-              <div key={category.slug} className="grid items-center" style={{ gridTemplateColumns: '1fr 1fr 110px 100px 110px', gap: '10px' }}>
-                <form id={`category-${category.slug}`} action={saveCategoryAction} />
-                <input form={`category-${category.slug}`} type="hidden" name="originalSlug" value={category.slug} />
-                <input form={`category-${category.slug}`} name="label" defaultValue={category.label} className="font-body" style={inputStyle} />
-                <input form={`category-${category.slug}`} name="slug" defaultValue={category.slug} className="font-body" style={inputStyle} />
-                <input form={`category-${category.slug}`} name="sortOrder" type="number" defaultValue={category.sortOrder} className="font-body number-input-clean" style={inputStyle} />
-                <label className="font-body flex items-center" style={{ gap: '7px', fontSize: '13px' }}>
-                  <input form={`category-${category.slug}`} type="checkbox" name="visibleInFilters" defaultChecked={category.visibleInFilters} />
-                  Visible
-                </label>
-                <div className="flex" style={{ gap: '8px' }}>
-                  <button form={`category-${category.slug}`} type="submit" className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '8px 12px', cursor: 'pointer' }}>
+              <div key={category.slug} className="grid items-center" style={{ gridTemplateColumns: '1fr 1fr 110px 100px 64px 70px', gap: '10px' }}>
+                <form action={saveCategoryAction} style={{ display: 'contents' }}>
+                  <input type="hidden" name="originalSlug" value={category.slug} />
+                  <input name="label" defaultValue={category.label} className="font-body" style={inputStyle} />
+                  <input name="slug" defaultValue={category.slug} className="font-body" style={inputStyle} />
+                  <input name="sortOrder" type="number" defaultValue={category.sortOrder} className="font-body number-input-clean" style={inputStyle} />
+                  <label className="font-body flex items-center" style={{ gap: '7px', fontSize: '13px' }}>
+                    <input type="checkbox" name="visibleInFilters" defaultChecked={category.visibleInFilters} />
+                    Visible
+                  </label>
+                  <SubmitButton pendingLabel="Saving..." className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '8px 12px', cursor: 'pointer' }}>
                     Save
-                  </button>
-                  <form action={deleteCategoryAction}>
-                    <input type="hidden" name="slug" value={category.slug} />
-                    <ConfirmSubmitButton message={`Delete category ${category.label}? Projects in this category will move to another category.`} className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.6, border: 'none', padding: '8px 0', cursor: 'pointer' }}>
-                      Delete
-                    </ConfirmSubmitButton>
-                  </form>
-                </div>
+                  </SubmitButton>
+                </form>
+                <form action={deleteCategoryAction}>
+                  <input type="hidden" name="slug" value={category.slug} />
+                  <ConfirmSubmitButton message={`Delete category ${category.label}? Projects in this category will move to another category.`} pendingLabel="Deleting..." className="font-body" style={{ background: 'transparent', color: '#FFFFFF', opacity: 0.6, border: 'none', padding: '8px 0', cursor: 'pointer' }}>
+                    Delete
+                  </ConfirmSubmitButton>
+                </form>
               </div>
             ))}
           </div>
@@ -210,9 +210,9 @@ export default async function AdminPage({
               <input type="checkbox" name="visibleInFilters" defaultChecked />
               Visible
             </label>
-            <button type="submit" className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '8px 12px', cursor: 'pointer' }}>
+            <SubmitButton pendingLabel="Adding..." className="font-body" style={{ background: '#D7A648', color: '#FFFFFF', border: 'none', borderRadius: '55px', padding: '8px 12px', cursor: 'pointer' }}>
               Add
-            </button>
+            </SubmitButton>
           </form>
         </section>
       </div>
