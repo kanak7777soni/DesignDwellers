@@ -63,6 +63,16 @@ async function ensureDataDir() {
 
 const ENCRYPTED_TOKEN_PREFIX = 'enc:v1:';
 
+function normalizeAccessToken(value: string | null | undefined) {
+  const token = value
+    ?.trim()
+    .replace(/^["']|["']$/g, '')
+    .replace(/^Bearer\s+/i, '')
+    .trim();
+
+  return token || null;
+}
+
 function getTokenEncryptionKey() {
   const secret = process.env.ADMIN_SESSION_SECRET || '';
 
@@ -74,19 +84,21 @@ function getTokenEncryptionKey() {
 }
 
 function encryptAccessToken(value: string | null) {
-  if (!value) {
+  const token = normalizeAccessToken(value);
+
+  if (!token) {
     return null;
   }
 
   const key = getTokenEncryptionKey();
 
   if (!key) {
-    return value;
+    return token;
   }
 
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-  const encrypted = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()]);
+  const encrypted = Buffer.concat([cipher.update(token, 'utf8'), cipher.final()]);
   const tag = cipher.getAuthTag();
 
   return `${ENCRYPTED_TOKEN_PREFIX}${iv.toString('base64url')}.${tag.toString('base64url')}.${encrypted.toString('base64url')}`;
@@ -98,7 +110,7 @@ function decryptAccessToken(value: string | null | undefined) {
   }
 
   if (!value.startsWith(ENCRYPTED_TOKEN_PREFIX)) {
-    return value;
+    return normalizeAccessToken(value);
   }
 
   const key = getTokenEncryptionKey();
@@ -117,10 +129,10 @@ function decryptAccessToken(value: string | null | undefined) {
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(ivValue, 'base64url'));
     decipher.setAuthTag(Buffer.from(tagValue, 'base64url'));
 
-    return Buffer.concat([
+    return normalizeAccessToken(Buffer.concat([
       decipher.update(Buffer.from(encryptedValue, 'base64url')),
       decipher.final(),
-    ]).toString('utf8');
+    ]).toString('utf8'));
   } catch {
     return null;
   }
@@ -168,7 +180,7 @@ function normalizeSettings(settings?: Partial<InstagramSyncSettings>): Instagram
   const lookupLimit = Number(settings?.lookupLimit);
 
   return {
-    accessToken: decryptAccessToken(settings?.accessToken?.trim()),
+    accessToken: decryptAccessToken(settings?.accessToken),
     userId: settings?.userId?.trim() || null,
     apiVersion: settings?.apiVersion?.trim() || defaultSettings.apiVersion,
     lookupLimit: Number.isFinite(lookupLimit) ? Math.min(Math.max(Math.round(lookupLimit), 1), 100) : defaultSettings.lookupLimit,
