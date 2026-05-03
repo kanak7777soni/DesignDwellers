@@ -64,11 +64,26 @@ async function ensureDataDir() {
 const ENCRYPTED_TOKEN_PREFIX = 'enc:v1:';
 
 function normalizeAccessToken(value: string | null | undefined) {
-  const token = value
+  let token = value
     ?.trim()
     .replace(/^["']|["']$/g, '')
     .replace(/^Bearer\s+/i, '')
     .trim();
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(token);
+    token = parsed.searchParams.get('access_token')?.trim() || token;
+  } catch {
+    const match = /(?:^|[?&])access_token=([^&\s]+)/i.exec(token);
+
+    if (match?.[1]) {
+      token = decodeURIComponent(match[1]).trim();
+    }
+  }
 
   return token || null;
 }
