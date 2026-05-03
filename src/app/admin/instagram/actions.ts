@@ -168,6 +168,10 @@ function getInstagramUserId(payload: InstagramUserResponse) {
 }
 
 async function resolveInstagramUserId(settings: InstagramSyncSettings) {
+  if (settings.userId) {
+    return settings.userId;
+  }
+
   const endpoints = [
     `https://graph.instagram.com/${settings.apiVersion}/me`,
     'https://graph.instagram.com/me',
@@ -190,10 +194,6 @@ async function resolveInstagramUserId(settings: InstagramSyncSettings) {
     lastError = payload.error?.message || lastError;
   }
 
-  if (settings.userId) {
-    return settings.userId;
-  }
-
   throw new Error(lastError || 'Instagram user ID could not be resolved from this access token.');
 }
 
@@ -201,8 +201,8 @@ function getInstagramMediaEndpoints(settings: InstagramSyncSettings, userId: str
   const encodedUserId = encodeURIComponent(userId);
 
   return [
-    `https://graph.instagram.com/${settings.apiVersion}/${encodedUserId}/media`,
     `https://graph.facebook.com/${settings.apiVersion}/${encodedUserId}/media`,
+    `https://graph.instagram.com/${settings.apiVersion}/${encodedUserId}/media`,
   ];
 }
 
