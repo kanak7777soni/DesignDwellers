@@ -26,6 +26,22 @@ You can also add each reel manually with its Instagram permalink, caption, sort 
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Consultation Lead Emails
+
+The "Book Your Free Design Consultation" forms submit to `/api/consultation`. The server validates the form, rate-limits submissions by IP address, and sends the lead to the admin through Brevo transactional email.
+
+Set these variables locally and in Vercel:
+
+```bash
+BREVO_API_KEY=your-brevo-api-key
+BREVO_SENDER_EMAIL=verified-sender@example.com
+BREVO_SENDER_NAME="Design Dwellers Studio"
+CONSULTATION_ADMIN_EMAIL=admin@example.com
+CONSULTATION_ADMIN_NAME="Design Dwellers Admin"
+```
+
+`BREVO_SENDER_EMAIL` must be a sender verified in Brevo. The admin email receives the submitted name, phone, email, property type, budget, selected project scope/city, vision, source page, timestamp, and IP address.
+
 ## Admin CRM
 
 The portfolio is editable from `/admin`.

@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import ContactPageConsultationForm from '@/components/ContactPageConsultationForm';
 import Footer from '@/components/Footer';
 import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
@@ -134,8 +135,10 @@ export default function ContactPage() {
               </p>
 
               {/* ====== GOLD form card (Figma: x:95, y:923, 677×430, #D7A648) ====== */}
+              <ContactPageConsultationForm selectedCity={selectedCity} selectedType={selectedType} />
               <div
                 style={{
+                  display: 'none',
                   background: '#D7A648',
                   borderRadius: '22px',
                   padding: '24px 25px',
