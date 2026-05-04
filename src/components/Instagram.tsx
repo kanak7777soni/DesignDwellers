@@ -59,7 +59,8 @@ const reelScrollerStyle = {
   scrollBehavior: 'smooth',
   scrollSnapType: 'x mandatory',
   scrollbarWidth: 'none',
-  touchAction: 'pan-y',
+  overscrollBehaviorX: 'contain',
+  touchAction: 'auto',
   userSelect: 'none',
   WebkitOverflowScrolling: 'touch',
 } as const;
@@ -173,7 +174,7 @@ export default function InstagramSection() {
         <InstagramVideoGrid feed={feed} />
 
         {/* Follow button */}
-        <div className="flex justify-center mt-[30px]">
+        <div className="flex justify-center mt-[18px]">
           <a
             href={profileUrl}
             target="_blank"
@@ -237,6 +238,7 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onDragStart={(event) => event.preventDefault()}
         onScroll={handleScroll}
         onWheel={handleWheel}
         className="no-scrollbar"
@@ -340,6 +342,7 @@ function InstagramVideoCard({ video, shouldLoadVideo = true }: { video: Instagra
           src={video.videoUrl || undefined}
           poster={video.thumbnailUrl || undefined}
           className="h-full w-full object-cover zoom-image"
+          draggable={false}
           muted
           loop
           playsInline
@@ -348,7 +351,7 @@ function InstagramVideoCard({ video, shouldLoadVideo = true }: { video: Instagra
         />
       ) : video.thumbnailUrl ? (
         <a href={video.permalink} target="_blank" rel="noopener noreferrer" className="block h-full w-full" aria-label="Open Instagram reel">
-          <img src={video.thumbnailUrl} alt={video.caption} className="h-full w-full object-cover zoom-image" />
+          <img src={video.thumbnailUrl} alt={video.caption} className="h-full w-full object-cover zoom-image" draggable={false} />
         </a>
       ) : (
         <a
@@ -412,7 +415,7 @@ function InstagramPaginationDots({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="flex justify-center mt-[14px]" role="tablist" aria-label="Instagram reel pages">
+    <div className="flex justify-center" style={{ marginTop: '6px' }} role="tablist" aria-label="Instagram reel pages">
       <div className="flex items-center" style={{ gap: '17px' }}>
         {Array.from({ length: pageCount }, (_, index) => {
           const isActive = index === activePage;

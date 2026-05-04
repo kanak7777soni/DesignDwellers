@@ -143,7 +143,8 @@ export default function Testimonials() {
             scrollBehavior: 'smooth',
             scrollSnapType: 'x mandatory',
             scrollbarWidth: 'none',
-            touchAction: 'pan-y',
+            overscrollBehaviorX: 'contain',
+            touchAction: 'auto',
             userSelect: 'none',
             WebkitOverflowScrolling: 'touch',
           }}

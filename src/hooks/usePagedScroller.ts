@@ -104,7 +104,7 @@ export function usePagedScroller({ itemCount, getStep }: UsePagedScrollerOptions
   );
 
   const handlePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === 'mouse' && event.button !== 0) {
+    if (event.pointerType !== 'mouse' || event.button !== 0) {
       return;
     }
 
