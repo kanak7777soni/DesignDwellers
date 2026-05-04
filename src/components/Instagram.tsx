@@ -52,12 +52,15 @@ const reelGridStyle = {
 } as const;
 
 const reelScrollerStyle = {
+  cursor: 'grab',
   display: 'flex',
   overflowX: 'auto',
   overflowY: 'hidden',
   scrollBehavior: 'smooth',
   scrollSnapType: 'x mandatory',
   scrollbarWidth: 'none',
+  touchAction: 'pan-y',
+  userSelect: 'none',
   WebkitOverflowScrolling: 'touch',
 } as const;
 
@@ -208,6 +211,11 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
   }, [feed.videos]);
   const {
     activeIndex: activePage,
+    handleClickCapture,
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
     handleScroll,
     handleWheel,
     scrollRef,
@@ -224,6 +232,11 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
     <>
       <div
         ref={scrollRef}
+        onClickCapture={handleClickCapture}
+        onPointerCancel={handlePointerCancel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         onScroll={handleScroll}
         onWheel={handleWheel}
         className="no-scrollbar"
@@ -399,7 +412,7 @@ function InstagramPaginationDots({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="flex justify-center mt-[30px]" role="tablist" aria-label="Instagram reel pages">
+    <div className="flex justify-center mt-[14px]" role="tablist" aria-label="Instagram reel pages">
       <div className="flex items-center" style={{ gap: '17px' }}>
         {Array.from({ length: pageCount }, (_, index) => {
           const isActive = index === activePage;

@@ -22,21 +22,61 @@ const testimonials = [
     location: 'Modular Kitchen · JP Nagar, Bangalore',
     text: 'The modular kitchen they designed is something straight out of a magazine. Premium finish, smart storage, and it\'s been 2 years with zero issues. Worth every rupee.',
   },
+  {
+    initials: 'AK',
+    name: 'Ananya & Karan Shah',
+    location: '3BHK · Indiranagar, Bangalore',
+    text: 'Their team made our compact 3BHK feel open, warm, and incredibly organized. Every storage idea is used daily.',
+  },
+  {
+    initials: 'RG',
+    name: 'Rohit Gupta',
+    location: 'Living Room · HSR Layout, Bangalore',
+    text: 'The living room finally feels like us. Clean execution, calm communication, and no surprise costs.',
+  },
+  {
+    initials: 'NK',
+    name: 'Neha Krishnan',
+    location: 'Full Home · Kondapur, Hyderabad',
+    text: 'From design sign-off to handover, the process was smooth. The final finish matched the renders beautifully.',
+  },
+  {
+    initials: 'AS',
+    name: 'Amit & Sneha Rao',
+    location: 'Villa Interior · Sarjapur Road',
+    text: 'They balanced premium materials with practical choices. Our villa looks elegant but still easy to live in.',
+  },
+  {
+    initials: 'DR',
+    name: 'Divya Raman',
+    location: 'Wardrobes · Koramangala, Bangalore',
+    text: 'The wardrobe planning was excellent. Every inch has a purpose, and the finish still looks brand new.',
+  },
+  {
+    initials: 'MJ',
+    name: 'Meera Joseph',
+    location: 'Kitchen & Dining · Jubilee Hills',
+    text: 'Our kitchen and dining space became the best part of the home. The layout is beautiful and genuinely practical.',
+  },
 ];
 
+const REVIEW_PAGE_SIZE = 3;
+
 export default function Testimonials() {
+  const reviewPageCount = Math.ceil(testimonials.length / REVIEW_PAGE_SIZE);
   const {
     activeIndex,
+    handleClickCapture,
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
     handleScroll,
     handleWheel,
     scrollRef,
     scrollToIndex,
   } = usePagedScroller({
-    itemCount: testimonials.length,
-    getStep: (element) => {
-      const firstCard = element.querySelector<HTMLElement>('[data-testimonial-card]');
-      return firstCard ? firstCard.offsetWidth + 40 : element.clientWidth;
-    },
+    itemCount: reviewPageCount,
   });
 
   return (
@@ -88,18 +128,26 @@ export default function Testimonials() {
         {/* Review cards */}
         <div
           ref={scrollRef}
+          onClickCapture={handleClickCapture}
+          onPointerCancel={handlePointerCancel}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
           onScroll={handleScroll}
           onWheel={handleWheel}
           className="flex gap-[40px] no-scrollbar"
           style={{
+            cursor: 'grab',
             overflowX: 'auto',
             overflowY: 'hidden',
             scrollBehavior: 'smooth',
             scrollSnapType: 'x mandatory',
             scrollbarWidth: 'none',
+            touchAction: 'pan-y',
+            userSelect: 'none',
             WebkitOverflowScrolling: 'touch',
           }}
-          aria-label="Client review carousel"
+          aria-label={`Client review carousel, page ${activeIndex + 1} of ${reviewPageCount}`}
         >
           {testimonials.map((t, i) => (
             <motion.div
@@ -234,30 +282,32 @@ export default function Testimonials() {
         </div>
 
         {/* Navigation dots */}
-        <ReviewPaginationDots activeIndex={activeIndex} onPageChange={scrollToIndex} />
+        <ReviewPaginationDots pageCount={reviewPageCount} activeIndex={activeIndex} onPageChange={scrollToIndex} />
       </div>
     </section>
   );
 }
 
 function ReviewPaginationDots({
+  pageCount,
   activeIndex,
   onPageChange,
 }: {
+  pageCount: number;
   activeIndex: number;
   onPageChange: (index: number) => void;
 }) {
   return (
     <div className="flex justify-center mt-[53px]" role="tablist" aria-label="Client review pages">
       <div className="flex items-center" style={{ gap: '17px' }}>
-        {testimonials.map((testimonial, index) => {
+        {Array.from({ length: pageCount }, (_, index) => {
           const isActive = index === activeIndex;
 
           return (
             <button
-              key={testimonial.initials}
+              key={index}
               type="button"
-              aria-label={`Show review from ${testimonial.name}`}
+              aria-label={`Show client reviews page ${index + 1}`}
               aria-selected={isActive}
               role="tab"
               onClick={() => onPageChange(index)}
