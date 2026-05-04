@@ -423,7 +423,7 @@ function InstagramPaginationDots({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="flex justify-center" style={{ marginTop: '8px' }} role="tablist" aria-label="Instagram reel pages">
+    <div className="flex justify-center" style={{ marginTop: '16px' }} role="tablist" aria-label="Instagram reel pages">
       <div className="flex items-center" style={{ gap: '17px' }}>
         {Array.from({ length: pageCount }, (_, index) => {
           const isActive = index === activePage;
