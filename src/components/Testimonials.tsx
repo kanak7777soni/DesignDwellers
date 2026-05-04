@@ -1,6 +1,7 @@
 ﻿'use client';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { usePagedScroller } from '@/hooks/usePagedScroller';
 
 const testimonials = [
   {
@@ -24,6 +25,20 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const {
+    activeIndex,
+    handleScroll,
+    handleWheel,
+    scrollRef,
+    scrollToIndex,
+  } = usePagedScroller({
+    itemCount: testimonials.length,
+    getStep: (element) => {
+      const firstCard = element.querySelector<HTMLElement>('[data-testimonial-card]');
+      return firstCard ? firstCard.offsetWidth + 40 : element.clientWidth;
+    },
+  });
+
   return (
     <section className="w-full" style={{ background: '#FFFFFF', paddingTop: '71px', paddingBottom: '80px' }}>
       <div className="max-w-[1440px] mx-auto px-[80px]">
@@ -70,11 +85,26 @@ export default function Testimonials() {
           </p>
         </motion.div>
 
-        {/* 3 Cards */}
-        <div className="flex gap-[40px]">
+        {/* Review cards */}
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          onWheel={handleWheel}
+          className="flex gap-[40px] no-scrollbar"
+          style={{
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            scrollBehavior: 'smooth',
+            scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+          aria-label="Client review carousel"
+        >
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
+              data-testimonial-card
               initial={{ opacity: 0, y: 80, scale: 0.8 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.2 }}
@@ -93,6 +123,9 @@ export default function Testimonials() {
                 borderRadius: '22px',
                 position: 'relative',
                 overflow: 'hidden',
+                flex: '0 0 402px',
+                scrollSnapAlign: 'start',
+                scrollSnapStop: 'always',
               }}
             >
               {/* Quote mark */}
@@ -201,10 +234,46 @@ export default function Testimonials() {
         </div>
 
         {/* Navigation dots */}
-        <div className="flex justify-center mt-[53px]">
-          <Image src="/images/testimonial-nav.svg" alt="" width={82} height={9} />
-        </div>
+        <ReviewPaginationDots activeIndex={activeIndex} onPageChange={scrollToIndex} />
       </div>
     </section>
+  );
+}
+
+function ReviewPaginationDots({
+  activeIndex,
+  onPageChange,
+}: {
+  activeIndex: number;
+  onPageChange: (index: number) => void;
+}) {
+  return (
+    <div className="flex justify-center mt-[53px]" role="tablist" aria-label="Client review pages">
+      <div className="flex items-center" style={{ gap: '17px' }}>
+        {testimonials.map((testimonial, index) => {
+          const isActive = index === activeIndex;
+
+          return (
+            <button
+              key={testimonial.initials}
+              type="button"
+              aria-label={`Show review from ${testimonial.name}`}
+              aria-selected={isActive}
+              role="tab"
+              onClick={() => onPageChange(index)}
+              style={{
+                width: isActive ? '9px' : '6px',
+                height: isActive ? '9px' : '6px',
+                borderRadius: '999px',
+                border: 'none',
+                background: '#D7A648',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }

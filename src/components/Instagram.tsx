@@ -3,6 +3,7 @@
 
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { usePagedScroller } from '@/hooks/usePagedScroller';
 
 type InstagramVideo = {
   id: string;
@@ -48,6 +49,23 @@ const reelGridStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))',
   gap: '12px',
+} as const;
+
+const reelScrollerStyle = {
+  display: 'flex',
+  overflowX: 'auto',
+  overflowY: 'hidden',
+  scrollBehavior: 'smooth',
+  scrollSnapType: 'x mandatory',
+  scrollbarWidth: 'none',
+  WebkitOverflowScrolling: 'touch',
+} as const;
+
+const reelPageStyle = {
+  ...reelGridStyle,
+  flex: '0 0 100%',
+  scrollSnapAlign: 'start',
+  scrollSnapStop: 'always',
 } as const;
 
 export default function InstagramSection() {
@@ -181,8 +199,6 @@ export default function InstagramSection() {
 }
 
 function InstagramVideoGrid({ feed }: { feed: FeedState }) {
-  const [activePage, setActivePage] = useState(0);
-
   const pages = useMemo(() => {
     const pageCount = Math.ceil(feed.videos.length / REELS_PER_PAGE);
 
@@ -190,36 +206,49 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
       feed.videos.slice(pageIndex * REELS_PER_PAGE, pageIndex * REELS_PER_PAGE + REELS_PER_PAGE),
     );
   }, [feed.videos]);
+  const {
+    activeIndex: activePage,
+    handleScroll,
+    handleWheel,
+    scrollRef,
+    scrollToIndex,
+  } = usePagedScroller({ itemCount: pages.length });
 
   if (feed.status !== 'ready') {
     return <InstagramFallbackGrid />;
   }
 
-  const safeActivePage = Math.min(activePage, Math.max(pages.length - 1, 0));
-  const currentVideos = pages[safeActivePage] || pages[0] || [];
   const shouldShowDots = pages.length > 1;
 
   return (
     <>
       <div
-        style={reelGridStyle}
-        aria-label={`${feed.videos.length} Instagram reels, page ${safeActivePage + 1} of ${pages.length}`}
+        ref={scrollRef}
+        onScroll={handleScroll}
+        onWheel={handleWheel}
+        className="no-scrollbar"
+        style={reelScrollerStyle}
+        aria-label={`${feed.videos.length} Instagram reels, page ${activePage + 1} of ${pages.length}`}
       >
-        {currentVideos.map((video) => (
-          <InstagramVideoCard key={video.id} video={video} />
+        {pages.map((page, pageIndex) => (
+          <div key={pageIndex} style={reelPageStyle}>
+            {page.map((video) => (
+              <InstagramVideoCard key={video.id} video={video} shouldLoadVideo={pageIndex === activePage} />
+            ))}
+          </div>
         ))}
       </div>
 
       {shouldShowDots ? (
-        <InstagramPaginationDots pageCount={pages.length} activePage={safeActivePage} onPageChange={setActivePage} />
+        <InstagramPaginationDots pageCount={pages.length} activePage={activePage} onPageChange={scrollToIndex} />
       ) : null}
     </>
   );
 }
 
-function InstagramVideoCard({ video }: { video: InstagramVideo }) {
+function InstagramVideoCard({ video, shouldLoadVideo = true }: { video: InstagramVideo; shouldLoadVideo?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const isPlayable = Boolean(video.videoUrl);
+  const isPlayable = Boolean(video.videoUrl && shouldLoadVideo);
 
   useEffect(() => {
     const element = videoRef.current;
