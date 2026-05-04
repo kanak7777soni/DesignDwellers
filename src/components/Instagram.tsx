@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type InstagramVideo = {
   id: string;
@@ -42,16 +42,12 @@ const fallbackPosts = Array.from({ length: 6 }, (_, index) => ({
   caption: 'Modular Kitchen Reveal',
 }));
 const VIDEO_VISIBILITY_THRESHOLD = 0.25;
+const REELS_PER_PAGE = 6;
 
-const scrollStripStyle = {
-  display: 'flex',
+const reelGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))',
   gap: '12px',
-  overflowX: 'auto',
-  overflowY: 'hidden',
-  paddingBottom: '12px',
-  scrollBehavior: 'smooth',
-  scrollSnapType: 'x mandatory',
-  WebkitOverflowScrolling: 'touch',
 } as const;
 
 export default function InstagramSection() {
@@ -185,16 +181,39 @@ export default function InstagramSection() {
 }
 
 function InstagramVideoGrid({ feed }: { feed: FeedState }) {
+  const [activePage, setActivePage] = useState(0);
+
+  const pages = useMemo(() => {
+    const pageCount = Math.ceil(feed.videos.length / REELS_PER_PAGE);
+
+    return Array.from({ length: pageCount }, (_, pageIndex) =>
+      feed.videos.slice(pageIndex * REELS_PER_PAGE, pageIndex * REELS_PER_PAGE + REELS_PER_PAGE),
+    );
+  }, [feed.videos]);
+
   if (feed.status !== 'ready') {
     return <InstagramFallbackGrid />;
   }
 
+  const safeActivePage = Math.min(activePage, Math.max(pages.length - 1, 0));
+  const currentVideos = pages[safeActivePage] || pages[0] || [];
+  const shouldShowDots = pages.length > 1;
+
   return (
-    <div style={scrollStripStyle} aria-label={`${feed.videos.length} Instagram reels`}>
-      {feed.videos.map((video) => (
-        <InstagramVideoCard key={video.id} video={video} />
-      ))}
-    </div>
+    <>
+      <div
+        style={reelGridStyle}
+        aria-label={`${feed.videos.length} Instagram reels, page ${safeActivePage + 1} of ${pages.length}`}
+      >
+        {currentVideos.map((video) => (
+          <InstagramVideoCard key={video.id} video={video} />
+        ))}
+      </div>
+
+      {shouldShowDots ? (
+        <InstagramPaginationDots pageCount={pages.length} activePage={safeActivePage} onPageChange={setActivePage} />
+      ) : null}
+    </>
   );
 }
 
@@ -271,7 +290,7 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
   return (
     <article
       className="relative group overflow-hidden"
-      style={{ width: '204px', height: '363px', flexShrink: 0, background: '#0f0f0f', scrollSnapAlign: 'start' }}
+      style={{ width: '100%', aspectRatio: '204 / 363', background: '#0f0f0f' }}
     >
       {isPlayable ? (
         <video
@@ -315,12 +334,12 @@ function InstagramVideoCard({ video }: { video: InstagramVideo }) {
 
 function InstagramFallbackGrid() {
   return (
-    <div style={scrollStripStyle} aria-label="Instagram reel previews">
+    <div style={reelGridStyle} aria-label="Instagram reel previews">
       {fallbackPosts.map((post) => (
         <div
           key={post.id}
           className="relative group overflow-hidden"
-          style={{ width: '204px', height: '363px', flexShrink: 0, scrollSnapAlign: 'start' }}
+          style={{ width: '100%', aspectRatio: '204 / 363' }}
         >
           <Image
             src="/images/instagram-post.png"
@@ -337,6 +356,46 @@ function InstagramFallbackGrid() {
           <div className="absolute" style={{ bottom: '20px', left: '8px', right: '8px', height: '1px', background: '#D7A648' }} />
         </div>
       ))}
+    </div>
+  );
+}
+
+function InstagramPaginationDots({
+  pageCount,
+  activePage,
+  onPageChange,
+}: {
+  pageCount: number;
+  activePage: number;
+  onPageChange: (page: number) => void;
+}) {
+  return (
+    <div className="flex justify-center mt-[30px]" role="tablist" aria-label="Instagram reel pages">
+      <div className="flex items-center" style={{ gap: '17px' }}>
+        {Array.from({ length: pageCount }, (_, index) => {
+          const isActive = index === activePage;
+
+          return (
+            <button
+              key={index}
+              type="button"
+              aria-label={`Show Instagram reels page ${index + 1}`}
+              aria-selected={isActive}
+              role="tab"
+              onClick={() => onPageChange(index)}
+              style={{
+                width: isActive ? '9px' : '6px',
+                height: isActive ? '9px' : '6px',
+                borderRadius: '999px',
+                border: 'none',
+                background: '#D7A648',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
