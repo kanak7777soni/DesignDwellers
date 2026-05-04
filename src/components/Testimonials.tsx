@@ -61,9 +61,11 @@ const testimonials = [
 ];
 
 const REVIEW_PAGE_SIZE = 3;
+const testimonialPages = Array.from({ length: Math.ceil(testimonials.length / REVIEW_PAGE_SIZE) }, (_, pageIndex) =>
+  testimonials.slice(pageIndex * REVIEW_PAGE_SIZE, pageIndex * REVIEW_PAGE_SIZE + REVIEW_PAGE_SIZE),
+);
 
 export default function Testimonials() {
-  const reviewPageCount = Math.ceil(testimonials.length / REVIEW_PAGE_SIZE);
   const {
     activeIndex,
     handleClickCapture,
@@ -72,11 +74,10 @@ export default function Testimonials() {
     handlePointerMove,
     handlePointerUp,
     handleScroll,
-    handleWheel,
     scrollRef,
     scrollToIndex,
   } = usePagedScroller({
-    itemCount: reviewPageCount,
+    itemCount: testimonialPages.length,
   });
 
   return (
@@ -134,12 +135,15 @@ export default function Testimonials() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onScroll={handleScroll}
-          onWheel={handleWheel}
           className="flex gap-[40px] no-scrollbar"
           style={{
             cursor: 'grab',
             overflowX: 'auto',
             overflowY: 'hidden',
+            paddingTop: '8px',
+            paddingBottom: '8px',
+            marginTop: '-8px',
+            marginBottom: '-8px',
             scrollBehavior: 'smooth',
             scrollSnapType: 'x mandatory',
             scrollbarWidth: 'none',
@@ -148,142 +152,148 @@ export default function Testimonials() {
             userSelect: 'none',
             WebkitOverflowScrolling: 'touch',
           }}
-          aria-label={`Client review carousel, page ${activeIndex + 1} of ${reviewPageCount}`}
+          aria-label={`Client review carousel, page ${activeIndex + 1} of ${testimonialPages.length}`}
         >
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={i}
-              data-testimonial-card
-              initial={{ opacity: 0, y: 80, scale: 0.8 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{
-                duration: 0.6,
-                delay: i * 0.2,
-                type: 'spring',
-                stiffness: 100,
-                damping: 12,
-              }}
-              whileHover={{ scale: 1.05, y: -8, transition: { duration: 0.3 } }}
-              style={{
-                width: '402px',
-                height: '265px',
-                background: '#141300',
-                borderRadius: '22px',
-                position: 'relative',
-                overflow: 'hidden',
-                flex: '0 0 402px',
-                scrollSnapAlign: 'start',
-                scrollSnapStop: 'always',
-              }}
+          {testimonialPages.map((page, pageIndex) => (
+            <div
+              key={pageIndex}
+              className="flex gap-[40px]"
+              style={{ flex: '0 0 100%', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
             >
-              {/* Quote mark */}
-              <span
-                className="font-body"
-                style={{
-                  fontSize: '64px',
-                  lineHeight: '1em',
-                  color: '#D7A648',
-                  position: 'absolute',
-                  top: '25px',
-                  left: '31px',
-                  WebkitTextStroke: '1px #D7A648',
-                }}
-              >
-                &ldquo;
-              </span>
+              {page.map((t, i) => (
+                <motion.div
+                  key={t.initials}
+                  data-testimonial-card
+                  initial={{ opacity: 0, y: 80, scale: 0.8 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: (pageIndex * REVIEW_PAGE_SIZE + i) * 0.08,
+                    type: 'spring',
+                    stiffness: 100,
+                    damping: 12,
+                  }}
+                  whileHover={{ y: -6, transition: { duration: 0.3 } }}
+                  style={{
+                    width: '402px',
+                    height: '265px',
+                    background: '#141300',
+                    borderRadius: '22px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    flex: '0 0 402px',
+                  }}
+                >
+                  {/* Quote mark */}
+                  <span
+                    className="font-body"
+                    style={{
+                      fontSize: '64px',
+                      lineHeight: '1em',
+                      color: '#D7A648',
+                      position: 'absolute',
+                      top: '25px',
+                      left: '31px',
+                      WebkitTextStroke: '1px #D7A648',
+                    }}
+                  >
+                    &ldquo;
+                  </span>
 
-              {/* Review text */}
-              <p
-                className="font-body"
-                style={{
-                  fontSize: '12px',
-                  lineHeight: '1em',
-                  color: '#FFFFFF',
-                  textAlign: 'right',
-                  position: 'absolute',
-                  top: '76px',
-                  left: '34px',
-                  width: '342px',
-                  height: '72px',
-                  overflow: 'hidden',
-                }}
-              >
-                {t.text}
-              </p>
+                  {/* Review text */}
+                  <p
+                    className="font-body"
+                    style={{
+                      fontSize: '12px',
+                      lineHeight: '1em',
+                      color: '#FFFFFF',
+                      textAlign: 'right',
+                      position: 'absolute',
+                      top: '76px',
+                      left: '34px',
+                      width: '342px',
+                      height: '72px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {t.text}
+                  </p>
 
-              {/* Gold separator */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '177px',
-                  left: '248px',
-                  width: '128px',
-                  height: '1px',
-                  background: '#D7A648',
-                }}
-              />
+                  {/* Gold separator */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '177px',
+                      left: '248px',
+                      width: '128px',
+                      height: '1px',
+                      background: '#D7A648',
+                    }}
+                  />
 
-              {/* Avatar */}
-              <div
-                className="flex items-center justify-center"
-                style={{
-                  position: 'absolute',
-                  top: '196px',
-                  left: '34px',
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(146deg, rgba(216,166,72,1) 11%, rgba(114,88,38,1) 95%)',
-                }}
-              >
-                <span className="font-heading" style={{ fontSize: '20px', lineHeight: '1.17em', color: '#FFFFFF' }}>
-                  {t.initials}
-                </span>
-              </div>
+                  {/* Avatar */}
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      position: 'absolute',
+                      top: '196px',
+                      left: '34px',
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(146deg, rgba(216,166,72,1) 11%, rgba(114,88,38,1) 95%)',
+                    }}
+                  >
+                    <span className="font-heading" style={{ fontSize: '20px', lineHeight: '1.17em', color: '#FFFFFF' }}>
+                      {t.initials}
+                    </span>
+                  </div>
 
-              {/* Stars */}
-              <div style={{ position: 'absolute', top: '198px', left: '94px' }}>
-                <Image src="/images/star-rating.svg" alt="5 stars" width={50} height={10} />
-              </div>
+                  {/* Stars */}
+                  <div style={{ position: 'absolute', top: '198px', left: '94px' }}>
+                    <Image src="/images/star-rating.svg" alt="5 stars" width={50} height={10} />
+                  </div>
 
-              {/* Name */}
-              <h4
-                className="font-heading"
-                style={{
-                  position: 'absolute',
-                  top: '208px',
-                  left: '94px',
-                  fontSize: '16px',
-                  lineHeight: '1.17em',
-                  color: '#D7A648',
-                  WebkitTextStroke: '0.5px #D7A648',
-                }}
-              >
-                {t.name}
-              </h4>
+                  {/* Name */}
+                  <h4
+                    className="font-heading"
+                    style={{
+                      position: 'absolute',
+                      top: '208px',
+                      left: '94px',
+                      fontSize: '16px',
+                      lineHeight: '1.17em',
+                      color: '#D7A648',
+                      WebkitTextStroke: '0.5px #D7A648',
+                    }}
+                  >
+                    {t.name}
+                  </h4>
 
-              {/* Location */}
-              <p
-                className="font-body"
-                style={{
-                  position: 'absolute',
-                  top: '234px',
-                  left: '94px',
-                  fontSize: '7px',
-                  lineHeight: '1em',
-                  color: '#FFFFFF',
-                  textAlign: 'right',
-                }}
-              >
-                {t.location}
-              </p>
-            </motion.div>
+                  {/* Location */}
+                  <p
+                    className="font-body"
+                    style={{
+                      position: 'absolute',
+                      top: '234px',
+                      left: '94px',
+                      fontSize: '7px',
+                      lineHeight: '1em',
+                      color: '#FFFFFF',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {t.location}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           ))}
         </div>
 
         {/* Navigation dots */}
-        <ReviewPaginationDots pageCount={reviewPageCount} activeIndex={activeIndex} onPageChange={scrollToIndex} />
+        <ReviewPaginationDots pageCount={testimonialPages.length} activeIndex={activeIndex} onPageChange={scrollToIndex} />
       </div>
     </section>
   );

@@ -47,7 +47,7 @@ const REELS_PER_PAGE = 6;
 
 const reelGridStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))',
+  gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
   gap: '12px',
 } as const;
 
@@ -218,7 +218,6 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
     handlePointerMove,
     handlePointerUp,
     handleScroll,
-    handleWheel,
     scrollRef,
     scrollToIndex,
   } = usePagedScroller({ itemCount: pages.length });
@@ -240,16 +239,25 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
         onPointerUp={handlePointerUp}
         onDragStart={(event) => event.preventDefault()}
         onScroll={handleScroll}
-        onWheel={handleWheel}
         className="no-scrollbar"
         style={reelScrollerStyle}
         aria-label={`${feed.videos.length} Instagram reels, page ${activePage + 1} of ${pages.length}`}
       >
         {pages.map((page, pageIndex) => (
           <div key={pageIndex} style={reelPageStyle}>
-            {page.map((video) => (
-              <InstagramVideoCard key={video.id} video={video} shouldLoadVideo={pageIndex === activePage} />
-            ))}
+            {Array.from({ length: REELS_PER_PAGE }, (_, slotIndex) => {
+              const video = page[slotIndex];
+
+              return video ? (
+                <InstagramVideoCard key={video.id} video={video} shouldLoadVideo={pageIndex === activePage} />
+              ) : (
+                <div
+                  key={`empty-reel-slot-${pageIndex}-${slotIndex}`}
+                  aria-hidden="true"
+                  style={{ width: '100%', aspectRatio: '204 / 363', pointerEvents: 'none', visibility: 'hidden' }}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
@@ -415,7 +423,7 @@ function InstagramPaginationDots({
   onPageChange: (page: number) => void;
 }) {
   return (
-    <div className="flex justify-center" style={{ marginTop: '6px' }} role="tablist" aria-label="Instagram reel pages">
+    <div className="flex justify-center" style={{ marginTop: '8px' }} role="tablist" aria-label="Instagram reel pages">
       <div className="flex items-center" style={{ gap: '17px' }}>
         {Array.from({ length: pageCount }, (_, index) => {
           const isActive = index === activePage;

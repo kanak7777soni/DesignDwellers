@@ -7,7 +7,6 @@ import {
   type MouseEvent,
   type PointerEvent,
   type UIEvent,
-  type WheelEvent,
 } from 'react';
 
 type UsePagedScrollerOptions = {
@@ -65,17 +64,6 @@ export function usePagedScroller({ itemCount, getStep }: UsePagedScrollerOptions
     },
     [getSafeIndex, getScrollStep],
   );
-
-  const handleWheel = useCallback((event: WheelEvent<HTMLDivElement>) => {
-    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
-      return;
-    }
-
-    event.currentTarget.scrollBy({
-      left: event.deltaY,
-      behavior: 'smooth',
-    });
-  }, []);
 
   const finishPointerDrag = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
@@ -154,7 +142,6 @@ export function usePagedScroller({ itemCount, getStep }: UsePagedScrollerOptions
     handlePointerMove,
     handlePointerUp: finishPointerDrag,
     handleScroll,
-    handleWheel,
     scrollRef,
     scrollToIndex,
   };
