@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poiret_One, Josefin_Sans, Acme } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
+import { Analytics } from "@vercel/analytics/next";
 
 const poiretOne = Poiret_One({
   variable: "--font-poiret",
@@ -39,6 +40,7 @@ export default function RootLayout({
         style={{ fontFamily: "var(--font-josefin), system-ui, sans-serif" }}
       >
         <ClientProviders>{children}</ClientProviders>
+        <Analytics />
       </body>
     </html>
   );
