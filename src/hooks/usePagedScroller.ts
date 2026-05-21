@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type MouseEvent,
@@ -24,6 +25,8 @@ export function usePagedScroller({ itemCount, getStep }: UsePagedScrollerOptions
     startX: 0,
   });
   const suppressClickRef = useRef(false);
+  const activeIndexRef = useRef(0);
+  const scrollFrameRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const getScrollStep = useCallback(
@@ -36,12 +39,35 @@ export function usePagedScroller({ itemCount, getStep }: UsePagedScrollerOptions
     [itemCount],
   );
 
+  const setSafeActiveIndex = useCallback(
+    (index: number) => {
+      const safeIndex = getSafeIndex(index);
+
+      if (activeIndexRef.current !== safeIndex) {
+        activeIndexRef.current = safeIndex;
+        setActiveIndex(safeIndex);
+      }
+    },
+    [getSafeIndex],
+  );
+
+  useEffect(() => {
+    setSafeActiveIndex(activeIndexRef.current);
+
+    return () => {
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+    };
+  }, [setSafeActiveIndex]);
+
   const scrollToIndex = useCallback(
     (index: number) => {
       const element = scrollRef.current;
       const safeIndex = getSafeIndex(index);
 
-      setActiveIndex(safeIndex);
+      setSafeActiveIndex(safeIndex);
 
       if (!element) {
         return;
@@ -52,17 +78,24 @@ export function usePagedScroller({ itemCount, getStep }: UsePagedScrollerOptions
         behavior: 'smooth',
       });
     },
-    [getSafeIndex, getScrollStep],
+    [getSafeIndex, getScrollStep, setSafeActiveIndex],
   );
 
   const handleScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
       const element = event.currentTarget;
-      const nextIndex = getSafeIndex(Math.round(element.scrollLeft / getScrollStep(element)));
 
-      setActiveIndex(nextIndex);
+      if (scrollFrameRef.current !== null) {
+        return;
+      }
+
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        scrollFrameRef.current = null;
+        const nextIndex = Math.round(element.scrollLeft / getScrollStep(element));
+        setSafeActiveIndex(nextIndex);
+      });
     },
-    [getSafeIndex, getScrollStep],
+    [getScrollStep, setSafeActiveIndex],
   );
 
   const finishPointerDrag = useCallback(

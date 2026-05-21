@@ -1,5 +1,3 @@
-'use client';
-import { useEffect } from 'react';
 import Hero from "@/components/Hero";
 import GlowEffects from "@/components/GlowEffects";
 import TrustBadges from "@/components/TrustBadges";
@@ -13,17 +11,12 @@ import InstagramSection from "@/components/Instagram";
 import FAQ from "@/components/FAQ";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
-import { useConsultation } from "@/context/ConsultationContext";
+import HomeConsultationAutoOpen from "@/components/HomeConsultationAutoOpen";
 
 export default function Home() {
-  const { open } = useConsultation();
-
-  useEffect(() => {
-    open();
-  }, [open]);
-
   return (
     <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+      <HomeConsultationAutoOpen />
       {/* Background glows */}
       <GlowEffects glows={[
         { top: 3318, left: -5, width: 1440, height: 985 },

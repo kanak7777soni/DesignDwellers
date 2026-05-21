@@ -1,5 +1,3 @@
-'use client';
-
 export default function HowItWorks() {
   const steps = [
     { num: '01', title: 'Free Consultation', desc: 'We understand your vision, lifestyle, and budget. No pressure. No sales pitch.', top: true, cx: 122 },

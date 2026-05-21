@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import GlowEffects from '@/components/GlowEffects';
 import PortfolioMedia from '@/components/PortfolioMedia';
+import { scheduleIdleTask } from '@/lib/client-scheduling';
 import {
   getProjectsByCategoryFromData,
   getPublishedProjectsFromData,
@@ -170,24 +171,36 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     let isMounted = true;
+    const abortController = new AbortController();
 
     async function loadPortfolioData() {
       try {
-        const response = await fetch('/api/portfolio', { cache: 'no-store' });
+        const response = await fetch('/api/portfolio', {
+          cache: 'no-store',
+          signal: abortController.signal,
+        });
         const data = (await response.json()) as PortfolioData;
 
         if (isMounted) {
           setPortfolioData(data);
         }
       } catch {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
         // Keep the seeded content if editable data is unavailable.
       }
     }
 
-    loadPortfolioData();
+    const cancelScheduledLoad = scheduleIdleTask(() => {
+      void loadPortfolioData();
+    });
 
     return () => {
       isMounted = false;
+      cancelScheduledLoad();
+      abortController.abort();
     };
   }, []);
 

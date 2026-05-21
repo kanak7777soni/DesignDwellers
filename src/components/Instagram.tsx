@@ -4,6 +4,7 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePagedScroller } from '@/hooks/usePagedScroller';
+import { scheduleIdleTask } from '@/lib/client-scheduling';
 
 type InstagramVideo = {
   id: string;
@@ -82,10 +83,14 @@ export default function InstagramSection() {
 
   useEffect(() => {
     let isMounted = true;
+    const abortController = new AbortController();
 
     async function loadInstagramVideos() {
       try {
-        const response = await fetch('/api/instagram/videos', { cache: 'no-store' });
+        const response = await fetch('/api/instagram/videos', {
+          cache: 'no-store',
+          signal: abortController.signal,
+        });
         const payload = (await response.json()) as InstagramFeedResponse;
 
         if (!isMounted) {
@@ -102,6 +107,10 @@ export default function InstagramSection() {
           },
         });
       } catch {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
         if (!isMounted) {
           return;
         }
@@ -115,10 +124,14 @@ export default function InstagramSection() {
       }
     }
 
-    loadInstagramVideos();
+    const cancelScheduledLoad = scheduleIdleTask(() => {
+      void loadInstagramVideos();
+    });
 
     return () => {
       isMounted = false;
+      cancelScheduledLoad();
+      abortController.abort();
     };
   }, []);
 
@@ -354,8 +367,8 @@ function InstagramVideoCard({ video, shouldLoadVideo = true }: { video: Instagra
           muted
           loop
           playsInline
-          autoPlay
-          preload="auto"
+          preload="metadata"
+          disablePictureInPicture
         />
       ) : video.thumbnailUrl ? (
         <a href={video.permalink} target="_blank" rel="noopener noreferrer" className="block h-full w-full" aria-label="Open Instagram reel">

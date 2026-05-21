@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type ViewportVideoProps = {
   src: string;
@@ -10,6 +10,7 @@ type ViewportVideoProps = {
 };
 
 const VISIBILITY_THRESHOLD = 0.35;
+const SOURCE_LOAD_MARGIN = '900px 0px';
 
 export default function ViewportVideo({
   src,
@@ -18,11 +19,38 @@ export default function ViewportVideo({
   className,
 }: ViewportVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const activeSrc = loadedSrc === src ? src : undefined;
 
   useEffect(() => {
     const element = videoRef.current;
 
-    if (!element) {
+    if (!element || loadedSrc === src) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setLoadedSrc(src);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: SOURCE_LOAD_MARGIN,
+        threshold: 0,
+      },
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [loadedSrc, src]);
+
+  useEffect(() => {
+    const element = videoRef.current;
+
+    if (!element || !activeSrc) {
       return;
     }
 
@@ -84,19 +112,21 @@ export default function ViewportVideo({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       pause();
     };
-  }, [src]);
+  }, [activeSrc]);
+
+  const preload = useMemo(() => (activeSrc ? 'metadata' : 'none'), [activeSrc]);
 
   return (
     <video
       ref={videoRef}
-      src={src}
+      src={activeSrc}
       poster={poster}
       aria-label={ariaLabel}
       className={className}
       muted
       loop
       playsInline
-      preload="metadata"
+      preload={preload}
       controls={false}
       disablePictureInPicture
     />

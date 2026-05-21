@@ -37,6 +37,9 @@ export default function PortfolioMedia({
         src={media.src}
         alt={media.alt}
         className={`h-full w-full ${className}`}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding={priority ? 'sync' : 'async'}
+        fetchPriority={priority ? 'high' : 'auto'}
       />
     );
   }

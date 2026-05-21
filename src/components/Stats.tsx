@@ -1,5 +1,3 @@
-﻿'use client';
-
 export default function Stats() {
   const stats = [
     { value: '8+', label: 'Years of Excellence' },
