@@ -18,7 +18,7 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(6);
 
   return (
-    <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+    <section id="faq" className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
       <div className="faq-layout responsive-container max-w-[1440px] mx-auto px-[80px] flex gap-[60px]">
         {/* Left side - header + CTA */}
         <div className="faq-intro flex flex-col" style={{ width: '460px', flexShrink: 0 }}>

@@ -140,7 +140,7 @@ export default function InstagramSection() {
   const profileUrl = feed.profile.url || defaultProfile.url;
 
   return (
-    <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+    <section id="instagram" className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
       <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <div className="relative" style={{ width: '290px', height: '19px', marginBottom: '10px' }}>

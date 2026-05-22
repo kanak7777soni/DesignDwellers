@@ -7,6 +7,10 @@ export default function HomeConsultationAutoOpen() {
   const { open } = useConsultation();
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      return;
+    }
+
     const frame = window.requestAnimationFrame(() => {
       open();
     });

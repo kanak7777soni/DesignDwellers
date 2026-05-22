@@ -81,13 +81,13 @@ export default function Testimonials() {
   });
 
   return (
-    <section className="w-full" style={{ background: '#FFFFFF', paddingTop: '71px', paddingBottom: '80px' }}>
+    <section id="testimonials" className="w-full" style={{ background: '#FFFFFF', paddingTop: '71px', paddingBottom: '80px' }}>
       <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <motion.div
           className="relative"
           style={{ width: '220px', height: '19px', marginBottom: '10px' }}
-          initial={{ opacity: 0, x: -30 }}
+          initial={false}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
@@ -104,7 +104,7 @@ export default function Testimonials() {
         {/* Title + subtitle */}
         <motion.div
           className="testimonial-heading-row flex justify-between items-end mb-[60px]"
-          initial={{ opacity: 0, y: 30 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -165,7 +165,7 @@ export default function Testimonials() {
                   key={t.initials}
                   data-testimonial-card
                   className="testimonial-card"
-                  initial={{ opacity: 0, y: 80, scale: 0.8 }}
+                  initial={false}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{
@@ -188,7 +188,7 @@ export default function Testimonials() {
                 >
                   {/* Quote mark */}
                   <span
-                    className="font-body"
+                    className="testimonial-quote-mark font-body"
                     style={{
                       fontSize: '64px',
                       lineHeight: '1em',
@@ -204,7 +204,7 @@ export default function Testimonials() {
 
                   {/* Review text */}
                   <p
-                    className="font-body"
+                    className="testimonial-text font-body"
                     style={{
                       fontSize: '12px',
                       lineHeight: '1em',
@@ -223,6 +223,7 @@ export default function Testimonials() {
 
                   {/* Gold separator */}
                   <div
+                    className="testimonial-separator"
                     style={{
                       position: 'absolute',
                       top: '177px',
@@ -235,7 +236,7 @@ export default function Testimonials() {
 
                   {/* Avatar */}
                   <div
-                    className="flex items-center justify-center"
+                    className="testimonial-avatar flex items-center justify-center"
                     style={{
                       position: 'absolute',
                       top: '196px',
@@ -252,13 +253,13 @@ export default function Testimonials() {
                   </div>
 
                   {/* Stars */}
-                  <div style={{ position: 'absolute', top: '198px', left: '94px' }}>
+                  <div className="testimonial-stars" style={{ position: 'absolute', top: '198px', left: '94px' }}>
                     <Image src="/images/star-rating.svg" alt="5 stars" width={50} height={10} />
                   </div>
 
                   {/* Name */}
                   <h4
-                    className="font-heading"
+                    className="testimonial-name font-heading"
                     style={{
                       position: 'absolute',
                       top: '208px',
@@ -274,7 +275,7 @@ export default function Testimonials() {
 
                   {/* Location */}
                   <p
-                    className="font-body"
+                    className="testimonial-location font-body"
                     style={{
                       position: 'absolute',
                       top: '234px',

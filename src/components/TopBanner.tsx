@@ -6,10 +6,12 @@
         className="top-banner-text font-heading absolute left-1/2 -translate-x-1/2"
         style={{
           top: '21px',
+          width: 'min(900px, calc(100vw - 40px))',
           fontSize: '16px',
           lineHeight: '1.17em',
           color: '#FFFFFF',
-          whiteSpace: 'nowrap',
+          textAlign: 'center',
+          whiteSpace: 'normal',
           WebkitTextStroke: '0.3px #FFFFFF',
         }}
       >

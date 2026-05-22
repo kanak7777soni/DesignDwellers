@@ -39,7 +39,7 @@ export default function HowItWorks() {
         </p>
 
         {/* Gold separator */}
-        <div className="mx-auto" style={{ width: '644px', height: '1px', background: '#D7A648', marginBottom: '80px' }} />
+        <div className="how-separator mx-auto" style={{ width: '644px', height: '1px', background: '#D7A648', marginBottom: '80px' }} />
 
         {/* Timeline - relative container */}
         <div className="how-timeline relative" style={{ height: '260px' }}>

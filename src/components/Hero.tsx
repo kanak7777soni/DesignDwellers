@@ -65,8 +65,8 @@ export default function Hero() {
           style={{
             left: '79px',
             top: '210px',
-            width: '732px',
-            fontSize: '70px',
+            width: 'min(732px, calc(100vw - 40px))',
+            fontSize: 'clamp(34px, 9vw, 70px)',
             lineHeight: '1.155em',
             color: '#FFFFFF',
             WebkitTextStroke: '1.5px #FFFFFF',
@@ -81,7 +81,7 @@ export default function Hero() {
           style={{
             left: '80px',
             top: '420px',
-            width: '550px',
+            width: 'min(550px, calc(100vw - 40px))',
             fontSize: '16px',
             lineHeight: '1.5em',
             color: '#FFFFFF',
