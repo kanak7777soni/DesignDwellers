@@ -3,7 +3,11 @@
   "crons": [
     {
       "path": "/api/cron/sync-instagram",
-      "schedule": "0 0 * * *"
+      "schedule": "0 0 1-31/3 * *"
+    },
+    {
+      "path": "/api/cron/sync-instagram/offset",
+      "schedule": "0 12 2-31/3 * *"
     }
   ]
 }
