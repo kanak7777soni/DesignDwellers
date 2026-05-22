@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePagedScroller } from '@/hooks/usePagedScroller';
 import { scheduleIdleTask } from '@/lib/client-scheduling';
+import { INSTAGRAM_URL } from '@/lib/site-content';
 
 type InstagramVideo = {
   id: string;
@@ -35,8 +36,8 @@ type FeedState = {
 };
 
 const defaultProfile = {
-  username: 'DesignDwellersstudio',
-  url: 'https://www.instagram.com/designdwellersstudio/',
+  username: 'design_dwellers_studio',
+  url: INSTAGRAM_URL,
 };
 
 const fallbackPosts = Array.from({ length: 6 }, (_, index) => ({
@@ -140,7 +141,7 @@ export default function InstagramSection() {
 
   return (
     <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
-      <div className="max-w-[1440px] mx-auto px-[80px]">
+      <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <div className="relative" style={{ width: '290px', height: '19px', marginBottom: '10px' }}>
           <span
@@ -153,7 +154,7 @@ export default function InstagramSection() {
         </div>
 
         {/* Title + subtitle + handle */}
-        <div className="flex justify-between items-start mb-[30px]">
+        <div className="instagram-heading-row flex justify-between items-start mb-[30px]">
           <h2 className="font-heading" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', maxWidth: '351px' }}>
             Behind the scenes &amp; before-afters
           </h2>
@@ -257,7 +258,7 @@ function InstagramVideoGrid({ feed }: { feed: FeedState }) {
         aria-label={`${feed.videos.length} Instagram reels, page ${activePage + 1} of ${pages.length}`}
       >
         {pages.map((page, pageIndex) => (
-          <div key={pageIndex} style={reelPageStyle}>
+          <div key={pageIndex} className="instagram-reel-grid" style={reelPageStyle}>
             {Array.from({ length: REELS_PER_PAGE }, (_, slotIndex) => {
               const video = page[slotIndex];
 
@@ -400,7 +401,7 @@ function InstagramVideoCard({ video, shouldLoadVideo = true }: { video: Instagra
 
 function InstagramFallbackGrid() {
   return (
-    <div style={reelGridStyle} aria-label="Instagram reel previews">
+    <div className="instagram-reel-grid" style={reelGridStyle} aria-label="Instagram reel previews">
       {fallbackPosts.map((post) => (
         <div
           key={post.id}

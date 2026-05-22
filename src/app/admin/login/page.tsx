@@ -38,7 +38,7 @@ export default async function AdminLoginPage({
   const errorMessage = getErrorMessage(error);
 
   return (
-    <main className="min-h-screen flex items-center justify-center" style={{ background: '#141300', color: '#FFFFFF', padding: '40px' }}>
+    <main className="admin-page min-h-screen flex items-center justify-center" style={{ background: '#141300', color: '#FFFFFF', padding: '40px' }}>
       <section style={{ width: '100%', maxWidth: '420px', border: '1px solid rgba(215,166,72,0.35)', background: '#000000', padding: '32px', borderRadius: '8px' }}>
         <p className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', marginBottom: '10px' }}>
           Design Dwellers CRM

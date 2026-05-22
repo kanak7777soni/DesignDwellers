@@ -1,10 +1,9 @@
 export default function Stats() {
   const stats = [
-    { value: '8+', label: 'Years of Excellence' },
-    { value: '5000+', label: 'Homes Completed' },
+    { value: '850+', label: 'Homes Completed' },
     { value: '100%', label: 'On-Time Delivery' },
     { value: '4.9★', label: 'Client Rating' },
-    { value: '10', label: 'Yrs Warranty' },
+    { value: '10', label: 'Years Warranty' },
     { value: '45', label: 'Days Delivery' },
   ];
 
@@ -19,7 +18,7 @@ export default function Stats() {
         }}
       />
 
-      <div className="relative z-10 max-w-[1440px] mx-auto px-[80px]">
+      <div className="responsive-container relative z-10 max-w-[1440px] mx-auto px-[80px]">
         {/* Section header centered */}
         <h2
           className="font-heading text-center"
@@ -35,7 +34,7 @@ export default function Stats() {
         </h2>
 
         {/* Stats row */}
-        <div className="flex items-start justify-between" style={{ padding: '0 53px' }}>
+        <div className="stats-row flex items-start justify-between" style={{ padding: '0 53px' }}>
           {stats.map((stat, i) => (
             <div key={i} className="flex flex-col items-center text-center">
               <span
@@ -66,7 +65,7 @@ export default function Stats() {
         </div>
 
         {/* Gold separator */}
-        <div style={{ width: '644px', height: '1px', background: '#D7A648', marginTop: '67px', marginLeft: 'auto', marginRight: 'auto' }} />
+        <div className="stats-separator" style={{ width: '644px', height: '1px', background: '#D7A648', marginTop: '67px', marginLeft: 'auto', marginRight: 'auto' }} />
       </div>
     </section>
   );

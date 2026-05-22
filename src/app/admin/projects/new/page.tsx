@@ -25,7 +25,7 @@ export default async function NewProjectPage({
   const errorMessage = getErrorMessage(error);
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
+    <main className="admin-page min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
       <div className="mx-auto" style={{ maxWidth: '1180px' }}>
         <AdminHeader />
         <Link href="/admin" className="font-body" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>

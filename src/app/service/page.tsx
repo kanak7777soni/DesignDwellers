@@ -5,10 +5,9 @@ import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
 
 const stats = [
-  { value: '8+', label: 'Years of Excellence' },
-  { value: '5000+', label: 'Homes Completed' },
+  { value: '850+', label: 'Homes Completed' },
   { value: '100%', label: 'On-Time Delivery' },
-  { value: '10', label: 'Yrs Warranty' },
+  { value: '10', label: 'Years Warranty' },
   { value: '45', label: 'Days Delivery' },
   { value: '4.9', label: 'Client Rating', hasStar: true },
 ];
@@ -25,7 +24,7 @@ const services = [
   {
     num: '02.',
     title: 'Modular Kitchen',
-    description: 'Precision-engineered kitchens with premium hardware from Hettich, Hafele, and Franke. Soft-close mechanisms, smart pull-outs, and ergonomic design that makes cooking a pleasure, not a chore.',
+    description: 'Precision-engineered kitchens with premium materials and hardware from Hettich, Hafele, Century, and Action Tessa. Soft-close mechanisms, smart pull-outs, and ergonomic design that makes cooking a pleasure, not a chore.',
     price: '₹3.5L',
     priceDetail: 'depends on size & finish',
     tags: ['Custom Layouts', 'Soft-Close', 'Premium Hardware', 'Smart Storage', 'Countertop Selection', 'Backsplash Design'],
@@ -107,7 +106,7 @@ const pricingPlans = [
 
 export default function ServicePage() {
   return (
-    <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+    <main className="service-page min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
       <GlowEffects glows={[
         { top: -214, left: 1108, width: 628, height: 633 },
         { top: 598, left: -198, width: 628, height: 633 },
@@ -119,12 +118,12 @@ export default function ServicePage() {
         { top: 2792, left: 898, width: 628, height: 633 },
         { top: 3185, left: -3, width: 1440, height: 985 },
       ]} />
-      <div className="max-w-[1440px] mx-auto relative" style={{ paddingTop: '159px' }}>
+      <div className="service-shell max-w-[1440px] mx-auto relative" style={{ paddingTop: '159px' }}>
 
         {/* ─── Section 1: Hero / What We Offer ─── */}
-        <div className="relative" style={{ minHeight: '862px' }}>
+        <div className="service-hero-section relative" style={{ minHeight: '862px' }}>
           {/* Left content */}
-          <div style={{ position: 'absolute', left: '66px', top: '260px' }}>
+          <div className="service-hero-copy" style={{ position: 'absolute', left: '66px', top: '260px' }}>
             {/* Label */}
             <div className="relative" style={{ width: '236px', height: '19px', marginBottom: '10px' }}>
               <span
@@ -216,6 +215,7 @@ export default function ServicePage() {
 
           {/* Image grid (2×2) on right side */}
           <div
+            className="service-hero-grid"
             style={{
               position: 'absolute',
               right: '72px',
@@ -232,7 +232,7 @@ export default function ServicePage() {
               { src: '/images/service-hero-2.png', label: 'Kitchen & Dining' },
               { src: '/images/service-hero-1.png', label: 'Kitchen & Dining' },
             ].map((img, i) => (
-              <div key={i} style={{ width: '401px', height: '401px', position: 'relative', borderRadius: '22px', overflow: 'hidden' }}>
+              <div key={i} className="service-hero-tile" style={{ width: '401px', height: '401px', position: 'relative', borderRadius: '22px', overflow: 'hidden' }}>
                 <Image src={img.src} alt={img.label} fill className="object-cover" sizes="401px" />
                 {/* Gradient overlay at bottom */}
                 <div
@@ -262,7 +262,7 @@ export default function ServicePage() {
 
         {/* Stats bar */}
         <div
-          className="flex items-center justify-between"
+          className="service-stats flex items-center justify-between"
           style={{
             marginLeft: '132px',
             marginRight: '133px',
@@ -309,7 +309,7 @@ export default function ServicePage() {
         </div>
 
         {/* ─── Section 2: All Services ─── */}
-        <div style={{ paddingLeft: '66px', paddingRight: '66px', marginBottom: '80px' }}>
+        <div className="service-list-section" style={{ paddingLeft: '66px', paddingRight: '66px', marginBottom: '80px' }}>
           {/* Label */}
           <div className="relative" style={{ width: '236px', height: '19px', marginBottom: '10px' }}>
             <span
@@ -332,7 +332,7 @@ export default function ServicePage() {
           </div>
 
           {/* Title + Description row */}
-          <div className="flex justify-between items-start" style={{ marginBottom: '40px' }}>
+          <div className="section-heading-row flex justify-between items-start" style={{ marginBottom: '40px' }}>
             <h2
               className="font-heading"
               style={{
@@ -364,6 +364,7 @@ export default function ServicePage() {
           <div className="flex flex-col" style={{ gap: '17px', paddingLeft: '10px', paddingRight: '10px' }}>
             {services.map((svc, i) => (
               <div
+                className="service-row"
                 key={i}
                 style={{
                   width: '1288px',
@@ -376,6 +377,7 @@ export default function ServicePage() {
               >
                 {/* Vertical divider before price */}
                 <div
+                  className="service-price-divider"
                   style={{
                     position: 'absolute',
                     right: '156px',
@@ -452,6 +454,7 @@ export default function ServicePage() {
 
                 {/* Price section (right side) */}
                 <div
+                  className="service-price"
                   style={{
                     position: 'absolute',
                     right: '30px',
@@ -544,10 +547,11 @@ export default function ServicePage() {
           </div>
 
           {/* Pricing cards */}
-          <div className="flex justify-center" style={{ gap: '15px', paddingLeft: '84px', paddingRight: '84px' }}>
+          <div className="service-pricing-cards flex justify-center" style={{ gap: '15px', paddingLeft: '84px', paddingRight: '84px' }}>
             {pricingPlans.map((plan, i) => (
               <div
                 key={i}
+                className="service-pricing-card"
                 style={{
                   width: '628px',
                   height: '191px',
@@ -718,12 +722,12 @@ export default function ServicePage() {
             </p>
 
             {/* Horizontal gold line */}
-            <div style={{ width: '644px', height: '1px', background: '#D7A648', marginBottom: '48px' }} />
+            <div className="service-process-line" style={{ width: '644px', height: '1px', background: '#D7A648', marginBottom: '48px' }} />
 
             {/* Timeline */}
-            <div className="flex justify-between" style={{ width: '1100px' }}>
+            <div className="service-process-timeline flex justify-between" style={{ width: '1100px' }}>
               {timeline.map((step, i) => (
-                <div key={i} className="flex flex-col items-center" style={{ width: '151px' }}>
+                <div key={i} className="service-process-step flex flex-col items-center" style={{ width: '151px' }}>
                   {/* Title */}
                   <span
                     className="font-heading text-center"
@@ -781,6 +785,7 @@ export default function ServicePage() {
                   {/* Connecting line (except last) */}
                   {i < timeline.length - 1 && (
                     <div
+                      className="service-process-connector"
                       style={{
                         position: 'absolute',
                         top: 'calc(100% - 43px)',

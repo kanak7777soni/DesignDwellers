@@ -82,7 +82,7 @@ export default function Testimonials() {
 
   return (
     <section className="w-full" style={{ background: '#FFFFFF', paddingTop: '71px', paddingBottom: '80px' }}>
-      <div className="max-w-[1440px] mx-auto px-[80px]">
+      <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <motion.div
           className="relative"
@@ -103,7 +103,7 @@ export default function Testimonials() {
 
         {/* Title + subtitle */}
         <motion.div
-          className="flex justify-between items-end mb-[60px]"
+          className="testimonial-heading-row flex justify-between items-end mb-[60px]"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -119,7 +119,7 @@ export default function Testimonials() {
               maxWidth: '455px',
             }}
           >
-            500+ Happy Families Can&apos;t Be Wrong
+            850+ Happy Families Can&apos;t Be Wrong
           </h2>
           <p className="font-body text-right" style={{ fontSize: '16px', lineHeight: '1em', color: '#141300', maxWidth: '398px' }}>
             Real reviews. Unfiltered. From homeowners just like you.
@@ -157,13 +157,14 @@ export default function Testimonials() {
           {testimonialPages.map((page, pageIndex) => (
             <div
               key={pageIndex}
-              className="flex gap-[40px]"
+              className="testimonial-page flex gap-[40px]"
               style={{ flex: '0 0 100%', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
             >
               {page.map((t, i) => (
                 <motion.div
                   key={t.initials}
                   data-testimonial-card
+                  className="testimonial-card"
                   initial={{ opacity: 0, y: 80, scale: 0.8 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true, amount: 0.2 }}

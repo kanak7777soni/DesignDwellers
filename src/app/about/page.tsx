@@ -1,8 +1,15 @@
-import Image from 'next/image';
+/* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import ContactForm from '@/components/ContactForm';
 import GlowEffects from '@/components/GlowEffects';
+import {
+  getActiveAboutStudios,
+  getActiveAboutTeamMembers,
+  getActiveAboutTimeline,
+  getActiveAboutValues,
+  getSiteContentData,
+} from '@/lib/content-store';
 
 const values = [
   {
@@ -39,33 +46,33 @@ const values = [
 
 const timeline = [
   {
-    year: '16',
-    title: '2016, Founded in Bangalore',
-    desc: 'Started with 4 people, 1 studio, and a single belief: interior design in India needed to be more honest, more accountable, and more personal.',
+    year: '24',
+    title: '2024, Established in Bengaluru',
+    desc: 'Started with a focused studio team and a single belief: interior design in India needed to be more honest, more accountable, and more personal.',
     side: 'right' as const,
   },
   {
-    year: '18',
-    title: '2018, Crossed 500 Projects',
-    desc: 'Grew to a 30-person team. Introduced our 45-day delivery guarantee — the first written commitment of its kind in Bangalore\'s interior design market.',
-    side: 'left' as const,
-  },
-  {
-    year: '19',
-    title: '2019, Expanded to Hyderabad',
-    desc: 'Opened our Gachibowli studio. Within 18 months, completed 400 homes in Hyderabad and built a full local team of designers and craftspeople.',
-    side: 'right' as const,
-  },
-  {
-    year: '21',
-    title: '2021, 2000 Homes Milestone',
-    desc: 'Navigated COVID-19 without a single project abandonment. Introduced remote project management capabilities — now standard for all clients.',
+    year: '24',
+    title: 'In-house Manufacturing',
+    desc: 'Built stronger control over materials, timelines, and finish quality by keeping manufacturing and execution under one accountable team.',
     side: 'left' as const,
   },
   {
     year: '25',
-    title: '2025, Crossed 5000+ Homes',
-    desc: 'Crossed 5,000 completed homes. Maintained a 4.9/5 average rating across 500+ Google reviews. Still the same 4-person founding team\'s values guiding every decision.',
+    title: '10-Year Warranty Standard',
+    desc: 'Made long-term material and workmanship confidence a core promise for every Design Dwellers Studio project.',
+    side: 'right' as const,
+  },
+  {
+    year: '25',
+    title: 'Premium Brand Network',
+    desc: 'Expanded our preferred material ecosystem with trusted names including Century, Action Tessa, Hettich, Greenply, and Saint-Gobain.',
+    side: 'left' as const,
+  },
+  {
+    year: '26',
+    title: 'Crossed 850+ Homes',
+    desc: 'Crossed 850 completed homes while maintaining a 4.9/5 average rating and the same hands-on accountability behind every decision.',
     side: 'right' as const,
   },
 ];
@@ -80,20 +87,74 @@ const team = [
   {
     name: 'Ramkishan Das',
     role: 'Head of Project Delivery',
-    desc: '8 years specialising in contemporary Indian interiors. Leads a 12-person design team across our Bangalore studio.',
+    desc: 'Specialises in contemporary Indian interiors and leads a 12-person design team across our Bengaluru studio.',
     img: '/images/about-team-2-15c07a.png',
   },
   {
     name: 'Ramkishan Das',
     role: 'Head of Design',
-    desc: 'Expert in luxury residential interiors. Manages DDS Hyderabad and has delivered 800+ projects in the city.',
+    desc: 'Expert in luxury residential interiors, premium materials, and detail-led execution for high-touch residential projects.',
     img: '/images/about-team-3.png',
   },
 ];
 
-export default function AboutPage() {
+function Lines({ text }: { text: string }) {
+  return text.split('\n').map((line, index) => (
+    <span key={`${line}-${index}`}>
+      {index > 0 ? <br /> : null}
+      {line}
+    </span>
+  ));
+}
+
+function TextBlock({ text }: { text: string }) {
+  return text.split('\n\n').map((paragraph, index) => (
+    <span key={`${paragraph}-${index}`}>
+      {index > 0 ? <><br /><br /></> : null}
+      {paragraph}
+    </span>
+  ));
+}
+
+function StudioImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+    <img
+      src={src}
+      alt={alt}
+      className="object-cover"
+      style={{ width: '100%', height: '100%', display: 'block' }}
+    />
+  );
+}
+
+export const dynamic = 'force-dynamic';
+
+export default async function AboutPage() {
+  const content = await getSiteContentData();
+  const about = content.about;
+  const aboutStudios = getActiveAboutStudios(about);
+  const managedTeamMembers = getActiveAboutTeamMembers(about);
+  const aboutTeamMembers = managedTeamMembers.length > 0
+    ? managedTeamMembers
+    : team.map((member, index) => ({
+      id: `static-team-${index + 1}`,
+      name: member.name,
+      role: member.role,
+      desc: member.desc,
+      imageSrc: member.img,
+      alt: member.name,
+    }));
+  const aboutValues = getActiveAboutValues(about).length > 0 ? getActiveAboutValues(about) : values;
+  const aboutTimeline = getActiveAboutTimeline(about).length > 0 ? getActiveAboutTimeline(about) : timeline;
+  const aboutStats = about.stats.length > 0 ? about.stats : [
+    { value: '850+', label: 'Homes Completed' },
+    { value: '10', label: 'Years Warranty' },
+    { value: '1', label: 'Studio' },
+    { value: '4.9', label: 'Client Rating' },
+  ];
+
+  return (
+    <main className="about-page min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
       {/* Background glows (behind masking sections) */}
       <GlowEffects glows={[
         { top: 625, left: -312, width: 628, height: 628 },
@@ -117,20 +178,20 @@ export default function AboutPage() {
               {/* Tag */}
               <div className="flex items-center gap-0" style={{ marginBottom: '10px' }}>
                 <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}>
-                  Our Story
+                  {about.hero.label}
                 </span>
                 <div style={{ width: '128px', height: '1px', background: '#D7A648', marginLeft: '7px' }} />
               </div>
 
               {/* Heading */}
               <h1 className="font-heading" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF', marginBottom: '16px' }}>
-                We Build Homes<br />That Feel Like
+                <Lines text={about.hero.heading} />
               </h1>
 
               {/* Buttons BEFORE subtitle (Figma order: y:532 before y:593) */}
               <div className="flex items-center gap-[11px]" style={{ marginBottom: '30px' }}>
                 <Link
-                  href="/contact"
+                  href={about.hero.primaryCtaHref}
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
@@ -144,10 +205,10 @@ export default function AboutPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Get Free Quote
+                  {about.hero.primaryCtaLabel}
                 </Link>
                 <Link
-                  href="/portfolio"
+                  href={about.hero.secondaryCtaHref}
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
@@ -161,59 +222,56 @@ export default function AboutPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  View Our Work
+                  {about.hero.secondaryCtaLabel}
                 </Link>
               </div>
 
               {/* Subtitle (after buttons in Figma) */}
               <p className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', maxWidth: '435px', marginBottom: '40px' }}>
-                Founded in 2016, Design Dwellers Studio was built on one belief: every family deserves a home that genuinely reflects who they are — not a catalogue page, not a contractor&apos;s shortcut.
+                <TextBlock text={about.hero.subtitle} />
               </p>
 
               {/* Stats - 2 staggered rows matching Figma positions exactly */}
-              {/* Figma: Row1 at y:693 (8+ x:161, 5000+ x:346), Row2 at y:786 (2 x:196, 4.9 x:366) */}
               {/* Content starts at x:113, so stats offset = 161-113 = 48px */}
               <div style={{ marginLeft: '48px' }}>
-                {/* Row 1: 8+ (w:127) — 58px gap — 5000+ (w:125) */}
                 <div className="flex" style={{ gap: '58px', marginBottom: '27px' }}>
                   <div className="flex flex-col items-center" style={{ width: '127px' }}>
                     <span className="font-heading" style={{ fontSize: '32px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648' }}>
-                      8+
+                      {aboutStats[0]?.value}
                     </span>
                     <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF' }}>
-                      Years of Excellence
+                      {aboutStats[0]?.label}
                     </span>
                   </div>
                   <div className="flex flex-col items-center" style={{ width: '125px' }}>
                     <span className="font-heading" style={{ fontSize: '32px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648' }}>
-                      5000+
+                      {aboutStats[1]?.value}
                     </span>
                     <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF' }}>
-                      Homes Completed
+                      {aboutStats[1]?.label}
                     </span>
                   </div>
                 </div>
-                {/* Row 2: offset 35px right from row 1. 2 (w:47) — 123px gap — 4.9★ (w:84) */}
                 <div className="flex" style={{ gap: '123px', marginLeft: '35px' }}>
                   <div className="flex flex-col items-center" style={{ width: '47px' }}>
                     <span className="font-heading" style={{ fontSize: '32px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648' }}>
-                      2
+                      {aboutStats[2]?.value}
                     </span>
                     <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF' }}>
-                      Studios
+                      {aboutStats[2]?.label}
                     </span>
                   </div>
                   <div className="flex flex-col items-center" style={{ width: '84px' }}>
                     <div className="flex items-center gap-[4px]">
                       <span className="font-heading" style={{ fontSize: '32px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648' }}>
-                        4.9
+                        {aboutStats[3]?.value}
                       </span>
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="#D7A648">
                         <polygon points="9,0 11.47,6.56 18,6.56 12.76,10.62 15.24,17.18 9,13.12 2.76,17.18 5.24,10.62 0,6.56 6.53,6.56" />
                       </svg>
                     </div>
                     <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF' }}>
-                      Client Rating
+                      {aboutStats[3]?.label}
                     </span>
                   </div>
                 </div>
@@ -222,30 +280,30 @@ export default function AboutPage() {
 
             {/* Right - Two stacked images with studio labels overlaid */}
             <div className="flex flex-col gap-[7px]" style={{ width: '761px' }}>
-              {/* Image 1 - Bangalore Studio (Figma: x:607, y:206, 761×401) */}
+              {/* Image 1 - Bengaluru Studio */}
               <div className="relative overflow-hidden" style={{ width: '761px', height: '401px', borderRadius: '8px' }}>
-                <Image src="/images/about-hero-2.png" alt="Bangalore Studio" fill className="object-cover" />
+                <StudioImage src={aboutStudios[0]?.imageSrc || '/images/about-hero-2.png'} alt={aboutStudios[0]?.alt || 'Bengaluru Studio'} />
                 <div className="absolute inset-x-0 bottom-0" style={{ height: '92px', background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 77%)' }} />
                 <div className="absolute bottom-0 left-0" style={{ padding: '20px 40px' }}>
                   <span className="font-heading" style={{ fontSize: '13px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648', display: 'block' }}>
-                    Our Bangalore Studio
+                    {aboutStudios[0]?.title || 'Our Bengaluru Studio'}
                   </span>
                   <span className="font-body" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF', display: 'block', marginTop: '4px' }}>
-                    Whitefield, Bangalore — Est. 2016
+                    {aboutStudios[0]?.subtitle || 'Whitefield, Bengaluru - Est. 2024'}
                   </span>
                 </div>
               </div>
 
               {/* Image 2 - Hyderabad Studio (Figma: x:607, y:614, 761×401) */}
               <div className="relative overflow-hidden" style={{ width: '761px', height: '401px', borderRadius: '8px' }}>
-                <Image src="/images/about-hero-1.png" alt="Hyderabad Studio" fill className="object-cover" />
+                <StudioImage src={aboutStudios[1]?.imageSrc || '/images/about-hero-1.png'} alt={aboutStudios[1]?.alt || 'Hyderabad Studio'} />
                 <div className="absolute inset-x-0 bottom-0" style={{ height: '80px', background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 77%)' }} />
                 <div className="absolute bottom-0 left-0" style={{ padding: '20px 40px' }}>
                   <span className="font-heading" style={{ fontSize: '13px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D7A648', display: 'block' }}>
-                    Our Hyderabad Studio
+                    {aboutStudios[1]?.title || 'Our Hyderabad Studio'}
                   </span>
                   <span className="font-body" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF', display: 'block', marginTop: '4px' }}>
-                    Gachibowli, Hyderabad — Est. 2019
+                    {aboutStudios[1]?.subtitle || 'Gachibowli, Hyderabad - Est. 2019'}
                   </span>
                 </div>
               </div>
@@ -263,27 +321,25 @@ export default function AboutPage() {
               {/* Tag */}
               <div className="flex items-center gap-0" style={{ marginBottom: '10px' }}>
                 <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}>
-                  Our Mission
+                  {about.mission.label}
                 </span>
                 <div style={{ width: '128px', height: '1px', background: '#D7A648', marginLeft: '7px' }} />
               </div>
 
               {/* Heading */}
               <h2 className="font-heading" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF', marginBottom: '30px' }}>
-                Design With Purpose.<br />Build With Integrity.
+                <Lines text={about.mission.heading} />
               </h2>
 
               {/* Body text */}
               <p className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', maxWidth: '526px', marginBottom: '40px' }}>
-                We started Design Dwellers because we were frustrated by the status quo — contractors who disappeared mid-project, designers who submitted pretty renders but couldn&apos;t execute, and families left with homes that didn&apos;t match their dreams or their budgets.
-                <br /><br />
-                So we built something different: a fully integrated studio where design, procurement, and execution happen under one roof, with one team, accountable to one standard.
+                <TextBlock text={about.mission.body} />
               </p>
 
               {/* CTA buttons */}
               <div className="flex items-center gap-[11px]">
                 <Link
-                  href="/contact"
+                  href={about.mission.primaryCtaHref}
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
@@ -297,10 +353,10 @@ export default function AboutPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Work With Us
+                  {about.mission.primaryCtaLabel}
                 </Link>
                 <Link
-                  href="/portfolio"
+                  href={about.mission.secondaryCtaHref}
                   className="font-heading flex items-center justify-center"
                   style={{
                     width: '150px',
@@ -314,7 +370,7 @@ export default function AboutPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  View Our Work
+                  {about.mission.secondaryCtaLabel}
                 </Link>
               </div>
             </div>
@@ -323,11 +379,11 @@ export default function AboutPage() {
             <div style={{ width: '628px', flexShrink: 0 }}>
               <div style={{ background: '#000000', borderRadius: '22px', padding: '36px 46px' }}>
                 <p className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', marginBottom: '20px' }}>
-                  &ldquo;A home isn&apos;t just where you live. It&apos;s how you live. Every material we choose, every joint we detail, every light we position — it&apos;s all in service of how your family will actually feel inside these walls.&rdquo;
+                  &ldquo;{about.mission.quote}&rdquo;
                 </p>
                 <div className="flex items-center gap-0">
                   <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}>
-                    RamKishan, Founder, Design Dwellers Studio
+                    {about.mission.quoteAttribution}
                   </span>
                   <div style={{ width: '128px', height: '1px', background: '#D7A648', marginLeft: '7px' }} />
                 </div>
@@ -346,28 +402,28 @@ export default function AboutPage() {
               {/* Tag */}
               <div className="flex items-center gap-0" style={{ marginBottom: '10px' }}>
                 <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}>
-                  The People
+                  {about.teamIntro.label}
                 </span>
                 <div style={{ width: '128px', height: '1px', background: '#D7A648', marginLeft: '9px' }} />
               </div>
 
               {/* Heading */}
               <h2 className="font-heading" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF' }}>
-                Meet the Team Behind<br />Your Dream Home
+                <Lines text={about.teamIntro.heading} />
               </h2>
             </div>
 
             {/* Subtitle - right side (Figma: x:827, y:1699) */}
             <p className="font-body text-right" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', maxWidth: '541px', marginTop: '80px' }}>
-              Every designer, project manager, and craftsperson on our team was hand-picked for one quality: they care about your home as much as you do.
+              <TextBlock text={about.teamIntro.subtitle} />
             </p>
           </div>
 
           {/* Team grid - 3 cards at 376px each with 66px gap */}
           <div className="flex" style={{ gap: '66px', marginTop: '40px' }}>
-            {team.map((member, i) => (
-              <div key={i} className="relative overflow-hidden" style={{ width: '376px', height: '470px', borderRadius: '22px' }}>
-                <Image src={member.img} alt={member.name} fill className="object-cover" />
+            {aboutTeamMembers.map((member) => (
+              <div key={member.id} className="relative overflow-hidden" style={{ width: '376px', height: '470px', borderRadius: '22px' }}>
+                <StudioImage src={member.imageSrc} alt={member.alt || member.name} />
                 {/* Gradient overlay */}
                 <div className="absolute inset-x-0 bottom-0" style={{ height: '164px', background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 77%)', borderRadius: '0 0 22px 22px' }} />
                 {/* Info */}
@@ -397,20 +453,20 @@ export default function AboutPage() {
               {/* Tag */}
               <div className="flex items-center gap-0" style={{ marginBottom: '10px' }}>
                 <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}>
-                  What Drives Us
+                  {about.valuesIntro.label}
                 </span>
                 <div style={{ width: '128px', height: '1px', background: '#D7A648', marginLeft: '12px' }} />
               </div>
 
               {/* Heading */}
               <h2 className="font-heading" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF' }}>
-                Our Values Are<br />Non-Negotiable
+                <Lines text={about.valuesIntro.heading} />
               </h2>
             </div>
 
             {/* Subtitle - right side (Figma: x:900, y:2462) */}
             <p className="font-body text-right" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', maxWidth: '469px', marginTop: '80px' }}>
-              Full-service interior design — from one room to the entire home. One team. Zero coordination headaches.
+              <TextBlock text={about.valuesIntro.subtitle} />
             </p>
           </div>
 
@@ -423,7 +479,7 @@ export default function AboutPage() {
             }}
           >
             <div className="grid grid-cols-3" style={{ position: 'relative' }}>
-              {values.map((value, i) => (
+              {aboutValues.map((value, i) => (
                 <div
                   key={i}
                   className="flex flex-col"
@@ -455,19 +511,19 @@ export default function AboutPage() {
           {/* Tag - centered */}
           <div className="flex items-center justify-center gap-0" style={{ marginBottom: '10px' }}>
             <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.5px #D8A648' }}>
-              Our Journey
+              {about.timelineIntro.label}
             </span>
             <div style={{ width: '128px', height: '1px', background: '#D7A648', marginLeft: '7px' }} />
           </div>
 
           {/* Heading - centered */}
           <h2 className="font-heading text-center" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '0.5px #FFFFFF', marginBottom: '50px' }}>
-            How We Got Here
+            <Lines text={about.timelineIntro.heading} />
           </h2>
 
           {/* Timeline */}
           <div className="relative" style={{ maxWidth: '900px', margin: '0 auto' }}>
-            {timeline.map((item, i) => (
+            {aboutTimeline.map((item, i) => (
               <div key={i} className="relative flex items-start">
                 {/* Left side */}
                 <div className="flex-1 flex justify-end" style={{ paddingRight: '60px' }}>
@@ -498,7 +554,7 @@ export default function AboutPage() {
                       {item.year}
                     </span>
                   </div>
-                  {i < timeline.length - 1 && (
+                  {i < aboutTimeline.length - 1 && (
                     <div style={{
                       width: '3px',
                       height: '105px',

@@ -48,6 +48,7 @@ export default function ConsultationCard() {
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          className="consultation-card"
           initial={{ opacity: 0, scale: 0.85, y: -30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.85, y: -30 }}
@@ -170,7 +171,7 @@ export default function ConsultationCard() {
               }}
             />
 
-            <div className="flex gap-[15px]">
+            <div className="consultation-card-select-row flex gap-[15px]">
               <div className="relative" style={{ width: '145px' }}>
                 <select
                   name="propertyType"

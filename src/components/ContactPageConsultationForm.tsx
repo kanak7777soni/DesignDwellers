@@ -2,6 +2,7 @@
 
 import type { FormEvent } from 'react';
 import { consultationPayloadFromForm, useConsultationSubmission } from '@/hooks/useConsultationSubmission';
+import { WHATSAPP_URL } from '@/lib/site-content';
 
 type ContactPageConsultationFormProps = {
   selectedCity: string;
@@ -54,6 +55,7 @@ export default function ContactPageConsultationForm({
 
   return (
     <form
+      className="contact-page-form"
       onSubmit={handleSubmit}
       style={{
         background: '#D7A648',
@@ -184,7 +186,7 @@ export default function ContactPageConsultationForm({
           type="button"
           className="font-heading flex items-center justify-center"
           style={buttonStyle}
-          onClick={() => window.open('https://wa.me/919380576368', '_blank', 'noopener,noreferrer')}
+          onClick={() => window.open(WHATSAPP_URL, '_blank', 'noopener,noreferrer')}
         >
           Whatsapp Us Directly
         </button>

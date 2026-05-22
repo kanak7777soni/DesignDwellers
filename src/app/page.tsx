@@ -15,7 +15,7 @@ import HomeConsultationAutoOpen from "@/components/HomeConsultationAutoOpen";
 
 export default function Home() {
   return (
-    <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+    <main className="home-page min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
       <HomeConsultationAutoOpen />
       {/* Background glows */}
       <GlowEffects glows={[

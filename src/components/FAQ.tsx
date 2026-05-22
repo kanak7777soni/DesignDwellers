@@ -19,9 +19,9 @@ export default function FAQ() {
 
   return (
     <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
-      <div className="max-w-[1440px] mx-auto px-[80px] flex gap-[60px]">
+      <div className="faq-layout responsive-container max-w-[1440px] mx-auto px-[80px] flex gap-[60px]">
         {/* Left side - header + CTA */}
-        <div className="flex flex-col" style={{ width: '460px', flexShrink: 0 }}>
+        <div className="faq-intro flex flex-col" style={{ width: '460px', flexShrink: 0 }}>
           {/* Tag */}
           <div className="relative" style={{ width: '268px', height: '19px', marginBottom: '10px' }}>
             <span
@@ -80,7 +80,7 @@ export default function FAQ() {
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-heading" style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648' }}>
+                  <span className="faq-question font-heading" style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648' }}>
                     {question}
                   </span>
                   {/* Toggle icon */}

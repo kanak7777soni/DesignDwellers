@@ -45,7 +45,7 @@ export default async function EditProjectPage({
   const errorMessage = getErrorMessage(error);
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
+    <main className="admin-page min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
       <div className="mx-auto" style={{ maxWidth: '1180px' }}>
         <AdminHeader />
         <div className="flex items-center justify-between" style={{ marginBottom: '22px' }}>

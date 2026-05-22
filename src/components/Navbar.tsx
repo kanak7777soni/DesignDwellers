@@ -50,11 +50,11 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
+      className={`site-nav ${scrolled ? 'is-scrolled' : 'is-top'} fixed w-full z-50 transition-all duration-300 ${
         scrolled ? 'top-0 bg-[#141300]/95 backdrop-blur-sm' : 'top-[56px] bg-transparent'
       }`}
     >
-      <div className="max-w-[1440px] mx-auto flex items-center justify-between" style={{ paddingLeft: '80px', paddingRight: '80px', height: '84px' }}>
+      <div className="navbar-inner max-w-[1440px] mx-auto flex items-center justify-between" style={{ paddingLeft: '80px', paddingRight: '80px', height: '84px' }}>
         {/* Logo group - image + text */}
         <div className="flex items-center gap-[12px]">
           <Image
@@ -62,17 +62,17 @@ export default function Navbar() {
             alt="DDS Logo"
             width={150}
             height={150}
-            className="object-contain"
+            className="navbar-logo object-contain"
           />
           <div className="flex flex-col">
             <span
-              className="font-heading"
+              className="navbar-brand-title font-heading"
               style={{ fontSize: '40px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '1px #FFFFFF' }}
             >
               Design Dwellers
             </span>
             <span
-              className="font-heading"
+              className="navbar-brand-subtitle font-heading"
               style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.3px #D7A648' }}
             >
               Studio
@@ -135,7 +135,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-[#141300]/95 backdrop-blur-sm px-8 pb-6">
+        <div className="navbar-mobile-menu md:hidden bg-[#141300]/95 backdrop-blur-sm px-8 pb-6">
           {[
             { label: 'Home', href: '/' },
             { label: 'Portfolio', href: '/portfolio' },
@@ -156,6 +156,26 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              consultation.open();
+            }}
+            className="font-heading flex items-center justify-center mt-3"
+            style={{
+              width: '100%',
+              height: '42px',
+              background: '#D7A648',
+              borderRadius: '55px',
+              fontSize: '16px',
+              lineHeight: '1.17em',
+              color: '#FFFFFF',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Get Free Quote
+          </button>
         </div>
       )}
     </nav>

@@ -34,7 +34,7 @@ export default function Services() {
 
   return (
     <section className="w-full" style={{ paddingTop: '71px', paddingBottom: '80px' }}>
-      <div className="max-w-[1440px] mx-auto px-[80px]">
+      <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <div className="relative" style={{ width: '221px', height: '19px', marginBottom: '10px' }}>
           <span
@@ -47,7 +47,7 @@ export default function Services() {
         </div>
 
         {/* Title + subtitle row */}
-        <div className="flex justify-between items-end" style={{ marginBottom: '54px' }}>
+        <div className="section-heading-row flex justify-between items-end" style={{ marginBottom: '54px' }}>
           <h2
             className="font-heading"
             style={{
@@ -70,17 +70,17 @@ export default function Services() {
         </div>
 
         {/* Services 3x2 grid with separators */}
-        <div className="relative" style={{ width: '1288px', height: '286px', marginLeft: '-6px' }}>
+        <div className="services-artboard relative" style={{ width: '1288px', height: '286px', marginLeft: '-6px' }}>
           {/* Horizontal separator */}
-          <div className="absolute" style={{ left: '47px', top: '143px', width: '1194px', height: '1px', background: '#D7A648' }} />
+          <div className="services-artboard-line absolute" style={{ left: '47px', top: '143px', width: '1194px', height: '1px', background: '#D7A648' }} />
           {/* Vertical separator 1 */}
-          <div className="absolute" style={{ left: '424px', top: '21px', width: '1px', height: '244px', background: '#D7A648' }} />
+          <div className="services-artboard-line absolute" style={{ left: '424px', top: '21px', width: '1px', height: '244px', background: '#D7A648' }} />
           {/* Vertical separator 2 */}
-          <div className="absolute" style={{ left: '863px', top: '21px', width: '1px', height: '244px', background: '#D7A648' }} />
+          <div className="services-artboard-line absolute" style={{ left: '863px', top: '21px', width: '1px', height: '244px', background: '#D7A648' }} />
 
           {/* Decorative ellipse */}
           <div
-            className="absolute pointer-events-none"
+            className="services-artboard-glow absolute pointer-events-none"
             style={{
               left: '321px',
               top: '4px',
@@ -99,7 +99,7 @@ export default function Services() {
             return (
               <div
                 key={i}
-                className="absolute"
+                className="services-artboard-item absolute"
                 style={{ left: `${xPositions[col]}px`, top: `${topY}px`, width: '323px' }}
               >
                 <span

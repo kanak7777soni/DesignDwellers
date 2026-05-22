@@ -42,7 +42,7 @@ export default async function AdminBackupsPage({
   const errorMessage = errorText(error);
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
+    <main className="admin-page min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
       <div className="mx-auto" style={{ maxWidth: '1180px' }}>
         <AdminHeader />
 

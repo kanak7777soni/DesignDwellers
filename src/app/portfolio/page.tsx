@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import GlowEffects from '@/components/GlowEffects';
 import PortfolioMedia from '@/components/PortfolioMedia';
 import { scheduleIdleTask } from '@/lib/client-scheduling';
+import { PRIMARY_PHONE } from '@/lib/site-content';
 import {
   getProjectsByCategoryFromData,
   getPublishedProjectsFromData,
@@ -71,7 +72,7 @@ function ProjectCard({ project, isLarge }: { project: PortfolioProject; isLarge:
 
 function SmallProjectBox({ project }: { project: PortfolioProject }) {
   return (
-    <div style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
+    <div className="portfolio-card-box" style={{ width: '401px', height: '401px', borderRadius: '22px', overflow: 'hidden', position: 'relative' }}>
       <ProjectCard project={project} isLarge={false} />
     </div>
   );
@@ -79,7 +80,7 @@ function SmallProjectBox({ project }: { project: PortfolioProject }) {
 
 function LargeProjectBox({ project }: { project: PortfolioProject }) {
   return (
-    <div style={{ width: '845px', height: '845px', borderRadius: '22px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+    <div className="portfolio-card-box portfolio-card-box-large" style={{ width: '845px', height: '845px', borderRadius: '22px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
       <ProjectCard project={project} isLarge />
     </div>
   );
@@ -114,13 +115,13 @@ function PortfolioGrid({ projects }: { projects: PortfolioProject[] }) {
   const blocks = buildGridBlocks(projects);
 
   return (
-    <div style={{ paddingLeft: '75px', paddingRight: '75px' }}>
+    <div className="portfolio-grid" style={{ paddingLeft: '75px', paddingRight: '75px' }}>
       {blocks.map((block, index) => {
         const marginBottom = index === blocks.length - 1 ? '0' : '42px';
 
         if (block.type === 'small-row') {
           return (
-            <div key={`${block.type}-${index}`} className="flex" style={{ gap: '42px', marginBottom }}>
+            <div key={`${block.type}-${index}`} className="portfolio-grid-block flex" style={{ gap: '42px', marginBottom }}>
               {block.projects.map((project) => (
                 <SmallProjectBox key={project.id} project={project} />
               ))}
@@ -132,8 +133,8 @@ function PortfolioGrid({ projects }: { projects: PortfolioProject[] }) {
           const [firstSmall, secondSmall, largeProject] = block.projects;
 
           return (
-            <div key={`${block.type}-${index}`} className="flex" style={{ gap: '42px', marginBottom }}>
-              <div className="flex flex-col" style={{ gap: '42px' }}>
+            <div key={`${block.type}-${index}`} className="portfolio-grid-block flex" style={{ gap: '42px', marginBottom }}>
+              <div className="portfolio-grid-stack flex flex-col" style={{ gap: '42px' }}>
                 {firstSmall ? <SmallProjectBox project={firstSmall} /> : null}
                 {secondSmall ? <SmallProjectBox project={secondSmall} /> : null}
               </div>
@@ -145,9 +146,9 @@ function PortfolioGrid({ projects }: { projects: PortfolioProject[] }) {
         const [largeProject, firstSmall, secondSmall] = block.projects;
 
         return (
-          <div key={`${block.type}-${index}`} className="flex" style={{ gap: '42px', marginBottom }}>
+          <div key={`${block.type}-${index}`} className="portfolio-grid-block flex" style={{ gap: '42px', marginBottom }}>
             {largeProject ? <LargeProjectBox project={largeProject} /> : null}
-            <div className="flex flex-col" style={{ gap: '42px', flex: 1 }}>
+            <div className="portfolio-grid-stack flex flex-col" style={{ gap: '42px', flex: 1 }}>
               {firstSmall ? <SmallProjectBox project={firstSmall} /> : null}
               {secondSmall ? <SmallProjectBox project={secondSmall} /> : null}
             </div>
@@ -205,7 +206,7 @@ export default function PortfolioPage() {
   }, []);
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+    <main className="portfolio-page min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
       <GlowEffects glows={[
         { top: -244, left: 1076, width: 628, height: 633 },
         { top: 971, left: 627, width: 628, height: 628 },
@@ -214,9 +215,9 @@ export default function PortfolioPage() {
         { top: 4539, left: 1096, width: 628, height: 628 },
       ]} />
       {/* Content area - starts after banner (56px) + nav (84px) = 140px */}
-      <div className="max-w-[1440px] mx-auto" style={{ paddingTop: '140px' }}>
+      <div className="portfolio-shell max-w-[1440px] mx-auto" style={{ paddingTop: '140px' }}>
         {/* Hero section */}
-        <div style={{ paddingLeft: '55px', paddingRight: '55px' }}>
+        <div className="portfolio-hero-copy" style={{ paddingLeft: '55px', paddingRight: '55px' }}>
           {/* Section label */}
           <div className="relative" style={{ width: '204px', height: '19px', marginBottom: '10px' }}>
             <span
@@ -239,7 +240,7 @@ export default function PortfolioPage() {
           </div>
 
           {/* Title + subtitle row */}
-          <div className="flex justify-between items-start" style={{ marginBottom: '10px' }}>
+          <div className="section-heading-row flex justify-between items-start" style={{ marginBottom: '10px' }}>
             <h1
               className="font-heading"
               style={{
@@ -381,7 +382,7 @@ export default function PortfolioPage() {
             className="font-body text-center"
             style={{ fontSize: '16px', lineHeight: '1em', color: '#000000' }}
           >
-            Or WhatsApp us directly:&nbsp;+91 93805 76368
+            Or WhatsApp us directly:&nbsp;{PRIMARY_PHONE}
           </p>
         </div>
       </div>

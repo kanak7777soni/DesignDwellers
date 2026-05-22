@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { BENGALURU_ADDRESS_LINES, INSTAGRAM_URL, PRIMARY_PHONE, WHATSAPP_URL } from '@/lib/site-content';
 
 const quickLinks = [
   { label: 'Home', href: '/' },
@@ -7,26 +8,35 @@ const quickLinks = [
   { label: 'Services', href: '/service' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
+  { label: 'Terms & Policy', href: '/terms-and-conditions' },
 ];
 
 export default function Footer() {
   return (
     <footer className="w-full">
-      <div className="max-w-[1440px] mx-auto px-[80px]" style={{ paddingTop: '60px', paddingBottom: '40px' }}>
+      <div className="footer-shell max-w-[1440px] mx-auto px-[80px]" style={{ paddingTop: '60px', paddingBottom: '40px' }}>
         {/* Main footer content - 4 columns */}
-        <div className="flex justify-between">
+        <div
+          className="footer-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '300px 180px 390px 320px',
+            columnGap: '30px',
+            alignItems: 'start',
+          }}
+        >
           {/* Col 1 - Brand */}
           <div className="flex flex-col" style={{ maxWidth: '380px' }}>
             {/* Logo */}
             <div className="flex flex-col mb-[16px]">
               <span
-                className="font-heading"
+                className="footer-brand-title font-heading"
                 style={{ fontSize: '40px', lineHeight: '1.17em', color: '#FFFFFF', WebkitTextStroke: '1px #FFFFFF' }}
               >
                 Design Dwellers
               </span>
               <span
-                className="font-heading"
+                className="footer-brand-subtitle font-heading"
                 style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648', WebkitTextStroke: '0.3px #D7A648' }}
               >
                 Studio
@@ -34,7 +44,7 @@ export default function Footer() {
             </div>
 
             <p className="font-body" style={{ fontSize: '16px', lineHeight: '1em', color: '#FFFFFF', opacity: 0.6, marginBottom: '20px' }}>
-              Crafting Homes With Soul Since 2016
+              Crafting Homes With Soul Since 2024
             </p>
 
             {/* Google rating */}
@@ -49,7 +59,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="font-heading" style={{ fontSize: '24px', lineHeight: '1.17em', color: '#D7A648' }}>
-              Rated 4.9/5 on Google · 500+ Reviews
+              Rated 4.9/5 on Google
             </p>
           </div>
 
@@ -81,7 +91,7 @@ export default function Footer() {
               <div className="flex items-center gap-[10px]">
                 <Image src="/images/social-icon-1.svg" alt="" width={20} height={20} />
                 <span className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.7 }}>
-                  +91 93805 76368
+                  {PRIMARY_PHONE}
                 </span>
               </div>
               <div className="flex items-center gap-[10px]">
@@ -92,24 +102,28 @@ export default function Footer() {
               </div>
               <div className="flex items-start gap-[10px]">
                 <Image src="/images/social-icon-3.svg" alt="" width={20} height={20} style={{ marginTop: '2px' }} />
-                <span className="font-body" style={{ fontSize: '16px', lineHeight: '1.5em', color: '#FFFFFF', opacity: 0.7 }}>
-                  Whitefield Studio, Bangalore
+                <span className="font-body" style={{ fontSize: '15px', lineHeight: '1.35em', color: '#FFFFFF', opacity: 0.7 }}>
+                  {BENGALURU_ADDRESS_LINES.map((line) => (
+                    <span key={line} style={{ display: 'block' }}>
+                      {line}
+                    </span>
+                  ))}
                 </span>
               </div>
-              <div className="flex items-start gap-[10px]">
+              <div className="flex items-center gap-[10px]">
                 <Image src="/images/social-icon-4.svg" alt="" width={20} height={20} style={{ marginTop: '2px' }} />
                 <span className="font-body" style={{ fontSize: '16px', lineHeight: '1.5em', color: '#FFFFFF', opacity: 0.7 }}>
-                  Gachibowli Studio, Hyderabad
+                  Whitefield Studio, Bengaluru
                 </span>
               </div>
             </div>
           </div>
 
           {/* Col 4 - Social + CTA */}
-          <div className="flex flex-col items-end">
+          <div className="footer-social-col flex flex-col items-end">
             {/* Social icons */}
             <div className="flex gap-[12px] mb-[24px]">
-              <a href="https://wa.me/919380576368" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)' }}>
                 <Image src="/images/social-icon-5.svg" alt="WhatsApp" width={18} height={18} />
               </a>
               {[6, 7].map((n) => (
@@ -120,10 +134,10 @@ export default function Footer() {
             </div>
 
             {/* Instagram */}
-            <a href="https://www.instagram.com/designdwellersstudio/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px] mb-[16px]" style={{ textDecoration: 'none' }}>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px] mb-[16px]" style={{ textDecoration: 'none' }}>
               <Image src="/images/instagram-icon.svg" alt="Instagram" width={20} height={20} />
               <span className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.7 }}>
-                @DesignDwellersstudio
+                @design_dwellers_studio
               </span>
             </a>
 
@@ -158,7 +172,7 @@ export default function Footer() {
         <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.1)', marginTop: '40px', marginBottom: '20px' }} />
 
         {/* Copyright */}
-        <div className="flex justify-between items-center">
+        <div className="footer-bottom flex justify-between items-center">
           <p className="font-body" style={{ fontSize: '16px', color: '#FFFFFF', opacity: 0.4 }}>
             © 2025 Design Dwellers Studio. All Rights Reserved.
           </p>

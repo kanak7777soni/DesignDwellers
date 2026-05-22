@@ -53,6 +53,7 @@ const singleFileTargets: Record<string, SingleFileTarget> = {
   featuredFile: { srcField: 'featuredSrc', typeField: 'featuredType', altField: 'featuredAlt', storageField: 'featuredStorage' },
   featuredPosterFile: { srcField: 'featuredPoster', storageField: 'featuredPosterStorage', expectedType: 'image' },
   seoImageFile: { srcField: 'seoImage', storageField: 'seoImageStorage', expectedType: 'image' },
+  seoOpenGraphFile: { srcField: 'openGraphImage', altField: 'openGraphImageAlt', storageField: 'openGraphImageStorage', expectedType: 'image' },
   videoFile: { srcField: 'videoUrl', storageField: 'videoStorage', expectedType: 'video' },
   thumbnailFile: { srcField: 'thumbnailUrl', storageField: 'thumbnailStorage', expectedType: 'image' },
 };
@@ -162,6 +163,23 @@ function getRowMediaTarget(inputName: string) {
   return {
     groupName: match[1] as 'heroMedia' | 'galleryMedia',
     key: match[2],
+  };
+}
+
+function getContentImageTarget(inputName: string) {
+  const match = /^(brandLogo|studioImage|teamImage)File-(.+)$/.exec(inputName);
+
+  if (!match) {
+    return null;
+  }
+
+  const prefix = match[1];
+  const key = match[2];
+
+  return {
+    srcField: `${prefix}Src-${key}`,
+    storageField: `${prefix}Storage-${key}`,
+    altField: prefix === 'brandLogo' ? `brandAlt-${key}` : `${prefix.replace('Image', '')}Alt-${key}`,
   };
 }
 
@@ -280,7 +298,8 @@ export default function UploadAwareForm({
         const singleTarget = singleFileTargets[input.name];
         const rowMediaTarget = getRowMediaTarget(input.name);
         const rowPosterTarget = getRowPosterTarget(input.name);
-        const expectedTypeError = getExpectedTypeError(file, singleTarget?.expectedType || (rowPosterTarget ? 'image' : undefined));
+        const contentImageTarget = getContentImageTarget(input.name);
+        const expectedTypeError = getExpectedTypeError(file, singleTarget?.expectedType || (rowPosterTarget || contentImageTarget ? 'image' : undefined));
 
         if (expectedTypeError) {
           throw new Error(rowPosterTarget ? 'Poster image upload must be an image file. Use Media upload for videos.' : expectedTypeError);
@@ -377,6 +396,16 @@ export default function UploadAwareForm({
         } else if (rowPosterTarget) {
           setFieldValue(form, `${rowPosterTarget.groupName}Poster-${rowPosterTarget.key}`, uploadUrl);
           setFieldValue(form, `${rowPosterTarget.groupName}PosterStorage-${rowPosterTarget.key}`, storageJson);
+        } else if (contentImageTarget) {
+          setFieldValue(form, contentImageTarget.srcField, uploadUrl);
+          setFieldValue(form, contentImageTarget.storageField, storageJson);
+
+          const altField = form.elements.namedItem(contentImageTarget.altField);
+          const altText = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+
+          if (altText && altField instanceof HTMLInputElement && !altField.value.trim()) {
+            altField.value = altText;
+          }
         }
       }
 

@@ -3,6 +3,7 @@ import { Poiret_One, Josefin_Sans, Acme } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
 import { Analytics } from "@vercel/analytics/next";
+import { getSiteContentData } from "@/lib/content-store";
 
 const poiretOne = Poiret_One({
   variable: "--font-poiret",
@@ -22,11 +23,37 @@ const acme = Acme({
   weight: ["400"],
 });
 
-export const metadata: Metadata = {
-  title: "Design Dwellers Studio | Premium Interior Design",
-  description:
-    "Transform your space with Design Dwellers Studio. Premium interior design services with 8+ years of experience, 5000+ homes delivered, and 100% on-time completion.",
-};
+function getMetadataBase() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '')
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+    || 'http://localhost:3000';
+
+  return new URL(siteUrl);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getSiteContentData();
+
+  return {
+    metadataBase: getMetadataBase(),
+    title: content.seo.title,
+    description: content.seo.description,
+    openGraph: {
+      title: content.seo.title,
+      description: content.seo.description,
+      images: content.seo.openGraphImage
+        ? [{ url: content.seo.openGraphImage, alt: content.seo.openGraphImageAlt }]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: content.seo.title,
+      description: content.seo.description,
+      images: content.seo.openGraphImage ? [content.seo.openGraphImage] : undefined,
+    },
+  };
+}
 
 export default function RootLayout({
   children,

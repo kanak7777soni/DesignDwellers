@@ -2,15 +2,15 @@ import Image from 'next/image';
 
 export default function TrustBadges() {
   const badges = [
-    { icon: '/images/warranty-icon.png', text: '5-Year Material Warranty' },
+    { icon: '/images/warranty-icon.png', text: '10 Years Warranty' },
     { icon: '/images/quality-icon.png', text: '45-Day Delivery Guarantee' },
-    { icon: '/images/colleagues-icon.png', text: 'In-House Design Team', iconSize: 31 },
-    { icon: '/images/location-icon.png', text: 'Studios in Bangalore · Hydrabad' },
+    { icon: '/images/colleagues-icon.png', text: 'In-house Manufacturing', iconSize: 31 },
+    { icon: '/images/location-icon.png', text: 'Studios in Bengaluru · Hyderabad' },
   ];
 
   return (
-    <section className="w-full" style={{ height: '80px', background: '#FFFFFF' }}>
-      <div className="max-w-[1440px] mx-auto h-full flex items-center justify-center gap-[60px]">
+    <section className="trust-badges w-full" style={{ height: '80px', background: '#FFFFFF' }}>
+      <div className="trust-badges-inner max-w-[1440px] mx-auto h-full flex items-center justify-center gap-[60px]">
         {badges.map((badge, i) => (
           <div key={i} className="flex items-center gap-[8px]">
             <Image

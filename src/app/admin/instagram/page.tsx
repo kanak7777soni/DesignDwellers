@@ -158,7 +158,7 @@ export default async function AdminInstagramPage({
   const newReelOrder = data.reels[0] ? data.reels[0].sortOrder - 10 : 10;
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
+    <main className="admin-page min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
       <div className="mx-auto" style={{ maxWidth: '1180px' }}>
         <AdminHeader />
 

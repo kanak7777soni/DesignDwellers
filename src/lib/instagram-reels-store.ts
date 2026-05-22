@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { INSTAGRAM_URL } from '@/lib/site-content';
 import { readCrmBlobText, shouldUseBlobCrmStorage, writeCrmBlobText } from '@/lib/crm-blob-storage';
 import { normalizeMediaStorage, type MediaStorageMetadata } from '@/lib/media-storage';
 
@@ -44,8 +45,8 @@ const REELS_FILE = path.join(DATA_DIR, 'instagram-reels.json');
 const BLOB_REELS_FILE = 'crm/data/instagram-reels.json';
 
 const defaultProfile = {
-  username: 'DesignDwellersstudio',
-  url: 'https://www.instagram.com/designdwellersstudio/',
+  username: 'design_dwellers_studio',
+  url: INSTAGRAM_URL,
 };
 
 const defaultSettings: InstagramSyncSettings = {

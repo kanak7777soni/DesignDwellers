@@ -28,7 +28,7 @@ function HomeProjectCard({
   return (
     <Link
       href={`/portfolio/${project.slug}`}
-      className={`relative overflow-hidden group ${isLarge ? 'row-span-2' : ''}`}
+      className={`home-project-card relative overflow-hidden group ${isLarge ? 'home-project-card-large row-span-2' : ''}`}
       style={{
         width: isLarge ? '845px' : undefined,
         height: isLarge ? '845px' : '401px',
@@ -60,7 +60,7 @@ function HomeProjectOverlay({ project, isLarge = false }: { project: PortfolioPr
           borderRadius: '0 0 22px 22px',
         }}
       />
-      <div className="absolute" style={{ bottom: isLarge ? '24px' : '16px', left: isLarge ? '40px' : '24px' }}>
+      <div className="home-project-overlay absolute" style={{ bottom: isLarge ? '24px' : '16px', left: isLarge ? '40px' : '24px' }}>
         <h3 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>{project.name}</h3>
         <p className="font-body mt-[4px]" style={{ fontSize: '13px', lineHeight: '1em', color: '#FFFFFF' }}>{project.details}</p>
       </div>
@@ -116,7 +116,7 @@ export default function Portfolio() {
 
   return (
     <section id="portfolio" className="w-full" style={{ paddingTop: '70px', paddingBottom: '60px' }}>
-      <div className="max-w-[1440px] mx-auto px-[80px]">
+      <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header */}
         <div className="relative" style={{ width: '204px', height: '19px', marginBottom: '10px' }}>
           <span
@@ -129,7 +129,7 @@ export default function Portfolio() {
         </div>
 
         {/* Title row */}
-        <div className="flex justify-between items-end mb-[10px]">
+        <div className="section-heading-row flex justify-between items-end mb-[10px]">
           <h2 className="font-heading" style={{ fontSize: '48px', lineHeight: '1.17em', color: '#FFFFFF', maxWidth: '312px' }}>
             Our Work Speaks for Itself
           </h2>
@@ -163,7 +163,7 @@ export default function Portfolio() {
         </div>
 
         {/* Portfolio grid */}
-        <div className="relative" style={{ display: 'grid', gridTemplateColumns: '845px 401px', gridTemplateRows: '401px 401px 401px', gap: '42px' }}>
+        <div className="home-portfolio-grid relative" style={{ display: 'grid', gridTemplateColumns: '845px 401px', gridTemplateRows: '401px 401px 401px', gap: '42px' }}>
           {/* Large featured image - spans 2 rows */}
           {projects[0] ? (
             <HomeProjectCard project={projects[0]} isLarge>
@@ -186,7 +186,7 @@ export default function Portfolio() {
           ) : null}
 
           {/* Bottom row - 3 images spanning full width */}
-          <div className="col-span-2 grid grid-cols-3" style={{ height: '401px', gap: '42px' }}>
+          <div className="home-project-row col-span-2 grid grid-cols-3" style={{ height: '401px', gap: '42px' }}>
             {projects.slice(3).map((project) => (
               <HomeProjectCard key={project.id} project={project}>
                 <HomeProjectOverlay project={project} />

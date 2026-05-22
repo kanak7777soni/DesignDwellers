@@ -12,7 +12,7 @@ export default function HowItWorks() {
 
   return (
     <section className="w-full" style={{ paddingTop: '80px', paddingBottom: '80px', background: 'linear-gradient(180deg, #1a1a0f 0%, #141300 50%, #1a1a0f 100%)' }}>
-      <div className="max-w-[1440px] mx-auto px-[80px]">
+      <div className="responsive-container max-w-[1440px] mx-auto px-[80px]">
         {/* Section header centered */}
         <div className="relative" style={{ width: '223px', height: '19px', marginLeft: 'auto', marginRight: 'auto', marginBottom: '10px' }}>
           <span
@@ -42,13 +42,13 @@ export default function HowItWorks() {
         <div className="mx-auto" style={{ width: '644px', height: '1px', background: '#D7A648', marginBottom: '80px' }} />
 
         {/* Timeline - relative container */}
-        <div className="relative" style={{ height: '260px' }}>
+        <div className="how-timeline relative" style={{ height: '260px' }}>
           {/* Step circles + labels */}
           {steps.map((step, i) => (
-            <div key={i} className="absolute" style={{ left: `${step.cx}px`, top: '78px', width: '70px' }}>
+            <div key={i} className="how-step absolute" style={{ left: `${step.cx}px`, top: '78px', width: '70px' }}>
               {/* Text above circle */}
               {step.top && (
-                <div className="absolute text-center" style={{ bottom: '84px', left: '50%', transform: 'translateX(-50%)', width: '160px' }}>
+                <div className="how-step-text absolute text-center" style={{ bottom: '84px', left: '50%', transform: 'translateX(-50%)', width: '160px' }}>
                   <h4 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#FFFFFF', marginBottom: '8px' }}>
                     {step.title}
                   </h4>
@@ -60,7 +60,7 @@ export default function HowItWorks() {
 
               {/* Circle */}
               <div
-                className="flex items-center justify-center"
+                className="how-step-circle flex items-center justify-center"
                 style={{
                   width: '70px',
                   height: '70px',
@@ -76,7 +76,7 @@ export default function HowItWorks() {
 
               {/* Text below circle */}
               {!step.top && (
-                <div className="absolute text-center" style={{ top: '84px', left: '50%', transform: 'translateX(-50%)', width: '160px' }}>
+                <div className="how-step-text absolute text-center" style={{ top: '84px', left: '50%', transform: 'translateX(-50%)', width: '160px' }}>
                   <h4 className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#FFFFFF', marginBottom: '8px' }}>
                     {step.title}
                   </h4>
@@ -92,7 +92,7 @@ export default function HowItWorks() {
           {lines.map((x, i) => (
             <div
               key={i}
-              className="absolute"
+              className="how-line absolute"
               style={{
                 width: '149px',
                 height: '3px',

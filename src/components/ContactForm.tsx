@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import { PRIMARY_PHONE, WHATSAPP_URL } from '@/lib/site-content';
 
 export default function ContactForm() {
   return (
     <section
-      className="relative w-full overflow-hidden"
+      className="contact-cta relative w-full overflow-hidden"
       style={{
         background: '#FFFFFF',
         height: '424px',
@@ -25,9 +26,9 @@ export default function ContactForm() {
         }}
       />
 
-      <div className="max-w-[1440px] mx-auto h-full flex flex-col items-center justify-center px-[80px]">
+      <div className="contact-cta-inner max-w-[1440px] mx-auto h-full flex flex-col items-center justify-center px-[80px]">
         {/* Tag */}
-        <div className="flex items-center gap-[8px] mb-[10px]">
+        <div className="contact-cta-label-lines flex items-center gap-[8px] mb-[10px]">
           <div style={{ width: '128px', height: '1px', background: '#D7A648' }} />
           <span className="font-heading" style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}>
             Ready to Begin?
@@ -37,7 +38,7 @@ export default function ContactForm() {
 
         {/* Heading */}
         <h2
-          className="font-heading text-center"
+          className="contact-cta-heading font-heading text-center"
           style={{
             fontSize: '48px',
             lineHeight: '1.17em',
@@ -60,7 +61,7 @@ export default function ContactForm() {
             maxWidth: '600px',
           }}
         >
-          Join 500+ happy homeowners who transformed their space with Design Dwellers.
+          Join 850+ happy homeowners who transformed their space with Design Dwellers.
         </p>
 
         {/* CTA Button */}
@@ -92,7 +93,9 @@ export default function ContactForm() {
         {/* WhatsApp note */}
         <p className="font-body text-center" style={{ fontSize: '14px', lineHeight: '1em', color: '#000000', opacity: 0.5, marginTop: '8px' }}>
           Or WhatsApp us directly at{' '}
-          <span style={{ color: '#D7A648', fontWeight: 600 }}>+91-XXXXX XXXXX</span>
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ color: '#D7A648', fontWeight: 600, textDecoration: 'none' }}>
+            {PRIMARY_PHONE}
+          </a>
         </p>
       </div>
     </section>

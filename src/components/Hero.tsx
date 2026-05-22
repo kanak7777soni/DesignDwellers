@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function Hero() {
   return (
-    <section className="relative w-full" style={{ height: '750px' }}>
+    <section className="hero-section relative w-full" style={{ height: '750px' }}>
       {/* Background image */}
       <Image
         src="/images/hero-bg.png"
@@ -47,9 +47,9 @@ export default function Hero() {
       />
 
       {/* Content wrapper */}
-      <div className="relative z-10 max-w-[1440px] mx-auto h-full" style={{ padding: '0 80px' }}>
+      <div className="hero-content relative z-10 max-w-[1440px] mx-auto h-full" style={{ padding: '0 80px' }}>
         {/* Award tag */}
-        <div className="flex items-center gap-2 absolute" style={{ left: '80px', top: '160px' }}>
+        <div className="hero-kicker flex items-center gap-2 absolute" style={{ left: '80px', top: '160px' }}>
           <span
             className="font-heading"
             style={{ fontSize: '16px', lineHeight: '1.17em', color: '#D7A648' }}
@@ -61,7 +61,7 @@ export default function Hero() {
 
         {/* Main heading */}
         <h1
-          className="font-heading absolute"
+          className="hero-title font-heading absolute"
           style={{
             left: '79px',
             top: '210px',
@@ -77,7 +77,7 @@ export default function Hero() {
 
         {/* Subtitle */}
         <p
-          className="font-body absolute"
+          className="hero-subtitle font-body absolute"
           style={{
             left: '80px',
             top: '420px',
@@ -92,7 +92,7 @@ export default function Hero() {
 
         {/* Explore button */}
         <div
-          className="absolute flex items-center justify-center"
+          className="hero-cta absolute flex items-center justify-center"
           style={{
             left: '80px',
             top: '500px',

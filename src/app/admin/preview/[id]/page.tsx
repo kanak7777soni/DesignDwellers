@@ -47,7 +47,7 @@ export default async function AdminProjectPreviewPage({
   const galleryMedia = project.detail.galleryMedia.length > 0 ? project.detail.galleryMedia : [project.cardMedia];
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
+    <main className="admin-page min-h-screen" style={{ background: '#141300', color: '#FFFFFF', padding: '34px' }}>
       <div className="mx-auto" style={{ maxWidth: '1320px' }}>
         <AdminHeader />
         <div className="flex items-center justify-between" style={{ marginBottom: '28px' }}>

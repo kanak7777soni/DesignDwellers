@@ -12,6 +12,7 @@ import {
   getProjectBySlugFromStore,
   getPublishedProjectsFromData,
 } from '@/lib/portfolio-store';
+import { PRIMARY_PHONE } from '@/lib/site-content';
 
 export const dynamic = 'force-dynamic';
 
@@ -106,15 +107,15 @@ export default async function IndividualPortfolioPage({
   const stats = project.detail.stats.slice(0, 3);
 
   return (
-    <main className="min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+    <main className="portfolio-detail-page min-h-screen" style={{ background: '#141300', position: 'relative', overflow: 'hidden', zIndex: 0 }}>
       <GlowEffects glows={[
         { top: -244, left: 1076, width: 628, height: 633 },
         { top: 807, left: 122, width: 1197, height: 378 },
       ]} />
-      <div className="max-w-[1440px] mx-auto" style={{ paddingTop: '186px' }}>
+      <div className="portfolio-detail-shell max-w-[1440px] mx-auto" style={{ paddingTop: '186px' }}>
         {/* Hero Images */}
         <div
-          className="grid"
+          className="portfolio-detail-hero-grid grid"
           style={{
             paddingLeft: '73px',
             paddingRight: '73px',
@@ -124,7 +125,7 @@ export default async function IndividualPortfolioPage({
           }}
         >
           {heroMedia.map((media, index) => (
-            <div key={media.id} style={{ width: '100%', height: '557px', position: 'relative', borderRadius: '0px', overflow: 'hidden' }}>
+            <div key={media.id} className="portfolio-detail-hero-tile" style={{ width: '100%', height: '557px', position: 'relative', borderRadius: '0px', overflow: 'hidden' }}>
               <PortfolioMedia
                 media={media}
                 sizes={heroSizes}
@@ -136,7 +137,7 @@ export default async function IndividualPortfolioPage({
         </div>
 
         {/* Category Badge */}
-        <div style={{ paddingLeft: '73px' }}>
+        <div className="portfolio-detail-copy" style={{ paddingLeft: '73px' }}>
           <div
             className="font-body inline-flex items-center justify-center"
             style={{
@@ -184,6 +185,7 @@ export default async function IndividualPortfolioPage({
 
         {/* Stats Bar */}
         <div
+          className="portfolio-detail-stats"
           style={{
             marginLeft: '73px',
             marginRight: '79px',
@@ -248,7 +250,7 @@ export default async function IndividualPortfolioPage({
         </div>
 
         {/* Description */}
-        <div style={{ paddingLeft: '73px', paddingRight: '79px', marginBottom: '80px' }}>
+        <div className="portfolio-detail-description" style={{ paddingLeft: '73px', paddingRight: '79px', marginBottom: '80px' }}>
           <p
             className="font-body"
             style={{
@@ -264,6 +266,7 @@ export default async function IndividualPortfolioPage({
 
         {/* Gallery Grid: 3 columns x 5 rows */}
         <div
+          className="portfolio-detail-gallery"
           style={{
             paddingLeft: '77px',
             paddingRight: '77px',
@@ -277,6 +280,7 @@ export default async function IndividualPortfolioPage({
           {project.detail.galleryMedia.map((media) => (
             <div
               key={media.id}
+              className="portfolio-detail-gallery-item"
               style={{
                 width: '401px',
                 height: '401px',
@@ -295,7 +299,7 @@ export default async function IndividualPortfolioPage({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-center" style={{ gap: '11px', marginBottom: '48px' }}>
+        <div className="portfolio-detail-actions flex justify-center" style={{ gap: '11px', marginBottom: '48px' }}>
           <Link
             href="/contact"
             className="font-heading flex items-center justify-center"
@@ -415,7 +419,7 @@ export default async function IndividualPortfolioPage({
             className="font-body text-center"
             style={{ fontSize: '16px', lineHeight: '1em', color: '#000000' }}
           >
-            Or WhatsApp us directly:&nbsp;+91 93805 76368
+            Or WhatsApp us directly:&nbsp;{PRIMARY_PHONE}
           </p>
         </div>
       </div>
