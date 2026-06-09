@@ -12,6 +12,21 @@ type ViewportVideoProps = {
 const VISIBILITY_THRESHOLD = 0.35;
 const SOURCE_LOAD_MARGIN = '900px 0px';
 
+function imageKitOriginalVideoSrc(src: string) {
+  try {
+    const url = new URL(src);
+
+    if (!url.hostname.endsWith('imagekit.io') || url.searchParams.has('tr') || url.pathname.includes('/tr:')) {
+      return src;
+    }
+
+    url.searchParams.set('tr', 'orig-true');
+    return url.toString();
+  } catch {
+    return src;
+  }
+}
+
 export default function ViewportVideo({
   src,
   poster,
@@ -20,19 +35,20 @@ export default function ViewportVideo({
 }: ViewportVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const activeSrc = loadedSrc === src ? src : undefined;
+  const deliverySrc = useMemo(() => imageKitOriginalVideoSrc(src), [src]);
+  const activeSrc = loadedSrc === deliverySrc ? deliverySrc : undefined;
 
   useEffect(() => {
     const element = videoRef.current;
 
-    if (!element || loadedSrc === src) {
+    if (!element || loadedSrc === deliverySrc) {
       return;
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setLoadedSrc(src);
+          setLoadedSrc(deliverySrc);
           observer.disconnect();
         }
       },
@@ -45,7 +61,7 @@ export default function ViewportVideo({
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [loadedSrc, src]);
+  }, [deliverySrc, loadedSrc]);
 
   useEffect(() => {
     const element = videoRef.current;
