@@ -14,7 +14,7 @@
     "@vercel/blob": "^2.3.3",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",
-    "next": "^16.2.4",
+    "next": "^16.2.7",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
