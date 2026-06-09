@@ -4,6 +4,10 @@ import { upload } from '@imagekit/javascript';
 import type { ComponentPropsWithoutRef, FormEvent, ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import {
+  IMAGE_UPLOAD_MAX_DIMENSION,
+  IMAGE_UPLOAD_MAX_PIXELS,
+  IMAGE_UPLOAD_QUALITY,
+  IMAGEKIT_IMAGE_PRE_TRANSFORMATION,
   getUploadValidationErrorForFile,
   mediaTypeFromContentType,
   VERCEL_FUNCTION_BODY_LIMIT_BYTES,
@@ -46,6 +50,7 @@ type SingleFileTarget = {
 };
 
 const UPLOAD_STALL_TIMEOUT_MS = 5 * 60_000;
+const RESIZABLE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const singleFileTargets: Record<string, SingleFileTarget> = {
   cardFile: { srcField: 'cardSrc', typeField: 'cardType', altField: 'cardAlt', storageField: 'cardStorage' },
@@ -195,6 +200,149 @@ function getExpectedTypeError(file: File, expectedType?: 'image' | 'video') {
   return null;
 }
 
+function scaleForImage(width: number, height: number) {
+  if (width <= 0 || height <= 0) {
+    return 1;
+  }
+
+  return Math.min(
+    1,
+    IMAGE_UPLOAD_MAX_DIMENSION / Math.max(width, height),
+    Math.sqrt(IMAGE_UPLOAD_MAX_PIXELS / (width * height)),
+  );
+}
+
+function uploadMimeType(file: File) {
+  if (file.type === 'image/png') return 'image/png';
+  if (file.type === 'image/webp') return 'image/webp';
+  return 'image/jpeg';
+}
+
+function extensionForMimeType(mimeType: string) {
+  if (mimeType === 'image/png') return 'png';
+  if (mimeType === 'image/webp') return 'webp';
+  return 'jpg';
+}
+
+function fileNameForMimeType(file: File, mimeType: string) {
+  const extension = extensionForMimeType(mimeType);
+  const base = file.name.replace(/\.[^.]+$/, '').trim() || 'upload';
+
+  return `${base}.${extension}`;
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, mimeType: string) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+        return;
+      }
+
+      reject(new Error('Image optimization failed. Resize the image and try again.'));
+    }, mimeType, IMAGE_UPLOAD_QUALITY);
+  });
+}
+
+async function getImageSource(file: File): Promise<{
+  source: CanvasImageSource;
+  width: number;
+  height: number;
+  close: () => void;
+}> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+
+      return {
+        source: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+        close: () => bitmap.close(),
+      };
+    } catch {
+      // Fall through to HTMLImageElement for browsers/files that cannot use ImageBitmap.
+    }
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const element = new window.Image();
+      element.onload = () => resolve(element);
+      element.onerror = () => reject(new Error('Image could not be read. Try exporting it as JPG, PNG, or WebP.'));
+      element.src = objectUrl;
+    });
+
+    return {
+      source: image,
+      width: image.naturalWidth || image.width,
+      height: image.naturalHeight || image.height,
+      close: () => URL.revokeObjectURL(objectUrl),
+    };
+  } catch (error) {
+    URL.revokeObjectURL(objectUrl);
+    throw error;
+  }
+}
+
+async function prepareImageUpload(file: File) {
+  if (!RESIZABLE_IMAGE_TYPES.has(file.type)) {
+    return { file, optimized: false };
+  }
+
+  const image = await getImageSource(file);
+
+  try {
+    const scale = scaleForImage(image.width, image.height);
+
+    if (scale >= 1) {
+      return { file, optimized: false };
+    }
+
+    const targetWidth = Math.max(1, Math.round(image.width * scale));
+    const targetHeight = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('Image optimization is not supported in this browser.');
+    }
+
+    context.drawImage(image.source, 0, 0, targetWidth, targetHeight);
+
+    const mimeType = uploadMimeType(file);
+    const blob = await canvasToBlob(canvas, mimeType);
+
+    return {
+      file: new File([blob], fileNameForMimeType(file, mimeType), {
+        type: mimeType,
+        lastModified: Date.now(),
+      }),
+      optimized: true,
+    };
+  } finally {
+    image.close();
+  }
+}
+
+function imageKitUploadGuards(file: File) {
+  if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+    return {};
+  }
+
+  return {
+    transformation: {
+      pre: IMAGEKIT_IMAGE_PRE_TRANSFORMATION,
+    },
+    checks: `"mediaMetadata.width" <= ${IMAGE_UPLOAD_MAX_DIMENSION} AND "mediaMetadata.height" <= ${IMAGE_UPLOAD_MAX_DIMENSION}`,
+  };
+}
+
 function appendUploadedMediaRow({
   form,
   groupName,
@@ -305,9 +453,18 @@ export default function UploadAwareForm({
           throw new Error(rowPosterTarget ? 'Poster image upload must be an image file. Use Media upload for videos.' : expectedTypeError);
         }
 
+        setStatus(`Preparing ${index + 1}/${fileUploads.length} files...`);
+        const preparedUpload = await prepareImageUpload(file);
+        const uploadFile = preparedUpload.file;
+        const preparedValidationError = getUploadValidationErrorForFile(uploadFile);
+
+        if (preparedValidationError) {
+          throw new Error(preparedValidationError);
+        }
+
         const auth = await getImageKitUploadAuth();
         const folder = `/crm/${safePathPart(input.name || 'media')}`;
-        const fileName = `${Date.now()}-${index + 1}-${safePathPart(file.name)}`;
+        const fileName = `${Date.now()}-${index + 1}-${safePathPart(uploadFile.name)}`;
 
         const abortController = new AbortController();
         let lastProgressAt = Date.now();
@@ -321,7 +478,7 @@ export default function UploadAwareForm({
 
         try {
           const uploaded = await upload({
-            file,
+            file: uploadFile,
             fileName,
             folder,
             publicKey: auth.publicKey,
@@ -329,7 +486,8 @@ export default function UploadAwareForm({
             expire: auth.expire,
             signature: auth.signature,
             useUniqueFileName: true,
-            tags: ['crm', mediaTypeFromContentType(file.type)],
+            tags: ['crm', mediaTypeFromContentType(uploadFile.type)],
+            ...imageKitUploadGuards(uploadFile),
             abortSignal: abortController.signal,
             onProgress: (progressEvent) => {
               lastProgressAt = Date.now();
@@ -362,7 +520,7 @@ export default function UploadAwareForm({
           }
 
           if (singleTarget.typeField) {
-            setFieldValue(form, singleTarget.typeField, mediaTypeFromContentType(file.type));
+            setFieldValue(form, singleTarget.typeField, mediaTypeFromContentType(uploadFile.type));
           }
 
           if (singleTarget.altField) {
@@ -377,14 +535,14 @@ export default function UploadAwareForm({
           appendUploadedMediaRow({
             form,
             groupName: multiTarget,
-            file,
+            file: uploadFile,
             url: uploadUrl,
             storageJson,
             index,
           });
         } else if (rowMediaTarget) {
           setFieldValue(form, `${rowMediaTarget.groupName}Src-${rowMediaTarget.key}`, uploadUrl);
-          setFieldValue(form, `${rowMediaTarget.groupName}Type-${rowMediaTarget.key}`, mediaTypeFromContentType(file.type));
+          setFieldValue(form, `${rowMediaTarget.groupName}Type-${rowMediaTarget.key}`, mediaTypeFromContentType(uploadFile.type));
           setFieldValue(form, `${rowMediaTarget.groupName}Storage-${rowMediaTarget.key}`, storageJson);
 
           const altField = form.elements.namedItem(`${rowMediaTarget.groupName}Alt-${rowMediaTarget.key}`);
